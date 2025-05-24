@@ -1,0 +1,77 @@
+﻿@using System.Security.Claims
+@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject IHttpContextAccessor HttpContextAccessor
+
+<main class="flex-shrink-0">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" data-bs-theme="dark">
+        <div class="container px-5">
+            <a class="navbar-brand" href="/">FlowSynx Plugin Registry</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    @if (!IsAuthenticated)
+                    {
+                        <li class="nav-item"><a class="nav-link" href="/account/login">Login</a></li>
+                    }
+                    else
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarAccount" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">Hello, @UserName!</a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarAccount">
+                                <li><a class="dropdown-item" href="/account/logout">Logout</a></li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="py-3 bg-dark">
+        <div class="container px-5">
+            <form class="d-flex" role="search" method="get" action="/plugins">
+                <div class="input-group">
+                    <InputText @bind-Value="q" type="search" class="form-control" placeholder="Search plugins..." aria-label="Search plugins..." aria-describedby="button-addon2"></InputText>
+                    <button class="btn btn-outline-light" type="submit" id="button-addon2">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @Body
+</main>
+
+<footer class="bg-light py-4 mt-auto">
+    <div class="container px-5">
+        <div class="row align-items-center justify-content-between flex-column flex-sm-row">
+            <div class="col-auto"><div class="small m-0">Copyright &copy; <a href="https://flowsynx.io" target="_blank">FlowSynx</a> 2025</div></div>
+        </div>
+    </div>
+</footer>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    [Parameter] public string? q { get; set; }
+
+    ClaimsPrincipal? User => HttpContextAccessor.HttpContext?.User;
+    bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
+    string? UserName => User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(Navigation.Uri);
+        var queryString = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        q = queryString["q"];
+    }
+}
