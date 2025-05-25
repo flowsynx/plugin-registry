@@ -3,8 +3,10 @@
 @using System.Security.Claims
 @using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList
 @using FlowSynx.PluginRegistry.Application.Wrapper
+@using FlowSynx.Pluginregistry.Components.Shared
 @using FlowSynx.Pluginregistry.Helpers
 @using FlowSynx.Pluginregistry.Services
+@using Microsoft.AspNetCore.WebUtilities
 
 @inject NavigationManager Navigation
 @inject IStatsApiService Stats
@@ -27,16 +29,16 @@
         {
             <div class="col-md-12 mx-auto">
                 <div class="card border-0 p-2 mb-2">
-                    <h4 class="text-muted">There are @plugins.Data.Count() plugins</h4>
+                    <h4 class="text-muted">There are @plugins?.Data?.Count() plugins</h4>
                 </div>
                 <div class="card mb-3">
                     <div class="card-body">
-                        <p>Error in processing request: <br />@string.Join(Environment.NewLine, plugins.Messages)</p>
+                        <p>Error in processing request: <br />@string.Join(Environment.NewLine, plugins?.Messages!)</p>
                     </div>
                 </div>
             </div>
         }
-        else if (plugins.Data.Count() == 0)
+        else if (plugins?.Data?.Count() == 0)
         {
             <div class="col-md-12 mx-auto">
                 <div class="card border-0 p-2 mb-2">
@@ -52,16 +54,17 @@
         {
             <div class="col-md-12 mx-auto">
                 <div class="card border-0 p-2 mb-2">
-                    <h4 class="text-muted">There are @plugins.Data.Count() plugins</h4>
+                    <h4 class="text-muted">There are @plugins?.Data?.Count() plugins</h4>
                 </div>
-                @foreach (var plugin in plugins.Data)
+                @foreach (var plugin in plugins?.Data!)
                 {
                     <div class="card mb-3">
                         <div class="card-body">
                             <h4 class="card-title"><a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a></h4>
-                            @if (plugin.Owners.Any()){
+                            @if (plugin.Owners.Any())
+                            {
                                 <div>
-                                    By: 
+                                    By:
                                     @foreach (var owner in plugin.Owners)
                                     {
                                         <a class="me-2" href="/profile/@owner">@owner</a>
@@ -69,12 +72,12 @@
                                 </div>
                             }
                             @{
-                                var tags = StringHelper.GetTagsList(plugin.Tags);
-                                @if (tags.Any()){
+                                @if (plugin.Tags.Any())
+                                {
                                     <div>
-                                        @foreach (var tag in tags)
+                                        @foreach (var tag in plugin.Tags)
                                         {
-                                            <span class="badge border border-primary text-primary">@tag</span>
+                                            <a href="/plugins?q=tag:@tag"><span class="badge border border-secondary text-secondary me-1">@tag</span></a>
                                         }
                                     </div>
                                 }
@@ -94,27 +97,41 @@
                     </div>
                 }
 
-                <!-- Pagination -->
-                <nav aria-label="Search results pagination">
-                    <ul class="pagination justify-content-center mt-4">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">Previous</a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                    </ul>
-                </nav>
+                <Pagination CurrentPage="@currentPage" TotalPages="@totalPages" />
             </div>
         }
     </div>
 </div>
 
 @code {
-    Result<IEnumerable<PluginsListResponse>>? plugins;
+    PaginatedResult<PluginsListResponse>? plugins;
+    private int currentPage = 1;
+    private int totalPages => plugins == null ? 1 : plugins.TotalPages;
+    private string? query = "";
+
     protected override async Task OnInitializedAsync()
     {
+        await LoadPage();
+    }
+
+    private async Task LoadPage()
+    {
         var uri = new Uri(Navigation.Uri);
-        var queryString = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        var query = queryString["q"];
-        plugins = await Stats.GetPlugins(query);
+        if (!string.IsNullOrWhiteSpace(uri.Query))
+        {
+            var queryStrings = QueryHelpers.ParseQuery(uri.Query);
+
+            if (queryStrings.TryGetValue("page", out var pageStr) && int.TryParse(pageStr, out var page))
+                currentPage = Math.Max(page, 1);
+            else
+                currentPage = 1;
+
+            if (queryStrings.TryGetValue("q", out var q))
+                query = q;
+            else
+                query = "";
+        }
+
+        plugins = await Stats.GetPlugins(query, currentPage);
     }
 }

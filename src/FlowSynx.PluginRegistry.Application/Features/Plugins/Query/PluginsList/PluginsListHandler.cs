@@ -1,11 +1,12 @@
 ﻿using FlowSynx.PluginRegistry.Application.Wrapper;
+using FlowSynx.PluginRegistry.Domain;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
 
-internal class PluginsListHandler : IRequestHandler<PluginsListRequest, Result<IEnumerable<PluginsListResponse>>>
+internal class PluginsListHandler : IRequestHandler<PluginsListRequest, PaginatedResult<PluginsListResponse>>
 {
     private readonly ILogger<PluginsListHandler> _logger;
     private readonly IPluginService _pluginService;
@@ -20,26 +21,34 @@ internal class PluginsListHandler : IRequestHandler<PluginsListRequest, Result<I
         _pluginService = pluginService;
     }
 
-    public async Task<Result<IEnumerable<PluginsListResponse>>> Handle(PluginsListRequest request, CancellationToken cancellationToken)
+    public async Task<PaginatedResult<PluginsListResponse>> Handle(PluginsListRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            var plugins = await _pluginService.AllBySeachQuery(request.Query, cancellationToken);
-            var response = plugins.Select(p => new PluginsListResponse
+            Pagination<PluginEntity> plugins;
+            if (!string.IsNullOrEmpty(request.Query))
+                plugins = await _pluginService.AllBySeachQuery(request.Query, request.Page ?? 1, cancellationToken);
+            else if (!string.IsNullOrEmpty(request.Tag))
+                plugins = await _pluginService.AllBySeachTags(request.Tag, request.Page ?? 1, cancellationToken);
+            else
+                plugins = await _pluginService.All(request.Page ?? 1, cancellationToken);
+            
+            var response = plugins.Data.Select(p => new PluginsListResponse
             {
                 Type = p.Type,
-                Version = p.LatestVersion,
-                Owners = p.Owners.Select(x=>x.Profile.UserName),
-                Description = p.LatestDescription,
+                Version = p.LatestVersion!.Version,
+                Owners = p.Owners.Select(x=>x.Profile!.UserName),
+                Description = p.LatestVersion!.Description,
                 LastUpdated = p.LastModifiedOn ?? p.CreatedOn,
-                Tags = p.LatestTags
-            });
-            return await Result<IEnumerable<PluginsListResponse>>.SuccessAsync(response);
+                Tags = p.LatestVersion!.PluginVersionTags.Select(x => x.Tag!.Name)
+            }).ToList();
+
+            return PaginatedResult<PluginsListResponse>.Success(response, plugins.TotalCount, request.Page ?? 1, plugins.PageSize);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex.ToString());
-            return await Result<IEnumerable<PluginsListResponse>>.FailAsync(ex.ToString());
+            return PaginatedResult<PluginsListResponse>.Failure(ex.ToString());
         }
     }
 }

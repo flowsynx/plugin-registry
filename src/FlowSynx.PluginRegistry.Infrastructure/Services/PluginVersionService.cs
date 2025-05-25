@@ -28,31 +28,16 @@ public class PluginVersionService : IPluginVersionService
         try
         {
             using var context = _appContextFactory.CreateDbContext();
-            var result = await context.PluginVersions
-                .Where(p => p.PluginId == pluginId && p.IsDeleted == false)
+            IQueryable<PluginVersionEntity> pluginVersionEntities = context.PluginVersions
+                .Include(i => i.PluginVersionTags)
+                .Include(i => i.Plugin).ThenInclude(i => i.Owners).ThenInclude(i => i.Profile)
+                .Include(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
+                .Where(p => !p.IsDeleted && p.Plugin != null);
+
+
+            return await pluginVersionEntities
                 .ToListAsync(cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
-    }
-
-    public async Task<PluginVersionEntity?> GetByPluginId(
-        Guid pluginVersionId, 
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var context = _appContextFactory.CreateDbContext();
-            var result = await context.PluginVersions
-                .FirstOrDefaultAsync(p => p.Id == pluginVersionId && p.IsDeleted == false, cancellationToken)
-                .ConfigureAwait(false);
-
-            return result;
         }
         catch (Exception ex)
         {
@@ -68,11 +53,14 @@ public class PluginVersionService : IPluginVersionService
         try
         {
             using var context = _appContextFactory.CreateDbContext();
-            return await context.PluginVersions
-                .Include(i=>i.Plugin)
-                .ThenInclude(i=>i.Owners).ThenInclude(i=>i.Profile)
-                .Include(i=>i.Statistics)
-                .FirstOrDefaultAsync(p => p.Version == pluginVersion && p.Plugin.Type == pluginType && !p.IsDeleted, cancellationToken)
+            IQueryable<PluginVersionEntity> pluginVersionEntities = context.PluginVersions
+                .Include(i => i.PluginVersionTags)
+                .Include(i => i.Plugin).ThenInclude(i=>i.Owners).ThenInclude(i => i.Profile)
+                .Include(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
+                .Where(p => !p.IsDeleted && p.Plugin != null && p.Version == pluginVersion && p.Plugin.Type == pluginType);
+
+            return await pluginVersionEntities
+                .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)

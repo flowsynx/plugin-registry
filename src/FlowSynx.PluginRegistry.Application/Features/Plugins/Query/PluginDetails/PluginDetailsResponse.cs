@@ -9,5 +9,5 @@ public class PluginDetailsResponse
     public string? Url { get; set; }
     public DateTime LastUpdated { get; set; }
     public int DownloadCount { get; set; } = 0;
-    public string? Tags { get; set; }
+    public IEnumerable<string> Tags { get; set; } = new List<string>();
 }

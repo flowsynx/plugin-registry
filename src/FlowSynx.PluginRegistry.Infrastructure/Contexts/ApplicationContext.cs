@@ -9,6 +9,7 @@ using FlowSynx.PluginRegistry.Domain.Statistic;
 using FlowSynx.PluginRegistry.Domain;
 using FlowSynx.PluginRegistry.Application.Services;
 using System.Reflection.Emit;
+using FlowSynx.PluginRegistry.Domain.Tag;
 
 namespace FlowSynx.PluginRegistry.Infrastructure.Contexts;
 
@@ -28,10 +29,13 @@ public class ApplicationContext : AuditableContext
         _logger = logger;
     }
 
-    public DbSet<ProfileEntity> Profiles { get; set; }
     public DbSet<PluginEntity> Plugins { get; set; }
     public DbSet<PluginVersionEntity> PluginVersions { get; set; }
     public DbSet<StatisticEntity> Statistics { get; set; }
+    public DbSet<ProfileEntity> Profiles { get; set; }
+    public DbSet<ProfilePluginOwnerEntity> PluginOwners { get; set; }
+    public DbSet<TagEntity> Tags { get; set; }
+    public DbSet<PluginVersionTagEntity> PluginVersionTags { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
     {

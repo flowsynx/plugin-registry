@@ -1,8 +1,6 @@
 ﻿using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
 using FlowSynx.PluginRegistry.Application.Wrapper;
-using System;
-using System.Collections.Generic;
 using System.Net;
 
 namespace FlowSynx.Pluginregistry.Services;
@@ -14,24 +12,28 @@ public class StatsApiService : IStatsApiService
     public StatsApiService(IHttpClientFactory factory)
         => _http = factory.CreateClient("Api");
 
-    public async Task<Result<IEnumerable<PluginsListResponse>>?> GetPlugins(string? q)
+    public async Task<PaginatedResult<PluginsListResponse>?> GetPlugins(string? query, int? page)
     {
         try
         {
-            var response = await _http.GetAsync($"/api/plugins?q={q}");
+            HttpResponseMessage? response;
+            if (!string.IsNullOrEmpty(query))
+                response = await _http.GetAsync($"/api/plugins?page={page}&q={query}");
+            else
+                response = await _http.GetAsync($"/api/plugins?page={page}");
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<Result<IEnumerable<PluginsListResponse>>>();
+                return await response.Content.ReadFromJsonAsync<PaginatedResult < PluginsListResponse>>();
             }
             else
             {
-                return await Result<IEnumerable<PluginsListResponse>>.FailAsync($"API call failed with status code: {response.StatusCode}");
+                return PaginatedResult<PluginsListResponse>.Failure($"API call failed with status code: {response.StatusCode}");
             }
         }
         catch (Exception ex)
         {
-            return await Result<IEnumerable<PluginsListResponse>>.FailAsync(ex.Message);
+            return PaginatedResult<PluginsListResponse>.Failure(ex.Message);
         }
     }
 

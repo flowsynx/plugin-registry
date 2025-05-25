@@ -1,10 +1,12 @@
 ﻿@page "/plugins/{Type}/{Version}"
 
+@using System.Text.Json
 @using System.Security.Claims
 @using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails
 @using FlowSynx.PluginRegistry.Application.Wrapper
 @using FlowSynx.Pluginregistry.Helpers
 @using FlowSynx.Pluginregistry.Services
+@using FlowSynx.Pluginregistry.Components.Shared;
 
 @inject NavigationManager Navigation
 @inject IStatsApiService Stats
@@ -37,45 +39,52 @@
         {
             <div class="row gx-5">
                 <div class="col-xl-8">
-                    <h2 class="fw-bolder mb-3">Account &amp; Billing</h2>
-                    <div class="accordion mb-5" id="accordionExample">
-                        <div class="accordion-item">
-                            <h3 class="accordion-header" id="headingOne"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Accordion Item #1</button></h3>
-                            <div class="accordion-collapse collapse show" id="collapseOne" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <strong>This is the first item's accordion body.</strong>
-                                    It is shown by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the
-                                    <code>.accordion-body</code>
-                                    , though the transition does limit overflow.
-                                </div>
+                    <h2 class="fw-bolder mb-1">@plugin.Data.Type</h2>
+                    <h5 class="fw-bolder mb-3 text-muted">Version: @plugin.Data.Version</h5>
+                    <div class="position-relative mb-3">
+                        <CodeCopy CodeToCopy="@jsonCodeBlock" ButtonText="Copy" SuccessText="Copied!" />
+                        <pre class="plugin-code-block"><code>@jsonCodeBlock</code>
+                        </pre>
+                    </div>
+                    <p>@plugin.Data.Description</p>
+
+                    <div class="container mt-4">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
+                                        type="button" role="tab" aria-controls="home" aria-selected="true">
+                                    Home
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
+                                        type="button" role="tab" aria-controls="profile" aria-selected="false">
+                                    Profile
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact"
+                                        type="button" role="tab" aria-controls="contact" aria-selected="false">
+                                    Contact
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content mt-3" id="myTabContent">
+                            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                <p>Welcome to the Home tab!</p>
                             </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h3 class="accordion-header" id="headingTwo"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Accordion Item #2</button></h3>
-                            <div class="accordion-collapse collapse" id="collapseTwo" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <strong>This is the second item's accordion body.</strong>
-                                    It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the
-                                    <code>.accordion-body</code>
-                                    , though the transition does limit overflow.
-                                </div>
+                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                <p>This is the Profile tab.</p>
                             </div>
-                        </div>
-                        <div class="accordion-item">
-                            <h3 class="accordion-header" id="headingThree"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">Accordion Item #3</button></h3>
-                            <div class="accordion-collapse collapse" id="collapseThree" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                    <strong>This is the third item's accordion body.</strong>
-                                    It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the
-                                    <code>.accordion-body</code>
-                                    , though the transition does limit overflow.
-                                </div>
+                            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                                <p>Here’s the Contact tab content.</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-xl-4">
-                    <div class="card border-0 bg-light mt-xl-5">
+                    <div class="card border bg-light mt-xl-5">
                         <div class="card-body p-3">
                             <div class="d-flex">
                                 <div>
@@ -103,14 +112,13 @@
                                         </div>
                                     }
                                     @{
-                                        var tags = StringHelper.GetTagsList(plugin.Data.Tags);
-                                        @if (tags.Any())
+                                        @if (plugin.Data.Tags.Any())
                                         {
                                             <div class="mb-3">
                                                 <h6>Tags</h6>
-                                                @foreach (var tag in tags)
+                                                @foreach (var tag in plugin.Data.Tags)
                                                 {
-                                                    <span class="badge border border-primary text-primary">@tag</span>
+                                                    <a href="/plugins?q=tag:@tag"><span class="badge border border-secondary text-secondary me-1">@tag</span></a>
                                                 }
                                             </div>
                                         }
@@ -131,6 +139,12 @@
 
     [Parameter]
     public string Version { get; set; } = "";
+
+    private string jsonCodeBlock => JsonSerializer.Serialize(new
+    {
+        Type,
+        Version
+    }, new JsonSerializerOptions { WriteIndented = true });
 
     Result<PluginDetailsResponse>? plugin;
     protected override async Task OnInitializedAsync()

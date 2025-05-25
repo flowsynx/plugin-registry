@@ -1,0 +1,51 @@
+﻿@inject NavigationManager NavigationManager
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <p>Page @CurrentPage of @TotalPages</p>
+    <nav>
+        <ul class="pagination mb-0">
+            <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="@BuildPageUrl(1)">« First</a>
+            </li>
+
+            <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="@BuildPageUrl(CurrentPage - 1)">‹ Prev</a>
+            </li>
+            <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+                <a class="page-link" href="@BuildPageUrl(CurrentPage + 1)">Next ›</a>
+            </li>
+
+            <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
+                <a class="page-link" href="@BuildPageUrl(TotalPages)">Last »</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+@code {
+    [Parameter] public int CurrentPage { get; set; }
+    [Parameter] public int TotalPages { get; set; }
+    [Parameter] public string PageQueryKey { get; set; } = "page";
+
+    private Dictionary<string, string> queryParams = new();
+
+    protected override void OnInitialized()
+    {
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        if (!string.IsNullOrWhiteSpace(uri.Query))
+        {
+            var parsed = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+            queryParams = parsed.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+        }
+    }
+
+    private string BuildPageUrl(int page)
+    {
+        var updatedParams = new Dictionary<string, string>(queryParams);
+        updatedParams[PageQueryKey] = page.ToString();
+
+        var baseUri = NavigationManager.Uri.Split('?')[0];
+        var newQuery = string.Join("&", updatedParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+        return $"{baseUri}?{newQuery}";
+    }
+}

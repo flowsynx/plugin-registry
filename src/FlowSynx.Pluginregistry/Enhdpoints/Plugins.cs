@@ -3,6 +3,7 @@ using FlowSynx.Pluginregistry.Extensions;
 using FlowSynx.PluginRegistry.Application.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace FlowSynx.Endpoints;
 
@@ -19,10 +20,10 @@ public class Plugins : EndpointGroupBase
             .WithName("GetPluginWithType");
     }
 
-    public async Task<IResult> PluginsList([FromQuery]string? q, [FromServices] IMediator mediator,
-        CancellationToken cancellationToken)
+    public async Task<IResult> PluginsList([FromQuery] string? q, [FromQuery] int? page, 
+        [FromServices] IMediator mediator, CancellationToken cancellationToken)
     {
-        var result = await mediator.PluginsList(q, cancellationToken);
+        var result = await mediator.PluginsList(q, page, cancellationToken);
         return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
     }
 

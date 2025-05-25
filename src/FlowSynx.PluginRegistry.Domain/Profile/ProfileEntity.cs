@@ -7,5 +7,5 @@ public class ProfileEntity: AuditableEntity<Guid>, ISoftDeletable
     public required string Email { get; set; }
     public bool IsDeleted { get; set; } = false;
 
-    public List<ProfilePluginOwnerEntity> Owners { get; set; } = new();
+    public ICollection<ProfilePluginOwnerEntity> Owners { get; set; } = new List<ProfilePluginOwnerEntity>();
 }

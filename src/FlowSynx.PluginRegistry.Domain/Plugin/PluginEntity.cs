@@ -5,12 +5,10 @@ namespace FlowSynx.PluginRegistry.Domain.Plugin;
 public class PluginEntity : AuditableEntity<Guid>, ISoftDeletable
 {
     public required string Type { get; set; }
-    public required string LatestVersion { get; set; }
-    public string? LatestDescription { get; set; }
-    public string? LatestTags { get; set; }
-
+    public Guid? LatestVersionId { get; set; }
     public bool IsDeleted { get; set; } = false;
 
-    public List<PluginVersionEntity> Versions { get; set; } = new();
-    public List<ProfilePluginOwnerEntity> Owners { get; set; } = new();
+    public PluginVersionEntity? LatestVersion { get; set; }
+    public ICollection<PluginVersionEntity> Versions { get; set; } = new List<PluginVersionEntity>();
+    public ICollection<ProfilePluginOwnerEntity> Owners { get; set; } = new List<ProfilePluginOwnerEntity>();
 }

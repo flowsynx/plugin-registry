@@ -6,6 +6,6 @@ namespace FlowSynx.Pluginregistry.Services;
 
 public interface IStatsApiService
 {
-    Task<Result<IEnumerable<PluginsListResponse>>?> GetPlugins(string? q);
+    Task<PaginatedResult<PluginsListResponse>?> GetPlugins(string? query, int? page);
     Task<Result<PluginDetailsResponse>?> GetPluginDetails(string? type, string version);
 }

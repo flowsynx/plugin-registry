@@ -19,9 +19,6 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
         builder.Property(t => t.Description)
                .HasMaxLength(4096);
 
-        builder.Property(t => t.Tags)
-               .HasMaxLength(1024);
-
         builder.Property(t => t.Version)
                .HasMaxLength(50)
                .IsRequired();

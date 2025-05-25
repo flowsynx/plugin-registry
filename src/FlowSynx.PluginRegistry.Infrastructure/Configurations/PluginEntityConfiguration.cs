@@ -17,24 +17,19 @@ public class PluginEntityConfiguration : IEntityTypeConfiguration<PluginEntity>
                .HasMaxLength(1024)
                .IsRequired();
 
-        builder.Property(t => t.LatestVersion)
-               .HasMaxLength(50)
-               .IsRequired();
-
-        builder.Property(t => t.LatestTags)
-               .HasMaxLength(1024);
-
-        builder.Property(t => t.LatestDescription)
-               .HasMaxLength(4096);
-
         builder.HasMany(p => p.Versions)
-            .WithOne(o=>o.Plugin)
-            .HasForeignKey(v => v.PluginId)
-            .OnDelete(DeleteBehavior.Cascade);
+               .WithOne(o => o.Plugin)
+               .HasForeignKey(v => v.PluginId)
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(p => p.Owners)
-            .WithOne(o => o.Plugin)
-            .HasForeignKey(o => o.PluginId)
-            .OnDelete(DeleteBehavior.Cascade);
+               .WithOne(o => o.Plugin)
+               .HasForeignKey(o => o.PluginId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(p => p.LatestVersion)
+               .WithMany()
+               .HasForeignKey(p => p.LatestVersionId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }

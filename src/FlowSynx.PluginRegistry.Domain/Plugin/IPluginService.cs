@@ -2,8 +2,9 @@
 
 public interface IPluginService
 {
-    Task<IReadOnlyCollection<PluginEntity>> All(CancellationToken cancellationToken);
-    Task<IReadOnlyCollection<PluginEntity>> AllBySeachQuery(string? query, CancellationToken cancellationToken);
+    Task<Pagination<PluginEntity>> All(int page, CancellationToken cancellationToken);
+    Task<Pagination<PluginEntity>> AllBySeachQuery(string? query, int page, CancellationToken cancellationToken);
+    Task<Pagination<PluginEntity>> AllBySeachTags(string? tag, int page, CancellationToken cancellationToken);
     Task Add(PluginEntity pluginEntity, CancellationToken cancellationToken);
     Task<bool> Delete(PluginEntity pluginEntity, CancellationToken cancellationToken);
 }

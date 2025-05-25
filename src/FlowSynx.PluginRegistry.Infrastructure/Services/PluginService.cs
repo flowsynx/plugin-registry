@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using FlowSynx.PluginRegistry.Infrastructure.Contexts;
 using FlowSynx.PluginRegistry.Infrastructure.Extensions;
 using FlowSynx.PluginRegistry.Domain.Plugin;
+using FlowSynx.PluginRegistry.Domain;
 
 namespace FlowSynx.PluginRegistry.Infrastructure.Services;
 
@@ -10,6 +11,7 @@ public class PluginService : IPluginService
 {
     private readonly IDbContextFactory<ApplicationContext> _appContextFactory;
     private readonly ILogger<PluginService> _logger;
+    private readonly int _pageSize = 20;
 
     public PluginService(IDbContextFactory<ApplicationContext> appContextFactory, ILogger<PluginService> logger)
     {
@@ -19,17 +21,26 @@ public class PluginService : IPluginService
         _logger = logger;
     }
 
-    public async Task<IReadOnlyCollection<PluginEntity>> All(CancellationToken cancellationToken)
+    public async Task<Pagination<PluginEntity>> All(int page, CancellationToken cancellationToken)
     {
         try
         {
             using var context = _appContextFactory.CreateDbContext();
-            var result = await context.Plugins
-                .Where(p => p.IsDeleted == false)
-                .ToListAsync(cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+            IQueryable<PluginEntity> pluginEntities = context.Plugins
+                .Include(i => i.LatestVersion).ThenInclude(i => i!.PluginVersionTags)
+                .Include(i => i.Owners).ThenInclude(i => i.Profile)
+                .Include(i => i.Versions).ThenInclude(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
+                .Where(p => !p.IsDeleted && p.LatestVersion != null);
 
-            return result;
+            var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);
+
+            var skip = (page - 1) * _pageSize;
+            pluginEntities = pluginEntities.OrderBy(p => p.Type)
+                .Skip(skip)
+                .Take(_pageSize);
+
+            var result = await pluginEntities.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return new Pagination<PluginEntity>(result, totalCount, page, _pageSize);
         }
         catch (Exception ex)
         {
@@ -37,28 +48,74 @@ public class PluginService : IPluginService
         }
     }
 
-    public async Task<IReadOnlyCollection<PluginEntity>> AllBySeachQuery(
+    public async Task<Pagination<PluginEntity>> AllBySeachQuery(
         string? query,
+        int page,
         CancellationToken cancellationToken)
     {
         try
         {
             using var context = _appContextFactory.CreateDbContext();
-            IQueryable<PluginEntity> pluginEntities = context.Plugins.Include(i=>i.Owners).ThenInclude(i=>i.Profile);
+            IQueryable<PluginEntity> pluginEntities = context.Plugins
+                .Include(i => i.LatestVersion).ThenInclude(i => i!.PluginVersionTags)
+                .Include(i => i.Owners).ThenInclude(i => i.Profile)
+                .Include(i => i.Versions).ThenInclude(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
+                .Where(p => !p.IsDeleted && p.LatestVersion != null);
 
             if (!string.IsNullOrEmpty(query))
             {
-                pluginEntities = pluginEntities.Where(p => (EF.Functions.ILike(p.Type, $"%{query}%") ||
-                    EF.Functions.ILike(p.LatestDescription ?? string.Empty, $"%{query}%") || 
-                    EF.Functions.ILike(p.LatestVersion, $"%{query}%") ||
-                    EF.Functions.Like(p.LatestTags, $"%{query};%") ||
-                    EF.Functions.Like(p.LatestTags, $"%{query}") ||
-                    EF.Functions.Like(p.LatestTags, $"{query};%") ||
-                    p.LatestTags == query)
-                    && p.IsDeleted == false);
+                pluginEntities = pluginEntities.Where(p => EF.Functions.ILike(p.Type, $"%{query}%") ||
+                    EF.Functions.ILike(p.LatestVersion!.Description ?? string.Empty, $"%{query}%") ||
+                    EF.Functions.ILike(p.LatestVersion!.Version, $"%{query}%") ||
+                    p.LatestVersion!.PluginVersionTags.Any(t =>
+                    EF.Functions.ILike(t.Tag!.Name, $"%{query}%")));
             }
 
-            return await pluginEntities.ToListAsync(cancellationToken).ConfigureAwait(false);
+            var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);
+
+            var skip = (page - 1) * _pageSize;
+            pluginEntities = pluginEntities.OrderBy(p => p.Type)
+                .Skip(skip)
+                .Take(_pageSize);
+
+            var result = await pluginEntities.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return new Pagination<PluginEntity>(result, totalCount, page, _pageSize);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<Pagination<PluginEntity>> AllBySeachTags(
+        string? tag,
+        int page,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var context = _appContextFactory.CreateDbContext();
+            IQueryable<PluginEntity> pluginEntities = context.Plugins
+                .Include(i => i.LatestVersion).ThenInclude(i => i!.PluginVersionTags)
+                .Include(i => i.Owners).ThenInclude(i => i.Profile)
+                .Include(i => i.Versions).ThenInclude(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
+                .Where(p => !p.IsDeleted && p.LatestVersion != null);
+
+            if (!string.IsNullOrEmpty(tag))
+            {
+                pluginEntities = pluginEntities.Where(p => p.LatestVersion!.PluginVersionTags.Any(t =>
+                    EF.Functions.ILike(t.Tag!.Name, $"%{tag}%")));
+            }
+
+            var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);
+
+            var skip = (page - 1) * _pageSize;
+            pluginEntities = pluginEntities.OrderBy(p => p.Type)
+                .Skip(skip)
+                .Take(_pageSize);
+
+            var result = await pluginEntities.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return new Pagination<PluginEntity>(result, totalCount, page, _pageSize);
         }
         catch (Exception ex)
         {

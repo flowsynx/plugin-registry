@@ -8,10 +8,23 @@ namespace FlowSynx.PluginRegistry.Application.Extensions;
 public static class MediatorExtensions
 {
     #region Plugins
-    public static Task<Result<IEnumerable<PluginsListResponse>>> PluginsList(
-        this IMediator mediator, string? query, CancellationToken cancellationToken)
+    public static Task<PaginatedResult<PluginsListResponse>> PluginsList(
+        this IMediator mediator, string? query, int? page, CancellationToken cancellationToken)
     {
-        return mediator.Send(new PluginsListRequest { Query = query }, cancellationToken);
+        var queryValue = query;
+        var tagValue = "";
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            var qText = query.ToString();
+            if (qText.StartsWith("tag:"))
+            {
+                tagValue = qText.Substring(4);
+                queryValue = "";
+            }
+        }
+
+        return mediator.Send(new PluginsListRequest { Query = queryValue, Tag = tagValue, Page = page }, cancellationToken);
     }
 
     public static Task<Result<PluginDetailsResponse>> PluginDetails(

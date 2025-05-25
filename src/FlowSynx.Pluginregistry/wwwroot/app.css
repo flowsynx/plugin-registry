@@ -58,3 +58,22 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.plugin-code-block {
+    position: relative;
+    background-color: #f5f5f5;
+    border: 3px solid #ddd;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    font-family: monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.copy-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.8rem;
+    z-index: 1;
+}
