@@ -48,39 +48,25 @@
                     </div>
                     <p>@plugin.Data.Description</p>
 
-                    <div class="container mt-4">
-                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home"
-                                        type="button" role="tab" aria-controls="home" aria-selected="true">
-                                    Home
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
-                                        type="button" role="tab" aria-controls="profile" aria-selected="false">
-                                    Profile
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact"
-                                        type="button" role="tab" aria-controls="contact" aria-selected="false">
-                                    Contact
-                                </button>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content mt-3" id="myTabContent">
-                            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                <p>Welcome to the Home tab!</p>
-                            </div>
-                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                <p>This is the Profile tab.</p>
-                            </div>
-                            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                                <p>Here’s the Contact tab content.</p>
-                            </div>
-                        </div>
+                    <div class="mt-5">
+                        <table class="table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Version</th>
+                                    <th>Last updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var version in plugin.Data.Versions)
+                                {
+                                    <tr>
+                                        <td><a href="/plugins/@plugin.Data.Type/@plugin.Data.Version">@version</a>
+                                    </td>
+                                        <td>alice@example.com</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="col-xl-4">

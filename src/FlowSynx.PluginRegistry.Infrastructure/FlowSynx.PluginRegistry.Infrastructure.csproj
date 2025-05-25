@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\FlowSynx.PluginRegistry.Application\FlowSynx.PluginRegistry.Application.csproj" />
-    <ProjectReference Include="..\FlowSynx.PluginRegistry.Core\FlowSynx.PluginRegistry.Core.csproj" />
   </ItemGroup>
 
 </Project>

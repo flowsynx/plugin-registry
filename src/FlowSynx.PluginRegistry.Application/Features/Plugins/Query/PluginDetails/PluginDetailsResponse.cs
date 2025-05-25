@@ -10,4 +10,5 @@ public class PluginDetailsResponse
     public DateTime LastUpdated { get; set; }
     public int DownloadCount { get; set; } = 0;
     public IEnumerable<string> Tags { get; set; } = new List<string>();
+    public IEnumerable<string> Versions { get; set; } = new List<string>();
 }

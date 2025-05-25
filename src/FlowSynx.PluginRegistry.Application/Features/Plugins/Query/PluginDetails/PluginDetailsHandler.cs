@@ -39,6 +39,7 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                 LastUpdated = plugin.LastModifiedOn ?? plugin.CreatedOn,
                 DownloadCount = plugin.Statistics.Count(x=>x.PluginVersionId == plugin.Id),
                 Tags = plugin.PluginVersionTags.Select(x=>x.Tag!.Name),
+                Versions = plugin.Plugin.Versions.Select(x=>x.Version)
             };
 
             return await Result<PluginDetailsResponse>.SuccessAsync(response);

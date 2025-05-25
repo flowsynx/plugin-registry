@@ -16,7 +16,7 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     @if (!IsAuthenticated)
                     {
-                        <li class="nav-item"><a class="nav-link" href="/account/login">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/api/account/login">Login</a></li>
                     }
                     else
                     {
@@ -24,7 +24,7 @@
                             <a class="nav-link dropdown-toggle" id="navbarAccount" href="#" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">Hello, @UserName!</a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarAccount">
-                                <li><a class="dropdown-item" href="/account/logout">Logout</a></li>
+                                <li><a class="dropdown-item" href="/api/account/logout">Logout</a></li>
                             </ul>
                         </li>
                     }
