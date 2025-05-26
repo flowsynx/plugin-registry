@@ -2,7 +2,7 @@
 
 public static class TimeHelper
 {
-    public static string GetLastUpdatedText(DateTime lastUpdated)
+    public static string GetHumanReadableDate(DateTime lastUpdated)
     {
         var now = DateTime.UtcNow;
         var timeSpan = now - lastUpdated;
@@ -19,5 +19,10 @@ public static class TimeHelper
             return $"{(int)(timeSpan.TotalDays / 30)} month{(timeSpan.TotalDays / 30 >= 2 ? "s" : "")} ago";
 
         return $"{(int)(timeSpan.TotalDays / 365)} year{(timeSpan.TotalDays / 365 >= 2 ? "s" : "")} ago";
+    }
+
+    public static string GetOnlyDate(DateTime lastUpdated)
+    {
+        return lastUpdated.ToShortDateString();
     }
 }

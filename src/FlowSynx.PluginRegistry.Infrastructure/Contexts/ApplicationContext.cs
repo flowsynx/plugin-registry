@@ -10,6 +10,7 @@ using FlowSynx.PluginRegistry.Domain;
 using FlowSynx.PluginRegistry.Application.Services;
 using System.Reflection.Emit;
 using FlowSynx.PluginRegistry.Domain.Tag;
+using FlowSynx.PluginRegistry.Domain.ApiKey;
 
 namespace FlowSynx.PluginRegistry.Infrastructure.Contexts;
 
@@ -33,6 +34,7 @@ public class ApplicationContext : AuditableContext
     public DbSet<PluginVersionEntity> PluginVersions { get; set; }
     public DbSet<StatisticEntity> Statistics { get; set; }
     public DbSet<ProfileEntity> Profiles { get; set; }
+    public DbSet<ApiKeyEntity> ApiKeys { get; set; }
     public DbSet<ProfilePluginOwnerEntity> PluginOwners { get; set; }
     public DbSet<TagEntity> Tags { get; set; }
     public DbSet<PluginVersionTagEntity> PluginVersionTags { get; set; }

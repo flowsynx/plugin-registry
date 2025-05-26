@@ -1,4 +1,6 @@
-﻿namespace FlowSynx.PluginRegistry.Domain.Profile;
+﻿using FlowSynx.PluginRegistry.Domain.ApiKey;
+
+namespace FlowSynx.PluginRegistry.Domain.Profile;
 
 public class ProfileEntity: AuditableEntity<Guid>, ISoftDeletable
 {
@@ -8,4 +10,6 @@ public class ProfileEntity: AuditableEntity<Guid>, ISoftDeletable
     public bool IsDeleted { get; set; } = false;
 
     public ICollection<ProfilePluginOwnerEntity> Owners { get; set; } = new List<ProfilePluginOwnerEntity>();
+    public ICollection<ApiKeyEntity> ApiKeys { get; set; } = new List<ApiKeyEntity>();
+
 }

@@ -62,7 +62,7 @@
                                     <tr>
                                         <td><a href="/plugins/@plugin.Data.Type/@plugin.Data.Version">@version</a>
                                     </td>
-                                        <td>alice@example.com</td>
+                                        <td>@TimeHelper.GetOnlyDate(@plugin.Data.LastUpdated)</td>
                                     </tr>
                                 }
                             </tbody>
@@ -77,7 +77,7 @@
                                     <div class="h4 fw-bolder">About</div>
                                     <div class="mb-3">
                                         <i class="bi bi-clock-history text-secondary"></i>
-                                        last updated: @TimeHelper.GetLastUpdatedText(plugin.Data.LastUpdated)
+                                        last updated: @TimeHelper.GetHumanReadableDate(plugin.Data.LastUpdated)
                                     </div>
                                     @if (!string.IsNullOrEmpty(plugin.Data.Url))
                                     {

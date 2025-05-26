@@ -1,4 +1,5 @@
 ﻿using FlowSynx.PluginRegistry.Application.Services;
+using FlowSynx.PluginRegistry.Domain.ApiKey;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using FlowSynx.PluginRegistry.Infrastructure.Contexts;
 using FlowSynx.PluginRegistry.Infrastructure.Services;
@@ -18,6 +19,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ISystemClock, SystemClock>()
             .AddScoped<IPluginService, PluginService>()
             .AddScoped<IPluginVersionService, PluginVersionService>()
+            .AddScoped<IApiKeyService, ApiKeyService>()
             .AddScoped<IGravatar, Gravatar>()
             .AddDbContextFactory<ApplicationContext>(options =>
             {
