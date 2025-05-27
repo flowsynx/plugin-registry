@@ -11,5 +11,4 @@ public class ProfileEntity: AuditableEntity<Guid>, ISoftDeletable
 
     public ICollection<ProfilePluginOwnerEntity> Owners { get; set; } = new List<ProfilePluginOwnerEntity>();
     public ICollection<ApiKeyEntity> ApiKeys { get; set; } = new List<ApiKeyEntity>();
-
 }

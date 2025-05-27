@@ -1,0 +1,100 @@
+﻿@page "/manage/upload"
+@using FlowSynx.Pluginregistry.Services
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+
+@inject IStatsApiService Stats
+@attribute [Authorize]
+
+<PageTitle>Upload plugin</PageTitle>
+
+<div class="container p-5">
+    <h4>Upload Your Plugin (.fsp)</h4>
+    <div class="mb-lg-5">
+        Please upload a valid plugin package in .zip format. The archive should include all necessary files 
+        and a plugin.json manifest describing the plugin's metadata.
+    </div>
+
+    <InputFile OnChange="HandleFileSelected" accept=".fsp" class="form-control" />
+
+    @if (UploadMessage is not null)
+    {
+        <div class="alert alert-@UploadMessage.Type alert-dismissible fade show mt-3" role="alert">
+            @UploadMessage.Text
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (IsUploading)
+    {
+        <div class="mt-3">
+            <label>Uploading: @ProgressPercentage%</label>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width:@ProgressPercentage%"
+                     aria-valuenow="@ProgressPercentage" aria-valuemin="0" aria-valuemax="100">
+                    @ProgressPercentage%
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private UploadMessageModel? UploadMessage;
+    private bool IsUploading = false;
+    private int ProgressPercentage = 0;
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file == null)
+        {
+            UploadMessage = new UploadMessageModel
+            {
+                Text = "No file selected.",
+                Type = "danger"
+            };
+            return;
+        }
+
+        IsUploading = true;
+        ProgressPercentage = 0;
+        UploadMessage = null;
+
+        try
+        {
+            var uploadedPath = await Stats.UploadFileAsync(file, async (percent) =>
+            {
+                ProgressPercentage = percent;
+                await InvokeAsync(StateHasChanged);
+            });
+
+            UploadMessage = new UploadMessageModel
+            {
+                Text = $"Upload successful! File saved to: {uploadedPath}",
+                Type = "success"
+            };
+        }
+        catch (Exception ex)
+        {
+            UploadMessage = new UploadMessageModel
+            {
+                Text = $"Upload failed: {ex.Message}",
+                Type = "danger"
+            };
+        }
+        finally
+        {
+            IsUploading = false;
+        }
+    }
+
+    private class UploadMessageModel
+    {
+        public string Text { get; set; } = string.Empty;
+        public string Type { get; set; } = "success"; // or "danger", "info", etc.
+    }
+}

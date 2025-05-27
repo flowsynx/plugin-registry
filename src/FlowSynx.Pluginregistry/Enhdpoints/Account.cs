@@ -20,12 +20,11 @@ public class Account : EndpointGroupBase
 
     public async Task Login(HttpContext context, CancellationToken cancellationToken)
     {
+        var returnUrl = context.Request.Query["returnUrl"].ToString() ?? "/";
         var props = new AuthenticationProperties
         {
-            RedirectUri = "/"
+            RedirectUri = returnUrl
         };
-
-        props.Items["LoginHint"] = Guid.NewGuid().ToString();
 
         await context.ChallengeAsync("GitHub", props);
     }

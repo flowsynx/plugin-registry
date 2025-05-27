@@ -1,18 +1,28 @@
 ﻿@using System.Security.Claims
+@using FlowSynx.PluginRegistry.Application.Services
+
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation
 @inject IHttpContextAccessor HttpContextAccessor
+@inject IGravatar gravatar
 
 <main class="flex-shrink-0">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" data-bs-theme="dark">
         <div class="container px-5">
-            <a class="navbar-brand" href="/">FlowSynx Plugin Registry</a>
+            <a class="navbar-brand pe-2" href="/">
+                <img src="/images/logo.png" alt="Logo" width="24" height="24" class="d-inline-block align-text-top">
+                Plugin Registry
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/plugins">Plugins</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/manage/upload">Upload</a></li>
+                </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     @if (!IsAuthenticated)
                     {
@@ -21,11 +31,11 @@
                     else
                     {
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarAccount" href="#" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false">Hello, @UserName!</a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarAccount">
-                                <li><a class="dropdown-item" href="/account/apikeys">API Keys</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                            <a href="#" role="button" class="d-flex nav-link align-items-center text-decoration-none dropdown-toggle" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="@gravatar.GetGravatarUrl(@Email!, 24);" width="24" height="24" class="rounded-circle me-2" alt="@UserName">
+                                <span class="d-none d-sm-inline">@UserName</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
                                 <li><a class="dropdown-item" href="/api/account/logout">Logout</a></li>
                             </ul>
                         </li>
@@ -69,6 +79,7 @@
     ClaimsPrincipal? User => HttpContextAccessor.HttpContext?.User;
     bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
     string? UserName => User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+    string? Email => User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
 
     protected override void OnInitialized()
     {

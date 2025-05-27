@@ -1,5 +1,4 @@
-﻿using FlowSynx.PluginRegistry.Application.Exceptions;
-using FlowSynx.PluginRegistry.Application.Wrapper;
+﻿using FlowSynx.PluginRegistry.Application.Wrapper;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -39,7 +38,10 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                 LastUpdated = plugin.LastModifiedOn ?? plugin.CreatedOn,
                 DownloadCount = plugin.Statistics.Count(x=>x.PluginVersionId == plugin.Id),
                 Tags = plugin.PluginVersionTags.Select(x=>x.Tag!.Name),
-                Versions = plugin.Plugin.Versions.OrderByDescending(x=>x.LastModifiedOn).Select(x=>x.Version)
+                Versions = plugin.Plugin.Versions
+                                 .OrderByDescending(x=>x.LastModifiedOn)
+                                 .ThenByDescending(x=>x.CreatedOn)
+                                 .Select(x=>x.Version)
             };
 
             return await Result<PluginDetailsResponse>.SuccessAsync(response);

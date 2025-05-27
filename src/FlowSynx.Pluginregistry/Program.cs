@@ -3,6 +3,11 @@ using FlowSynx.Pluginregistry.Extensions;
 using FlowSynx.PluginRegistry.Infrastructure.Extensions;
 using FlowSynx.PluginRegistry.Application.Extensions;
 using FlowSynx.Pluginregistry.Services;
+using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Antiforgery;
+using System.Diagnostics.Metrics;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Server;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,13 +28,20 @@ if (!string.IsNullOrEmpty(customConfigPath))
 IConfiguration config = builder.Configuration;
 
 builder.Services
+       .AddHttpContextAccessor()
        .AddRazorComponents()
        .AddInteractiveServerComponents();
 
+builder.Services.AddServerSideBlazor();
+
 builder.Services
-       .AddHttpContextAccessor()
        .AddPostgresPersistenceLayer(config)
        .AddApplication();
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 100 * 1024 * 1024; // 50MB
+});
 
 builder.Services.AddHttpClient("Api", c =>
 {
@@ -39,6 +51,7 @@ builder.Services.AddScoped<IStatsApiService, StatsApiService>();
 
 builder.Services.AddGitHubAuthentication(config);
 builder.Services.AddAuthorization();
+builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
 var app = builder.Build();
 
