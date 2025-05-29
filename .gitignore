@@ -29,8 +29,6 @@ x86/
 bld/
 [Bb]in/
 [Oo]bj/
-[Ll]og/
-[Ll]ogs/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -82,8 +80,6 @@ StyleCopReport.xml
 *.pgc
 *.pgd
 *.rsp
-# but not Directory.Build.rsp, as it configures directory-level build defaults
-!Directory.Build.rsp
 *.sbr
 *.tlb
 *.tli
@@ -155,7 +151,6 @@ coverage*.info
 
 # NCrunch
 _NCrunch_*
-.NCrunch_*
 .*crunch*.local.xml
 nCrunchTemp_*
 
@@ -399,3 +394,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# SQLite Database
+logs.db*
+
+# Configuration files
+appsettings.Development.json
