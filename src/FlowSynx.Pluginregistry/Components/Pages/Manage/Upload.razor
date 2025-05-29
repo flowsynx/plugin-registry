@@ -1,23 +1,27 @@
 ﻿@page "/manage/upload"
+@using FlowSynx.PluginRegistry.Domain.Profile
 @using FlowSynx.Pluginregistry.Services
 @using System.ComponentModel.DataAnnotations
 @using System.Text.Json
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Security.Claims
 
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IProfileService profileService
 @inject IStatsApiService Stats
 @attribute [Authorize]
 
 <PageTitle>Upload plugin</PageTitle>
 
 <div class="container p-5">
-    <h4>Upload Your Plugin (.fsp)</h4>
+    <h4>Upload Your Plugin (.fspack)</h4>
     <div class="mb-lg-5">
-        Please upload a valid plugin package in .zip format. The archive should include all necessary files 
+        Please upload a valid plugin package in .fspack format. The archive should include all necessary files
         and a plugin.json manifest describing the plugin's metadata.
     </div>
 
-    <InputFile OnChange="HandleFileSelected" accept=".fsp" class="form-control" />
+    <InputFile OnChange="HandleFileSelected" accept=".fspack" class="form-control" />
 
     @if (UploadMessage is not null)
     {
@@ -33,7 +37,7 @@
             <label>Uploading: @ProgressPercentage%</label>
             <div class="progress">
                 <div class="progress-bar" role="progressbar" style="width:@ProgressPercentage%"
-                     aria-valuenow="@ProgressPercentage" aria-valuemin="0" aria-valuemax="100">
+                aria-valuenow="@ProgressPercentage" aria-valuemin="0" aria-valuemax="100">
                     @ProgressPercentage%
                 </div>
             </div>
@@ -66,15 +70,18 @@
 
         try
         {
-            var uploadedPath = await Stats.UploadFileAsync(file, async (percent) =>
+            var User = HttpContextAccessor.HttpContext?.User;
+            string? userName = User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var profileId = await profileService.GetByUserId(userName, CancellationToken.None);
+            await Stats.UploadFileAsync(file, async (percent) =>
             {
                 ProgressPercentage = percent;
                 await InvokeAsync(StateHasChanged);
-            });
+            }, profileId.Id);
 
             UploadMessage = new UploadMessageModel
             {
-                Text = $"Upload successful! File saved to: {uploadedPath}",
+                Text = "Upload successful!",
                 Type = "success"
             };
         }
@@ -82,7 +89,7 @@
         {
             UploadMessage = new UploadMessageModel
             {
-                Text = $"Upload failed: {ex.Message}",
+                Text = ex.Message,
                 Type = "danger"
             };
         }

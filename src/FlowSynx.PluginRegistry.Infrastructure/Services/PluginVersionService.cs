@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using FlowSynx.PluginRegistry.Infrastructure.Contexts;
 using FlowSynx.PluginRegistry.Infrastructure.Extensions;
 using FlowSynx.PluginRegistry.Domain.Plugin;
+using FlowSynx.PluginRegistry.Domain.Tag;
 
 namespace FlowSynx.PluginRegistry.Infrastructure.Services;
 
@@ -69,8 +70,87 @@ public class PluginVersionService : IPluginVersionService
         }
     }
 
+    public async Task Add(PluginVersionEntity pluginVersionEntity, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var context = _appContextFactory.CreateDbContext();
+            await context.PluginVersions
+                .AddAsync(pluginVersionEntity, cancellationToken)
+                .ConfigureAwait(false);
+
+            await context
+                .SaveChangesAsync(cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task AddTagsToPluginVersionAsync(
+        Guid pluginVersionId,
+        List<string> tagNames,
+        CancellationToken cancellationToken)
+    {
+        // Normalize tag names (e.g., trim, lowercase for comparison)
+        var normalizedTagNames = tagNames
+            .Select(t => t.Trim())
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (!normalizedTagNames.Any())
+            return;
+
+        await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+        // Get the PluginVersion
+        var pluginVersion = await context.PluginVersions
+            .Include(pv => pv.PluginVersionTags)
+            .FirstOrDefaultAsync(pv => pv.Id == pluginVersionId);
+
+        if (pluginVersion == null)
+            throw new InvalidOperationException("Plugin version not found.");
+
+        // Load existing tags from DB
+        var existingTags = await context.Tags
+            .Where(t => normalizedTagNames.Contains(t.Name))
+            .ToListAsync();
+
+        // Determine which tags need to be created
+        var existingTagNames = existingTags.Select(t => t.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var newTagNames = normalizedTagNames
+            .Where(t => !existingTagNames.Contains(t))
+            .ToList();
+
+        // Create new TagEntity instances
+        var newTags = newTagNames.Select(name => new TagEntity { Id = Guid.NewGuid(), Name = name }).ToList();
+        await context.Tags.AddRangeAsync(newTags);
+
+        // Combine all tags
+        var allTags = existingTags.Concat(newTags).ToList();
+
+        // Add PluginVersionTagEntity relationships if not already existing
+        foreach (var tag in allTags)
+        {
+            if (!pluginVersion.PluginVersionTags.Any(pvt => pvt.TagId == tag.Id))
+            {
+                pluginVersion.PluginVersionTags.Add(new PluginVersionTagEntity
+                {
+                    TagId = tag.Id,
+                    PluginVersionId = pluginVersion.Id
+                });
+            }
+        }
+
+        await context
+            .SaveChangesAsync(cancellationToken)
+            .ConfigureAwait(false);
+    }
+
     public async Task<bool> Delete(
-        PluginVersionEntity pluginEntity, 
+        PluginVersionEntity pluginEntity,
         CancellationToken cancellationToken)
     {
         try

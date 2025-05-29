@@ -5,6 +5,9 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FlowSynx.PluginRegistry.Application.Configuration;
+using Microsoft.EntityFrameworkCore;
+using FlowSynx.PluginRegistry.Domain.Profile;
+using System.Linq;
 
 namespace FlowSynx.Pluginregistry.Extensions;
 
@@ -35,12 +38,13 @@ public static class ServiceCollectionExtensions
         {
             options.ExpireTimeSpan = TimeSpan.FromMinutes(authenticationConfiguration.GitHub.CookieExpireTimeSpanMinutes);
             options.SlidingExpiration = true;
+            options.Cookie.SameSite = SameSiteMode.Lax;
         })
         .AddOAuth("GitHub", options =>
         {
             options.ClientId = authenticationConfiguration.GitHub.ClientId;
             options.ClientSecret = authenticationConfiguration.GitHub.ClientSecret;
-            options.CallbackPath = authenticationConfiguration.GitHub.CallbackPath;
+            options.CallbackPath = new PathString(authenticationConfiguration.GitHub.CallbackPath);
             options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
             options.TokenEndpoint = "https://github.com/login/oauth/access_token";
             options.UserInformationEndpoint = "https://api.github.com/user";
@@ -74,7 +78,7 @@ public static class ServiceCollectionExtensions
                 emailResponse.EnsureSuccessStatusCode();
 
                 using var emails = JsonDocument.Parse(await emailResponse.Content.ReadAsStringAsync());
-
+                string? email = "";
                 if (emails.RootElement.ValueKind == JsonValueKind.Array)
                 {
                     var primaryEmail = emails.RootElement.EnumerateArray()
@@ -85,12 +89,31 @@ public static class ServiceCollectionExtensions
                     if (primaryEmail.ValueKind != JsonValueKind.Undefined &&
                         primaryEmail.TryGetProperty("email", out var emailProp))
                     {
-                        var email = emailProp.GetString();
+                        email = emailProp.GetString();
                         if (!string.IsNullOrEmpty(email))
                         {
                             context.Identity?.AddClaim(new Claim(ClaimTypes.Email, email));
                         }
                     }
+                }
+
+                var profileService = context.HttpContext.RequestServices.GetRequiredService<IProfileService>();
+
+                var githubId = user.RootElement.GetProperty("id").GetInt64();
+                var login = user.RootElement.GetProperty("login").GetString();
+                var userName = user.RootElement.GetProperty("name").GetString();
+                var profileUrl = user.RootElement.GetProperty("html_url").GetString();
+
+                var existingUser = await profileService.GetByUserId(githubId.ToString(), CancellationToken.None);
+                if (existingUser == null)
+                {
+                    await profileService.Add(new ProfileEntity
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = githubId.ToString(),
+                        UserName = login,
+                        Email = email
+                    }, CancellationToken.None);
                 }
             };
 

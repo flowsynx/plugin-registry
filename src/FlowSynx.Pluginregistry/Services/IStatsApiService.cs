@@ -9,5 +9,6 @@ public interface IStatsApiService
 {
     Task<PaginatedResult<PluginsListResponse>?> GetPlugins(string? query, int? page);
     Task<Result<PluginDetailsResponse>?> GetPluginDetails(string? type, string version);
-    Task<string> UploadFileAsync(IBrowserFile file, Func<int, Task> onProgress, CancellationToken cancellationToken = default);
+    Task UploadFileAsync(IBrowserFile file, Func<int, Task> onProgress, 
+        Guid profileId, CancellationToken cancellationToken = default);
 }

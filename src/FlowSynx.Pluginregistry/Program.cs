@@ -4,8 +4,6 @@ using FlowSynx.PluginRegistry.Infrastructure.Extensions;
 using FlowSynx.PluginRegistry.Application.Extensions;
 using FlowSynx.Pluginregistry.Services;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Antiforgery;
-using System.Diagnostics.Metrics;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 

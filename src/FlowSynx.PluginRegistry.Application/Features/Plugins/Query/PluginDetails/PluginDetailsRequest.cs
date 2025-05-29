@@ -5,6 +5,6 @@ namespace FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetai
 
 public class PluginDetailsRequest : IRequest<Result<PluginDetailsResponse>>
 {
-    public string? PluginType { get; set; }
-    public string? PluginVersion { get; set; }
+    public string PluginType { get; set; } = default!;
+    public string PluginVersion { get; set; } = default!;
 }

@@ -30,7 +30,25 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
                .HasMaxLength(4096)
                .IsRequired();
 
-        builder.Property(t => t.Url)
+        builder.Property(t => t.RepositoryUrl)
+               .HasMaxLength(4096);
+
+        builder.Property(t => t.ProjectUrl)
+               .HasMaxLength(4096);
+
+        builder.Property(t => t.Copyright)
+               .HasMaxLength(2048);
+
+        builder.Property(t => t.Icon)
+               .HasMaxLength(4096);
+
+        builder.Property(t => t.License)
+               .HasMaxLength(1024);
+
+        builder.Property(t => t.License)
+               .HasMaxLength(1024);
+
+        builder.Property(t => t.LicenseUrl)
                .HasMaxLength(4096);
 
         builder.HasIndex(v => new { v.PluginId, v.Version })

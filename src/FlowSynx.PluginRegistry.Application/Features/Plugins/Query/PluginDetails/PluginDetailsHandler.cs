@@ -34,9 +34,15 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                 Version = plugin.Version,
                 Owners = plugin.Plugin.Owners.Select(x=>x.Profile!.UserName),
                 Description = plugin.Description,
-                Url = plugin.Url,
+                ProjectUrl = plugin.ProjectUrl,
+                RepositoryUrl = plugin.RepositoryUrl,
+                Copyright = plugin.Copyright,
+                License = plugin.License,
+                LicenseUrl = plugin.LicenseUrl,
+                Icon = plugin.Icon,
                 LastUpdated = plugin.LastModifiedOn ?? plugin.CreatedOn,
                 DownloadCount = plugin.Statistics.Count(x=>x.PluginVersionId == plugin.Id),
+                Checksum = plugin.Checksum,
                 Tags = plugin.PluginVersionTags.Select(x=>x.Tag!.Name),
                 Versions = plugin.Plugin.Versions
                                  .OrderByDescending(x=>x.LastModifiedOn)

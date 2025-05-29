@@ -3,7 +3,6 @@ using FlowSynx.Pluginregistry.Extensions;
 using FlowSynx.PluginRegistry.Application.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace FlowSynx.Endpoints;
 

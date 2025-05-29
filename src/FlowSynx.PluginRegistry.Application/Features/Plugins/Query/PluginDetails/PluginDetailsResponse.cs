@@ -5,10 +5,16 @@ public class PluginDetailsResponse
     public required string Type { get; set; }
     public required string Version { get; set; }
     public string? Description { get; set; }
-    public IEnumerable<string> Owners { get; set; } = new List<string>();
-    public string? Url { get; set; }
+    public string? License { get; set; }
+    public string? LicenseUrl { get; set; }
+    public string? Icon { get; set; }
+    public string? ProjectUrl { get; set; }
+    public string? RepositoryUrl { get; set; }
+    public string? Copyright { get; set; }
     public DateTime LastUpdated { get; set; }
     public int DownloadCount { get; set; } = 0;
     public IEnumerable<string> Tags { get; set; } = new List<string>();
     public IEnumerable<string> Versions { get; set; } = new List<string>();
+    public IEnumerable<string> Owners { get; set; } = new List<string>();
+    public string? Checksum { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿using FlowSynx.PluginRegistry.Application.Services;
-using FlowSynx.PluginRegistry.Domain.ApiKey;
 using FlowSynx.PluginRegistry.Domain.Plugin;
+using FlowSynx.PluginRegistry.Domain.Profile;
 using FlowSynx.PluginRegistry.Infrastructure.Contexts;
 using FlowSynx.PluginRegistry.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +19,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ISystemClock, SystemClock>()
             .AddScoped<IPluginService, PluginService>()
             .AddScoped<IPluginVersionService, PluginVersionService>()
-            .AddScoped<IApiKeyService, ApiKeyService>()
+            .AddScoped<IProfileService, ProfileService>()
             .AddScoped<IGravatar, Gravatar>()
             .AddDbContextFactory<ApplicationContext>(options =>
             {

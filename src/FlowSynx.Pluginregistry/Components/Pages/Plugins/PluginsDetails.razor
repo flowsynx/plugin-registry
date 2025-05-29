@@ -43,7 +43,7 @@
                     <h5 class="fw-bolder mb-3 text-muted">Version: @plugin.Data.Version</h5>
                     <div class="position-relative mb-3">
                         <CodeCopy CodeToCopy="@jsonCodeBlock" ButtonText="Copy" SuccessText="Copied!" />
-                        <pre class="plugin-code-block"><code>@jsonCodeBlock</code>
+                        <pre class="plugin-code-block bg-light"><code>@jsonCodeBlock</code>
                         </pre>
                     </div>
                     <p>@plugin.Data.Description</p>
@@ -80,14 +80,34 @@
                                         <i class="bi bi-clock-history text-secondary"></i>
                                         last updated: @TimeHelper.GetHumanReadableDate(plugin.Data.LastUpdated)
                                     </div>
-                                    @if (!string.IsNullOrEmpty(plugin.Data.Url))
+                                    @if (!string.IsNullOrEmpty(plugin.Data.ProjectUrl))
                                     {
                                     <div class="mb-3">
                                         <i class="bi bi-globe text-secondary"></i>
-                                        <a href="@plugin.Data.Url" target="_blank">@plugin.Data.Url</a>
+                                        <a href="@plugin.Data.ProjectUrl" target="_blank">@plugin.Data.ProjectUrl</a>
                                     </div>
                                     }
-
+                                    @if (!string.IsNullOrEmpty(plugin.Data.RepositoryUrl))
+                                    {
+                                        <div class="mb-3">
+                                            <i class="bi bi-globe text-secondary"></i>
+                                            <a href="@plugin.Data.RepositoryUrl" target="_blank">@plugin.Data.RepositoryUrl</a>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(plugin.Data.License))
+                                    {
+                                        <div class="mb-3">
+                                            <i class="bi bi-globe text-secondary"></i>
+                                            @if (!string.IsNullOrEmpty(plugin.Data.LicenseUrl))
+                                            {
+                                                <a href="@plugin.Data.LicenseUrl" target="_blank">@plugin.Data.License</a>
+                                            }
+                                            else
+                                            {
+                                                @plugin.Data.License
+                                            }
+                                        </div>
+                                    }
                                     @if (plugin.Data.Owners.Any())
                                     {
                                         <div class="mb-3">
@@ -98,17 +118,21 @@
                                             }
                                         </div>
                                     }
-                                    @{
-                                        @if (plugin.Data.Tags.Any())
-                                        {
-                                            <div class="mb-3">
-                                                <h6>Tags</h6>
-                                                @foreach (var tag in plugin.Data.Tags)
-                                                {
-                                                    <a href="/plugins?q=tag:@tag"><span class="badge border border-secondary text-secondary me-1">@tag</span></a>
-                                                }
-                                            </div>
-                                        }
+                                    @if (plugin.Data.Tags.Any())
+                                    {
+                                        <div class="mb-3">
+                                            <h6>Tags</h6>
+                                            @foreach (var tag in plugin.Data.Tags)
+                                            {
+                                                <a href="/plugins?q=tag:@tag"><span class="badge border border-secondary text-secondary me-1">@tag</span></a>
+                                            }
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(plugin.Data.Copyright))
+                                    {
+                                        <div class="mb-3">
+                                            @plugin.Data.Copyright
+                                        </div>
                                     }
                                 </div>
                             </div>

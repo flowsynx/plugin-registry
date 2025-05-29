@@ -25,7 +25,7 @@ public class PluginService : IPluginService
     {
         try
         {
-            using var context = _appContextFactory.CreateDbContext();
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
             IQueryable<PluginEntity> pluginEntities = context.Plugins
                 .Include(i => i.LatestVersion).ThenInclude(i => i!.PluginVersionTags)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
@@ -48,6 +48,27 @@ public class PluginService : IPluginService
         }
     }
 
+    public async Task<PluginEntity?> GetByPluginType(
+        string pluginType,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+            IQueryable<PluginEntity> pluginEntity = context.Plugins
+                .Include(i => i.Versions)
+                .Where(p => !p.IsDeleted);
+
+            return await pluginEntity
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
     public async Task<Pagination<PluginEntity>> AllBySeachQuery(
         string? query,
         int page,
@@ -55,7 +76,7 @@ public class PluginService : IPluginService
     {
         try
         {
-            using var context = _appContextFactory.CreateDbContext();
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
             IQueryable<PluginEntity> pluginEntities = context.Plugins
                 .Include(i => i.LatestVersion).ThenInclude(i => i!.PluginVersionTags)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
@@ -94,7 +115,7 @@ public class PluginService : IPluginService
     {
         try
         {
-            using var context = _appContextFactory.CreateDbContext();
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
             IQueryable<PluginEntity> pluginEntities = context.Plugins
                 .Include(i => i.LatestVersion).ThenInclude(i => i!.PluginVersionTags)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
@@ -127,10 +148,28 @@ public class PluginService : IPluginService
     {
         try
         {
-            using var context = _appContextFactory.CreateDbContext();
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
             await context.Plugins
                 .AddAsync(pluginEntity, cancellationToken)
                 .ConfigureAwait(false);
+
+            await context
+                .SaveChangesAsync(cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task Update(PluginEntity pluginEntity, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+            context.Entry(pluginEntity).State = EntityState.Detached;
+            context.Plugins.Update(pluginEntity);
 
             await context
                 .SaveChangesAsync(cancellationToken)
@@ -146,7 +185,7 @@ public class PluginService : IPluginService
     {
         try
         {
-            using var context = _appContextFactory.CreateDbContext();
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
             context.Plugins.Remove(pluginEntity);
             context.SoftDelete(pluginEntity);
 

@@ -24,7 +24,6 @@ public class ProfileEntityConfiguration : IEntityTypeConfiguration<ProfileEntity
                .IsUnique();
 
         builder.Property(t => t.Email)
-               .HasMaxLength(1024)
-               .IsRequired();
+               .HasMaxLength(1024);
     }
 }

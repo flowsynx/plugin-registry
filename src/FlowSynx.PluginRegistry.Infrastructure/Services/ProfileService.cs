@@ -21,13 +21,13 @@ public class ProfileService : IProfileService
         _logger = logger;
     }
 
-    public async Task<ProfileEntity?> GetByProfileId(string profileId, CancellationToken cancellationToken)
+    public async Task<ProfileEntity?> GetByUserId(string userId, CancellationToken cancellationToken)
     {
         try
         {
             using var context = _appContextFactory.CreateDbContext();
             var result = await context.Profiles
-                .FirstOrDefaultAsync(p => p.IsDeleted == false, cancellationToken)
+                .FirstOrDefaultAsync(p => p.UserId == userId && p.IsDeleted == false, cancellationToken)
                 .ConfigureAwait(false);
 
             return result;
