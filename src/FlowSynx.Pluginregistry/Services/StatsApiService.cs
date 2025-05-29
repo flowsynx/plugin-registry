@@ -134,7 +134,7 @@ public class StatsApiService : IStatsApiService
 
     private string CreateTempDirectory()
     {
-        var tempPath = Path.Combine(_env.WebRootPath, "temp", Path.GetRandomFileName());
+        var tempPath = Path.Combine(_env.ContentRootPath, "temp", Path.GetRandomFileName());
         Directory.CreateDirectory(tempPath);
         return tempPath;
     }
