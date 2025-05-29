@@ -27,6 +27,11 @@ public class Account : EndpointGroupBase
         };
 
         await context.ChallengeAsync("GitHub", props);
+
+        if(context.Request.Query["error"] == "access_denied")
+        {
+            throw new Exception("GitHub authentication was canceled or denied.");
+        }
     }
 
     public async Task Logout(HttpContext context, CancellationToken cancellationToken)

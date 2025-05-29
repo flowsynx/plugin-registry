@@ -119,8 +119,26 @@ public static class ServiceCollectionExtensions
 
             options.Events.OnRedirectToAuthorizationEndpoint = context =>
             {
-                var prompt = "&prompt=login";
-                context.Response.Redirect(context.RedirectUri + prompt);
+                var redirectUri = context.RedirectUri;
+
+                if (!redirectUri.Contains("prompt=login", StringComparison.OrdinalIgnoreCase))
+                {
+                    var separator = redirectUri.Contains("?") ? "&" : "?";
+                    redirectUri += $"{separator}prompt=login";
+                }
+
+                context.Response.Redirect(redirectUri);
+                return Task.CompletedTask;
+            };
+
+            options.Events.OnRemoteFailure = context =>
+            {
+                // Optional: log error details
+                var error = context.Failure?.Message;
+
+                // Redirect the user to a friendly error page or login page
+                context.Response.Redirect("/api/account/login?error=access_denied");
+                context.HandleResponse(); // Prevents the exception from bubbling up
                 return Task.CompletedTask;
             };
         });

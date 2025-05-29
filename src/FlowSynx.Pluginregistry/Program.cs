@@ -53,9 +53,10 @@ builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStat
 
 var app = builder.Build();
 
+app.UseExceptionHandler("/Error", createScopeForErrors: true);
+
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
     app.UseHsts();
 }
 
