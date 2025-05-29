@@ -398,5 +398,8 @@ FodyWeavers.xsd
 # SQLite Database
 logs.db*
 
+# plugins
+*.fspack
+
 # Configuration files
 appsettings.Development.json
