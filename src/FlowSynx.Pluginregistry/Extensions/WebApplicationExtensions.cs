@@ -1,10 +1,27 @@
 ﻿using FlowSynx.Pluginregistry.Endpoints;
+using FlowSynx.PluginRegistry.Application.Configuration;
+using Microsoft.AspNetCore.HttpOverrides;
 using System.Reflection;
 
 namespace FlowSynx.Pluginregistry.Extensions;
 
 public static class WebApplicationExtensions
 {
+    public static WebApplication ConfigRedirection(this WebApplication app)
+    {
+        var endpointConfiguration = app.Services.GetRequiredService<EndpointConfiguration>();
+
+        if (endpointConfiguration.HttpsRedirection is true)
+            app.UseHttpsRedirection();
+
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+        });
+
+        return app;
+    }
+
     public static RouteGroupBuilder MapGroup(this WebApplication app, EndpointGroupBase group)
     {
         var groupName = group.GetType().Name;

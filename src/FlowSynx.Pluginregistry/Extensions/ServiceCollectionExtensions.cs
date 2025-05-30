@@ -24,12 +24,17 @@ public static class ServiceCollectionExtensions
         configuration.GetSection("Endpoint").Bind(endpointConfiguration);
         services.AddSingleton(endpointConfiguration);
 
-        if (string.IsNullOrEmpty(endpointConfiguration.BaseAddress))
-            throw new Exception("The base address is not configured!");
-
         services.AddHttpClient("Api", (sp, client) =>
         {
-            client.BaseAddress = new Uri(endpointConfiguration.BaseAddress);
+            var accessor = sp.GetRequiredService<IHttpContextAccessor>();
+            var request = accessor.HttpContext?.Request;
+
+            if (request != null)
+            {
+                var scheme = request.Scheme;
+                var host = request.Host.Value;
+                client.BaseAddress = new Uri($"{scheme}://{host}/");
+            }
         });
 
         return services;

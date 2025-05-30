@@ -2,5 +2,6 @@
 
 public class EndpointConfiguration
 {
-    public string? BaseAddress { get; set; }
+    public int? Http { get; set; } = 7236;
+    public bool? HttpsRedirection { get; set; } = false;
 }

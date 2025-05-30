@@ -6,7 +6,6 @@ using FlowSynx.Pluginregistry.Services;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
-using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +49,8 @@ builder.Services.AddGitHubAuthentication(config);
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
 
+builder.ConfigHttpServer();
+
 var app = builder.Build();
 
 app.UseExceptionHandler("/Error", createScopeForErrors: true);
@@ -59,12 +60,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
-
+app.ConfigRedirection();
 app.EnsureApplicationDatabaseCreated();
 app.UseAntiforgery();
 
