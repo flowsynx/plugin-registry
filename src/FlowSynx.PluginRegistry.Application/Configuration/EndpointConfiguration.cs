@@ -2,5 +2,5 @@
 
 public class EndpointConfiguration
 {
-    public int? Http { get; set; } = 7272;
+    public string? BaseAddress { get; set; }
 }

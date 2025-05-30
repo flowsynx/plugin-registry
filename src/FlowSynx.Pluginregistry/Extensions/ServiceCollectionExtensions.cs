@@ -5,9 +5,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FlowSynx.PluginRegistry.Application.Configuration;
-using Microsoft.EntityFrameworkCore;
 using FlowSynx.PluginRegistry.Domain.Profile;
-using System.Linq;
 
 namespace FlowSynx.Pluginregistry.Extensions;
 
@@ -17,6 +15,23 @@ public static class ServiceCollectionExtensions
     {
         var cancellationTokenSource = new CancellationTokenSource();
         services.AddSingleton(cancellationTokenSource);
+        return services;
+    }
+
+    public static IServiceCollection AddBaseAddress(this IServiceCollection services, IConfiguration configuration)
+    {
+        var endpointConfiguration = new EndpointConfiguration();
+        configuration.GetSection("Endpoint").Bind(endpointConfiguration);
+        services.AddSingleton(endpointConfiguration);
+
+        if (string.IsNullOrEmpty(endpointConfiguration.BaseAddress))
+            throw new Exception("The base address is not configured!");
+
+        services.AddHttpClient("Api", (sp, client) =>
+        {
+            client.BaseAddress = new Uri(endpointConfiguration.BaseAddress);
+        });
+
         return services;
     }
 
