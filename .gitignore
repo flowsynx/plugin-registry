@@ -398,6 +398,8 @@ FodyWeavers.xsd
 # SQLite Database
 logs.db*
 
+*.env
+
 # plugins
 *.fspack
 
