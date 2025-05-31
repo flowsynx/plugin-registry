@@ -38,6 +38,28 @@ public class ProfileService : IProfileService
         }
     }
 
+    public async Task<(int PluginCount, int DownloadCount, string? ProfileEmail)> GetPluginStatisticsByUsernameAsync(string username, 
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+        var query = context.Profiles
+            .Where(p => p.UserName == username)
+            .SelectMany(p => p.Owners
+                .Where(o => !o.Plugin!.IsDeleted)
+                .Select(o => o.Plugin!));
+
+        var pluginCount = await query.CountAsync(cancellationToken);
+
+        var downloadCount = await query
+            .SelectMany(p => p.Versions.Where(v => !v.IsDeleted))
+            .SelectMany(v => v.Statistics)
+            .CountAsync(cancellationToken);
+
+        var email = await context.Profiles.FirstOrDefaultAsync(x => x.UserName == username);
+        return (pluginCount, downloadCount, email?.Email);
+    }
+
+
     public async Task Add(ProfileEntity profileEntity, CancellationToken cancellationToken)
     {
         try

@@ -56,6 +56,7 @@ public class PluginVersionService : IPluginVersionService
             using var context = _appContextFactory.CreateDbContext();
             IQueryable<PluginVersionEntity> pluginVersionEntities = context.PluginVersions
                 .Include(i => i.PluginVersionTags)
+                .Include(i => i!.Statistics)
                 .Include(i => i.Plugin).ThenInclude(i=>i.Owners).ThenInclude(i => i.Profile)
                 .Include(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
                 .Where(p => !p.IsDeleted && p.Plugin != null && p.Version == pluginVersion && p.Plugin.Type == pluginType);
@@ -94,7 +95,6 @@ public class PluginVersionService : IPluginVersionService
         List<string> tagNames,
         CancellationToken cancellationToken)
     {
-        // Normalize tag names (e.g., trim, lowercase for comparison)
         var normalizedTagNames = tagNames
             .Select(t => t.Trim())
             .Where(t => !string.IsNullOrWhiteSpace(t))
@@ -105,7 +105,6 @@ public class PluginVersionService : IPluginVersionService
             return;
 
         await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
-        // Get the PluginVersion
         var pluginVersion = await context.PluginVersions
             .Include(pv => pv.PluginVersionTags)
             .FirstOrDefaultAsync(pv => pv.Id == pluginVersionId);
@@ -113,25 +112,20 @@ public class PluginVersionService : IPluginVersionService
         if (pluginVersion == null)
             throw new InvalidOperationException("Plugin version not found.");
 
-        // Load existing tags from DB
         var existingTags = await context.Tags
             .Where(t => normalizedTagNames.Contains(t.Name))
             .ToListAsync();
 
-        // Determine which tags need to be created
         var existingTagNames = existingTags.Select(t => t.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var newTagNames = normalizedTagNames
             .Where(t => !existingTagNames.Contains(t))
             .ToList();
 
-        // Create new TagEntity instances
         var newTags = newTagNames.Select(name => new TagEntity { Id = Guid.NewGuid(), Name = name }).ToList();
         await context.Tags.AddRangeAsync(newTags);
 
-        // Combine all tags
         var allTags = existingTags.Concat(newTags).ToList();
 
-        // Add PluginVersionTagEntity relationships if not already existing
         foreach (var tag in allTags)
         {
             if (!pluginVersion.PluginVersionTags.Any(pvt => pvt.TagId == tag.Id))

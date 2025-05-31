@@ -1,10 +1,11 @@
 ﻿using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile;
 using FlowSynx.PluginRegistry.Application.Wrapper;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using FlowSynx.PluginRegistry.Domain.Profile;
 using Microsoft.AspNetCore.Components.Forms;
-using System;
 using System.IO.Compression;
 using System.Net;
 using System.Security.Cryptography;
@@ -62,6 +63,38 @@ public class StatsApiService : IStatsApiService
         catch (Exception ex)
         {
             return await Result<PluginDetailsResponse>.FailAsync(ex.Message);
+        }
+    }
+
+    public async Task<PaginatedResult<PluginsListByProfileResponse>?> GetPluginsByUserName(string userName, int? page)
+    {
+        var url = page is int && page > 1
+            ? $"/api/profiles/{userName}?page={page}"
+            : $"/api/profiles/{userName}";
+
+        return await SendGetRequest<PaginatedResult<PluginsListByProfileResponse>>(url);
+    }
+
+    public async Task<Result<PluginsStatisticsByProfileResponse>?> GetPluginStatisticsByUsername(string? userName)
+    {
+        var url = $"/api/profiles/{userName}/statistics";
+        try
+        {
+            var response = await _http.GetAsync(url);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = response.StatusCode == HttpStatusCode.NotFound
+                ? $"Profile '{userName}' not found"
+                : $"API call failed with status code: {response.StatusCode}";
+
+                return await Result<PluginsStatisticsByProfileResponse>.FailAsync(error);
+            }
+
+            return await response.Content.ReadFromJsonAsync<Result<PluginsStatisticsByProfileResponse>>();
+        }
+        catch (Exception ex)
+        {
+            return await Result<PluginsStatisticsByProfileResponse>.FailAsync(ex.Message);
         }
     }
 

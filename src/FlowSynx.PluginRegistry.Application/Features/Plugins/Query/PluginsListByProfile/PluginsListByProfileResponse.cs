@@ -1,6 +1,6 @@
-﻿namespace FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
+﻿namespace FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
 
-public class PluginsListResponse
+public class PluginsListByProfileResponse
 {
     public required string Type { get; set; }
     public required string Version { get; set; }
@@ -8,5 +8,5 @@ public class PluginsListResponse
     public IEnumerable<string> Tags { get; set; } = new List<string>();
     public IEnumerable<string> Owners { get; set; } = new List<string>();
     public DateTime LastUpdated { get; set; }
-    public int TotalDownload { get; set; } = 0;
+    public long TotalDownload { get; set; } = 0;
 }

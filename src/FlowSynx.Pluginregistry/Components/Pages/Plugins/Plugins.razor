@@ -61,7 +61,7 @@
                 </div>
                 @foreach (var plugin in plugins?.Data!)
                 {
-                    <div class="card mb-3">
+                    <div class="card mb-2 border">
                         <div class="card-body">
                             <h4 class="card-title"><a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a></h4>
                             @if (plugin.Owners.Any())
@@ -70,7 +70,7 @@
                                     By:
                                     @foreach (var owner in plugin.Owners)
                                     {
-                                        <a class="me-2" href="/profile/@owner">@owner</a>
+                                        <a class="me-2" href="/profiles/@owner">@owner</a>
                                     }
                                 </div>
                             }
@@ -88,6 +88,10 @@
                                 }
                             }
                             <div class="d-flex flex-column flex-md-row align-items-start text-start gap-0 mt-3">
+                                <div class="me-3">
+                                    <i class="bi bi-download text-secondary"></i>
+                                    @plugin.TotalDownload.ToString("N0") total downloads
+                                </div>
                                 <div class="me-3">
                                     <i class="bi bi-clock-history text-secondary"></i>
                                     last updated: @TimeHelper.GetHumanReadableDate(plugin.LastUpdated)

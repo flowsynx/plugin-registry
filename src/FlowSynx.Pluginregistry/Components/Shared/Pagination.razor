@@ -1,7 +1,7 @@
 ﻿@inject NavigationManager NavigationManager
 
-<div class="d-flex justify-content-between align-items-center mt-3">
-    <p>Page @CurrentPage of @TotalPages</p>
+<div class="d-flex justify-content-between align-items-center mt-1 border rounded-3 p-1">
+    <p class="mb-0 ps-2">Page @CurrentPage of @TotalPages</p>
     <nav>
         <ul class="pagination mb-0">
             <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">

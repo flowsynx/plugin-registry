@@ -41,7 +41,7 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                 LicenseUrl = plugin.LicenseUrl,
                 Icon = plugin.Icon,
                 LastUpdated = plugin.LastModifiedOn ?? plugin.CreatedOn,
-                DownloadCount = plugin.Statistics.Count(x=>x.PluginVersionId == plugin.Id),
+                TotalDownload = plugin.Statistics.Count,
                 Checksum = plugin.Checksum,
                 Tags = plugin.PluginVersionTags.Select(x=>x.Tag!.Name),
                 Versions = plugin.Plugin.Versions

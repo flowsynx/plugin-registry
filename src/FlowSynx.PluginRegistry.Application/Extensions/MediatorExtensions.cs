@@ -1,6 +1,8 @@
 ﻿using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginLocation;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile;
 using FlowSynx.PluginRegistry.Application.Wrapper;
 using MediatR;
 
@@ -38,6 +40,12 @@ public static class MediatorExtensions
         }, cancellationToken);
     }
 
+    public static Task<PaginatedResult<PluginsListByProfileResponse>> PluginsListByuserName(
+        this IMediator mediator, string userName, int? page, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new PluginsListByProfileRequest { UserName = userName, Page = page }, cancellationToken);
+    }
+
     public static Task<Result<PluginLocationResponse>> PluginLocation(
         this IMediator mediator, string pluginType, string pluginVersion, CancellationToken cancellationToken)
     {
@@ -46,6 +54,14 @@ public static class MediatorExtensions
             PluginType = pluginType,
             PluginVersion = pluginVersion
         }, cancellationToken);
+    }
+    #endregion
+
+    #region Profile
+    public static Task<Result<PluginsStatisticsByProfileResponse>> PluginStatisticsByUsernameAsync(
+        this IMediator mediator, string username, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new PluginsStatisticsByProfileRequest { UserName = username }, cancellationToken);
     }
     #endregion
 }

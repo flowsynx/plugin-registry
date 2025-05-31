@@ -16,4 +16,8 @@
     <ProjectReference Include="..\FlowSynx.PluginRegistry.Domain\FlowSynx.PluginRegistry.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Profiles\Query\" />
+  </ItemGroup>
+
 </Project>
