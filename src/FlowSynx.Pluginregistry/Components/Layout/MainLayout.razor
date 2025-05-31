@@ -14,8 +14,8 @@
                 Plugin Registry
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -26,7 +26,7 @@
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     @if (!IsAuthenticated)
                     {
-                        <li class="nav-item"><a class="nav-link" href="/api/account/login">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@GetLoginUrl()">Login</a></li>
                     }
                     else
                     {
@@ -86,5 +86,12 @@
         var uri = new Uri(Navigation.Uri);
         var queryString = System.Web.HttpUtility.ParseQueryString(uri.Query);
         q = queryString["q"];
+    }
+
+    private string GetLoginUrl()
+    {
+        var currentUrl = "/" + Navigation.ToBaseRelativePath(Navigation.Uri);
+        var encodedUrl = Uri.EscapeDataString(currentUrl);
+        return $"api/account/login?returnUrl={encodedUrl}";
     }
 }
