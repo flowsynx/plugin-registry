@@ -3,6 +3,8 @@ using FlowSynx.Pluginregistry.Extensions;
 using FlowSynx.PluginRegistry.Application.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using FlowSynx.Pluginregistry.Services;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace FlowSynx.Endpoints;
 
@@ -17,6 +19,9 @@ public class Plugins : EndpointGroupBase
 
         group.MapGet("/{type}/{version}", GetPluginWithTypeAsync)
             .WithName("GetPluginWithType");
+
+        group.MapGet("/{type}/{version}/icon", GetPluginIconWithTypeAsync)
+            .WithName("GetPluginIconWithType");
 
         group.MapGet("/{type}/{version}/download", DownloadPluginByTypeAsync)
             .WithName("DownloadPluginByType");
@@ -34,6 +39,39 @@ public class Plugins : EndpointGroupBase
     {
         var result = await mediator.PluginDetails(type, version, cancellationToken);
         return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
+    }
+
+    public async Task<IResult> GetPluginIconWithTypeAsync(string type, string version, [FromServices] IMediator mediator,
+       IFileStorage fileStorage,  CancellationToken cancellationToken)
+    {
+        var defaultIconPath = Path.Combine("wwwroot", "images", "NoPluginIcon.png");
+        var result = await mediator.PluginIcon(type, version, cancellationToken);
+
+        if (!result.Succeeded)
+        {
+            var fileBytes = await File.ReadAllBytesAsync(defaultIconPath);
+            return Results.File(fileBytes, "image/png");
+        }
+
+        if (string.IsNullOrEmpty(result.Data.Icon)) 
+        {
+            var fileBytes = await File.ReadAllBytesAsync(defaultIconPath);
+            return Results.File(fileBytes, "image/png");
+        }
+            
+        var fileExist = await fileStorage.FileExistsAsync(result.Data.Icon);
+        if (!fileExist)
+        {
+            var fileBytes = await File.ReadAllBytesAsync(defaultIconPath);
+            return Results.File(fileBytes, "image/png");
+        }
+        
+        var iconToServe = await fileStorage.ReadFileAsync(result.Data.Icon);
+        var provider = new FileExtensionContentTypeProvider();
+        if (!provider.TryGetContentType(result.Data.Icon, out var contentType))
+            contentType = "application/octet-stream";
+
+        return Results.File(iconToServe, contentType);
     }
 
     public async Task DownloadPluginByTypeAsync(

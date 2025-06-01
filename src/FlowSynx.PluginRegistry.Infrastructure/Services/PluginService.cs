@@ -30,7 +30,7 @@ public class PluginService : IPluginService
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i=>i.Tag)
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.Statistics)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
-                .Include(p => p.Versions.Where(v => !v.IsDeleted)).ThenInclude(v => v.Statistics)
+                .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                 .Where(p => !p.IsDeleted && p.LatestVersion != null);
 
             var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);
@@ -57,7 +57,7 @@ public class PluginService : IPluginService
         {
             await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
             IQueryable<PluginEntity> pluginEntity = context.Plugins
-                .Include(i => i.Versions)
+                .Include(i => i.Versions.Where(v=> !v.IsDeleted && v.IsActive))
                 .Where(p => !p.IsDeleted);
 
             return await pluginEntity
@@ -82,7 +82,7 @@ public class PluginService : IPluginService
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i => i.Tag)
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.Statistics)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
-                .Include(p => p.Versions.Where(v => !v.IsDeleted)).ThenInclude(v => v.Statistics)
+                .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                 .Where(p => !p.IsDeleted && p.LatestVersion != null);
 
             if (!string.IsNullOrEmpty(query))
@@ -122,7 +122,7 @@ public class PluginService : IPluginService
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i => i.Tag)
                 .Include(p => p.LatestVersion).ThenInclude(i=> i!.Statistics)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
-                .Include(p => p.Versions.Where(v => !v.IsDeleted)).ThenInclude(v => v.Statistics)
+                .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                 .Where(p => !p.IsDeleted && p.LatestVersion != null);
 
             if (!string.IsNullOrEmpty(tag))
@@ -157,7 +157,7 @@ public class PluginService : IPluginService
                     .Where(p => !p.IsDeleted && p.Owners.Any(o => o.Profile != null && o.Profile.UserName == username))
                     .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i => i.Tag)
                     .Include(p => p.LatestVersion).ThenInclude(x=>x.Statistics)
-                    .Include(p => p.Versions.Where(v => !v.IsDeleted)).ThenInclude(v => v.Statistics)
+                    .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                     .Include(p => p.Owners).ThenInclude(o => o.Profile);
 
             var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);

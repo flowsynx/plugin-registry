@@ -1,4 +1,5 @@
 ﻿using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginIcon;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginLocation;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
@@ -37,6 +38,16 @@ public static class MediatorExtensions
         { 
             PluginType = pluginType, 
             PluginVersion = pluginVersion 
+        }, cancellationToken);
+    }
+
+    public static Task<Result<PluginIconResponse>> PluginIcon(
+        this IMediator mediator, string pluginType, string pluginVersion, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new PluginIconRequest
+        {
+            PluginType = pluginType,
+            PluginVersion = pluginVersion
         }, cancellationToken);
     }
 

@@ -44,6 +44,10 @@ builder.Services.Configure<FormOptions>(options =>
 builder.Services.AddBaseAddress(config);
 
 builder.Services.AddScoped<IStatsApiService, StatsApiService>();
+builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+builder.Services.AddScoped<IApiClient, ApiClient>();
+builder.Services.AddScoped<IFileValidator, FileValidator>();
+builder.Services.AddScoped<IPluginMetadataReader, PluginMetadataReader>();
 
 builder.Services.AddGitHubAuthentication(config);
 builder.Services.AddAuthorization();

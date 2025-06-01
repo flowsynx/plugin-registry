@@ -74,3 +74,12 @@ h1:focus {
     font-size: 0.8rem;
     z-index: 1;
 }
+
+.feature {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+    width: 4rem;
+    font-size: 2rem;
+}

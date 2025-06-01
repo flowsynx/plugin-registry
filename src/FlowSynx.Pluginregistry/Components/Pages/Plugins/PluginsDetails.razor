@@ -39,35 +39,66 @@
         {
             <div class="row">
                 <div class="col-md-9 mx-auto">
-                    <h2 class="fw-bolder mb-1">@plugin.Data.Type</h2>
+                    <h2 class="fw-bolder mb-1">
+                        <img src="/api/plugins/@plugin.Data.Type/@plugin.Data.Version/icon" height="64" width="64" />
+                        @plugin.Data.Type
+                    </h2>
                     <h5 class="fw-bolder mb-3 text-muted">Version: @plugin.Data.Version</h5>
-                    <div class="position-relative mb-3">
-                        <CodeCopy CodeToCopy="@jsonCodeBlock" ButtonText="Copy" SuccessText="Copied!" />
+                    <div class="position-relative mb-2">
+                        <CodeCopy CodeToCopy="@jsonCodeBlock" />
                         <pre class="plugin-code-block border bg-light"><code>@jsonCodeBlock</code>
                         </pre>
                     </div>
-                    <p>@plugin.Data.Description</p>
+
+                    <p class="p-2 border">@plugin.Data.Description</p>
 
                     <div class="mt-5">
-                        <h4>Versions history</h4>
-                        <table class="table">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Version</th>
-                                    <th>Last updated</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var version in plugin.Data.Versions)
-                                {
-                                    <tr>
-                                        <td><a href="/plugins/@plugin.Data.Type/@plugin.Data.Version">@version</a>
-                                    </td>
-                                        <td>@TimeHelper.GetOnlyDate(@plugin.Data.LastUpdated)</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        <ul class="nav nav-tabs" id="pluginDetailsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="reame-tab" data-bs-toggle="tab" data-bs-target="#readme" type="button"
+                                        role="tab" aria-controls="readme" aria-selected="true">
+                                    <i class="bi bi-file-text"></i> README
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="versions-tab" data-bs-toggle="tab" data-bs-target="#versions" type="button"
+                                        role="tab" aria-controls="versions" aria-selected="false">
+                                    <i class="bi bi-stopwatch"></i> Versions
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="tab-content mt-2" id="myTabContent">
+                            <div class="tab-pane fade show active" id="readme" role="tabpanel" aria-labelledby="readme-tab">
+                                <p>@plugin.Data.Description</p>
+                            </div>
+                            <div class="tab-pane fade" id="versions" role="tabpanel" aria-labelledby="versions-tab">
+                                <table class="table">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Version</th>
+                                            <th>Downloads</th>
+                                            <th>Last updated</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var version in plugin.Data.Versions)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <a href="/plugins/@plugin.Data.Type/@plugin.Data.Version">@version</a>
+                                                </td>
+                                                <td>
+                                                    @plugin.Data.TotalDownload
+                                                </td>
+                                                <td>
+                                                    @TimeHelper.GetOnlyDate(@plugin.Data.LastUpdated)
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-3 mx-auto bg-light">
@@ -88,14 +119,14 @@
                                     {
                                     <div class="mb-3">
                                         <i class="bi bi-globe text-secondary"></i>
-                                        <a href="@plugin.Data.ProjectUrl" target="_blank">@plugin.Data.ProjectUrl</a>
+                                        <a href="@plugin.Data.ProjectUrl" target="_blank">Project Website</a>
                                     </div>
                                     }
                                     @if (!string.IsNullOrEmpty(plugin.Data.RepositoryUrl))
                                     {
                                         <div class="mb-3">
                                             <i class="bi bi-git text-secondary"></i>
-                                            <a href="@plugin.Data.RepositoryUrl" target="_blank">@plugin.Data.RepositoryUrl</a>
+                                            <a href="@plugin.Data.RepositoryUrl" target="_blank">Source Repository</a>
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(plugin.Data.License))

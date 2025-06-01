@@ -145,9 +145,17 @@
     private int currentPage = 1;
     private int totalPages => plugins == null ? 1 : plugins.TotalPages;
 
-    private string? email => (pluginStatistics == null || !pluginStatistics.Succeeded) ? "" : pluginStatistics.Data.Email;
-    private int totalPluins => (pluginStatistics == null || !pluginStatistics.Succeeded) ? 0 : pluginStatistics.Data.TotalCount;
-    private long totalPluinsDownloads => (pluginStatistics == null || !pluginStatistics.Succeeded) ? 0 : pluginStatistics.Data.TotalDownload;
+    private string? email => (pluginStatistics == null || !pluginStatistics.Succeeded) 
+    ? "" 
+    : pluginStatistics.Data.Email;
+
+    private int totalPluins => (pluginStatistics == null || !pluginStatistics.Succeeded) 
+    ? 0 
+    : pluginStatistics.Data.TotalCount;
+
+    private long totalPluinsDownloads => (pluginStatistics == null || !pluginStatistics.Succeeded) 
+    ? 0 
+    : pluginStatistics.Data.TotalDownload;
 
     protected override async Task OnInitializedAsync()
     {

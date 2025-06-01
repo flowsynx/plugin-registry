@@ -16,9 +16,11 @@ public class PluginVersionEntity : AuditableEntity<Guid>, ISoftDeletable
     public string? ProjectUrl { get; set; }
     public string? Copyright { get; set; }
     public string? RepositoryUrl { get; set; }
+    public string? ReadMe { get; set; }
     public bool? IsLatest { get; set; }
-    public string? ManifestJson { get; set; }
+    public string? Manifest { get; set; }
     public string? Checksum { get; set; }
+    public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; } = false;
 
     public PluginEntity Plugin { get; set; } = default!;

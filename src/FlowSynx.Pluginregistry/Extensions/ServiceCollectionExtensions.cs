@@ -74,7 +74,7 @@ public static class ServiceCollectionExtensions
             options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
             options.ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-            options.ClaimActions.MapJsonKey("urn:github:login", "login");
+            options.ClaimActions.MapJsonKey("login", "login");
 
             options.Events.OnCreatingTicket = async context =>
             {

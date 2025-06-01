@@ -32,10 +32,12 @@
                     {
                         <li class="nav-item dropdown">
                             <a href="#" role="button" class="d-flex nav-link align-items-center text-decoration-none dropdown-toggle" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="@gravatar.GetGravatarUrl(@Email!, 24);" width="24" height="24" class="rounded-circle me-2" alt="@UserName">
-                                <span class="d-none d-sm-inline">@UserName</span>
+                                <img src="@gravatar.GetGravatarUrl(@Email!, 24);" width="24" height="24" class="rounded-circle me-2" alt="@Name">
+                                <span class="d-none d-sm-inline">@Name</span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                                <li><a class="dropdown-item" href="/profiles/@Login">View Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/api/account/logout">Logout</a></li>
                             </ul>
                         </li>
@@ -78,7 +80,8 @@
 
     ClaimsPrincipal? User => HttpContextAccessor.HttpContext?.User;
     bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
-    string? UserName => User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+    string? Name => User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+    string? Login => User?.FindFirst("login")?.Value;
     string? Email => User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
 
     protected override void OnInitialized()

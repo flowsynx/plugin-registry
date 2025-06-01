@@ -1,25 +1,16 @@
 ﻿@inject IJSRuntime JS
 
-<button class="btn btn-sm btn-outline-secondary copy-button" @onclick="CopyText">@buttonText</button>
+<button class="btn btn-sm btn-outline-secondary copy-button" @onclick="CopyText">
+    <i class="bi bi-clipboard"></i>
+</button>
 
 @code {
     [Parameter] public string CodeToCopy { get; set; } = string.Empty;
-    [Parameter] public string? SuccessText { get; set; } = "Copied!";
-    [Parameter] public string? ButtonText { get; set; } = "Copy Code";
     [Parameter] public int ResetDelayMs { get; set; } = 2000;
-
-    private string buttonText = "";
-
-    protected override void OnInitialized()
-    {
-        buttonText = ButtonText ?? "Copy";
-    }
 
     private async Task CopyText()
     {
         await JS.InvokeVoidAsync("copyToClipboard", CodeToCopy);
-        buttonText = SuccessText ?? "Copied!";
         await Task.Delay(ResetDelayMs);
-        buttonText = ButtonText ?? "Copy";
     }
 }

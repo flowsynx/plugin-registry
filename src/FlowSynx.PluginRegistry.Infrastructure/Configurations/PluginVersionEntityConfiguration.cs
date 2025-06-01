@@ -23,8 +23,8 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
                .HasMaxLength(50)
                .IsRequired();
 
-        builder.Property(v => v.ManifestJson)
-               .HasColumnType("jsonb");
+        builder.Property(v => v.Manifest)
+               .HasMaxLength(4096);
 
         builder.Property(t => t.PluginLocation)
                .HasMaxLength(4096)
