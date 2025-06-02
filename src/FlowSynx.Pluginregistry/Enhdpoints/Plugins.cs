@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using FlowSynx.Pluginregistry.Services;
 using Microsoft.AspNetCore.StaticFiles;
-using static System.Net.Mime.MediaTypeNames;
+using FlowSynx.PluginRegistry.Application.Features.Statistics.Command.AddStatistic;
 
 namespace FlowSynx.Endpoints;
 
@@ -125,6 +125,7 @@ public class Plugins : EndpointGroupBase
         string type,
         string version,
         HttpContext context,
+        [FromServices] IFileStorage fileStorage,
         [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
@@ -137,7 +138,8 @@ public class Plugins : EndpointGroupBase
         }
 
         var pluginLocation = result.Data.PluginLocation;
-        if (!File.Exists(pluginLocation))
+        var isPluginExist = await fileStorage.FileExistsAsync(pluginLocation);
+        if (!isPluginExist)
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             await context.Response.WriteAsync("File not found", cancellationToken);
@@ -146,16 +148,26 @@ public class Plugins : EndpointGroupBase
 
         var checksum = result.Data.Checksum;
         var fileName = Path.GetFileName(pluginLocation);
-        var contentType = "application/octet-stream"; // safe default for unknown binary types
+        var contentType = "application/octet-stream";
 
-        // Set headers BEFORE writing response body
+        var content = await fileStorage.ReadFileAsync(pluginLocation);
+
+        var statistic = new AddStatisticRequest 
+        { 
+            PluginType = type,  
+            PluginVersion = version,
+            IPAddress = context.Connection.RemoteIpAddress?.ToString(),
+            UserAgent = context.Request.Headers.UserAgent.ToString()
+        };
+
+        await mediator.IncreaseDownloadCountAsync(statistic, cancellationToken);
         context.Response.Clear();
+        context.Response.StatusCode = 200;
         context.Response.Headers.ContentDisposition = $"attachment; filename=\"{fileName}\"";
         context.Response.ContentType = contentType;
         context.Response.Headers.Append("X-Checksum", checksum);
+        context.Response.ContentLength = content.Length;
 
-        // Stream the file manually
-        await using var fileStream = new FileStream(pluginLocation, FileMode.Open, FileAccess.Read, FileShare.Read);
-        await fileStream.CopyToAsync(context.Response.Body, cancellationToken);
+        await context.Response.Body.WriteAsync(content, 0, content.Length);
     }
 }

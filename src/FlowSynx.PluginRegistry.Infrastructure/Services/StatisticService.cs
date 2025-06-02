@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using FlowSynx.PluginRegistry.Infrastructure.Contexts;
-using FlowSynx.PluginRegistry.Infrastructure.Extensions;
-using FlowSynx.PluginRegistry.Domain.Profile;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using FlowSynx.PluginRegistry.Domain.Statistic;
 

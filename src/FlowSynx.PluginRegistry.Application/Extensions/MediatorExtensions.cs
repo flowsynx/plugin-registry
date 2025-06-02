@@ -5,6 +5,7 @@ using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginReadme;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile;
+using FlowSynx.PluginRegistry.Application.Features.Statistics.Command.AddStatistic;
 using FlowSynx.PluginRegistry.Application.Wrapper;
 using MediatR;
 
@@ -84,6 +85,14 @@ public static class MediatorExtensions
         this IMediator mediator, string username, CancellationToken cancellationToken)
     {
         return mediator.Send(new PluginsStatisticsByProfileRequest { UserName = username }, cancellationToken);
+    }
+    #endregion
+
+    #region Statistics
+    public static Task<Result<Unit>> IncreaseDownloadCountAsync(
+        this IMediator mediator, AddStatisticRequest request, CancellationToken cancellationToken)
+    {
+        return mediator.Send(request, cancellationToken);
     }
     #endregion
 }

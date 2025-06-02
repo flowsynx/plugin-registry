@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ISystemClock, SystemClock>()
             .AddScoped<IPluginService, PluginService>()
             .AddScoped<IPluginVersionService, PluginVersionService>()
+            .AddScoped<IStatisticService, StatisticService>()
             .AddScoped<IProfileService, ProfileService>()
             .AddScoped<IGravatar, Gravatar>()
             .AddDbContextFactory<ApplicationContext>(options =>
