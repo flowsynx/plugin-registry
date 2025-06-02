@@ -1,1 +1,0 @@
-# plugin-amazon-s3

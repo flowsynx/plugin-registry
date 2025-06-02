@@ -43,7 +43,7 @@
                         <img src="/api/plugins/@plugin.Data.Type/@plugin.Data.Version/icon" height="64" width="64" />
                         @plugin.Data.Type
                     </h2>
-                    <h5 class="fw-bolder mb-3 text-muted">Version: @plugin.Data.Version</h5>
+                    <h5 class="fw-bolder mb-4 text-muted">Version: @plugin.Data.Version</h5>
                     <div class="position-relative mb-2">
                         <CodeCopy CodeToCopy="@jsonCodeBlock" />
                         <pre class="plugin-code-block border bg-light"><code>@jsonCodeBlock</code>
@@ -69,7 +69,7 @@
                         </ul>
                         <div class="tab-content mt-2" id="myTabContent">
                             <div class="tab-pane fade show active" id="readme" role="tabpanel" aria-labelledby="readme-tab">
-                                <p>@plugin.Data.Description</p>
+                                <MarkdownViewer PluginType="@plugin.Data.Type" PluginVersion="@plugin.Data.Version" />
                             </div>
                             <div class="tab-pane fade" id="versions" role="tabpanel" aria-labelledby="versions-tab">
                                 <table class="table">

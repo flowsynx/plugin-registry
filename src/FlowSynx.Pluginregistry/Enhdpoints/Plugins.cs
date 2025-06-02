@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using FlowSynx.Pluginregistry.Services;
 using Microsoft.AspNetCore.StaticFiles;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FlowSynx.Endpoints;
 
@@ -22,6 +23,9 @@ public class Plugins : EndpointGroupBase
 
         group.MapGet("/{type}/{version}/icon", GetPluginIconWithTypeAsync)
             .WithName("GetPluginIconWithType");
+
+        group.MapGet("/{type}/{version}/readme", GetPluginReadmeWithTypeAsync)
+            .WithName("GetPluginReadmeWithType");
 
         group.MapGet("/{type}/{version}/download", DownloadPluginByTypeAsync)
             .WithName("DownloadPluginByType");
@@ -69,6 +73,49 @@ public class Plugins : EndpointGroupBase
         var iconToServe = await fileStorage.ReadFileAsync(result.Data.Icon);
         var provider = new FileExtensionContentTypeProvider();
         if (!provider.TryGetContentType(result.Data.Icon, out var contentType))
+            contentType = "application/octet-stream";
+
+        return Results.File(iconToServe, contentType);
+    }
+
+    public async Task<IResult> GetPluginReadmeWithTypeAsync(string type, string version, [FromServices] IMediator mediator,
+        IFileStorage fileStorage, CancellationToken cancellationToken)
+    {
+        var result = await mediator.PluginReadme(type, version, cancellationToken);
+        var defaultReadme = result.Data.Description;
+
+        if (!result.Succeeded)
+        {
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes("No README defined");
+            return Results.File(bytes, "text/markdown");
+        }
+
+        if (string.IsNullOrEmpty(result.Data.Readme))
+        {
+            byte[] bytes;
+            if (!string.IsNullOrEmpty(result.Data.Description))
+                bytes = System.Text.Encoding.UTF8.GetBytes(result.Data.Description);
+            else
+                bytes = System.Text.Encoding.UTF8.GetBytes("No README defined");
+            
+            return Results.File(bytes, "text/markdown");
+        }
+
+        var fileExist = await fileStorage.FileExistsAsync(result.Data.Readme);
+        if (!fileExist)
+        {
+            byte[] bytes;
+            if (!string.IsNullOrEmpty(result.Data.Description))
+                bytes = System.Text.Encoding.UTF8.GetBytes(result.Data.Description);
+            else
+                bytes = System.Text.Encoding.UTF8.GetBytes("No README defined");
+
+            return Results.File(bytes, "text/markdown");
+        }
+
+        var iconToServe = await fileStorage.ReadFileAsync(result.Data.Readme);
+        var provider = new FileExtensionContentTypeProvider();
+        if (!provider.TryGetContentType(result.Data.Readme, out var contentType))
             contentType = "application/octet-stream";
 
         return Results.File(iconToServe, contentType);

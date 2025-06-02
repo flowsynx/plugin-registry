@@ -1,0 +1,58 @@
+﻿@inject HttpClient Http
+@inject NavigationManager Navigation
+
+@using Markdig
+
+@code {
+    [Parameter]
+    public string PluginType { get; set; } = string.Empty;
+
+    [Parameter]
+    public string PluginVersion { get; set; } = string.Empty;
+
+    private MarkupString _htmlContent;
+    private string? _error;
+    private bool _loading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrWhiteSpace(PluginType) || string.IsNullOrWhiteSpace(PluginVersion))
+        {
+            _error = "PluginType or PluginVersion not provided.";
+            _loading = false;
+            return;
+        }
+
+        try
+        {
+            var apiUrl = $"{Navigation.BaseUri}api/plugins/{Uri.EscapeDataString(PluginType)}/{Uri.EscapeDataString(PluginVersion)}/readme";
+            var bytes = await Http.GetByteArrayAsync(apiUrl);
+            var markdown = System.Text.Encoding.UTF8.GetString(bytes);
+            var html = Markdown.ToHtml(markdown);
+            _htmlContent = new MarkupString(html);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}
+
+@if (_loading)
+{
+    <p><em>Loading markdown...</em></p>
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="text-danger">Error: @_error</div>
+}
+else
+{
+    <div class="markdown-body">
+        @_htmlContent
+    </div>
+}
