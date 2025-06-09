@@ -1,13 +1,24 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
+# Base image for runtime
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
+
+# UID/GID passed during build (can also default to 1001)
+ARG APP_UID=1001
+ARG APP_GID=1001
+
+# Create a non-root user and group
+RUN groupadd -g $APP_GID appgroup && \
+    useradd -m -u $APP_UID -g $APP_GID appuser
+
+# Set up secure directories (as root)
+RUN mkdir -p /app /app/plugins /var/dpkeys && \
+    chown -R $APP_UID:$APP_GID /app /app/plugins /var/dpkeys
+
 WORKDIR /app
 EXPOSE 7236
 
+# Switch to the non-root user
+USER $APP_UID
 
-# This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -20,12 +31,10 @@ COPY . .
 WORKDIR "/src/src/FlowSynx.Pluginregistry"
 RUN dotnet build "./FlowSynx.Pluginregistry.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./FlowSynx.Pluginregistry.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
