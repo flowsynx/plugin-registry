@@ -28,7 +28,7 @@ IConfiguration config = builder.Configuration;
 
 builder.Services
        .AddHttpContextAccessor()
-       .AddEndpoint(config)
+       .AddEndpointConfiguration(config)
        .AddRazorComponents()
        .AddInteractiveServerComponents();
 

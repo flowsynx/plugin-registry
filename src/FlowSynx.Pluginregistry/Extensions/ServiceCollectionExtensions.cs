@@ -33,17 +33,7 @@ public static class ServiceCollectionExtensions
 
     private static string ResolveBaseUri(IServiceProvider serviceProvider)
     {
-        var accessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
         var endpoint = serviceProvider.GetRequiredService<EndpointConfiguration>();
-        var request = accessor.HttpContext?.Request;
-
-        if (request is not null)
-        {
-            var scheme = request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? request.Scheme;
-            var host = request.Headers["X-Forwarded-Host"].FirstOrDefault() ?? request.Host.Value;
-            return $"{scheme}://{host}/";
-        }
-
         return endpoint.BaseAddress ?? "http://localhost:7236/";
     }
 
@@ -191,7 +181,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddEndpoint(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEndpointConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
         var endpointConfiguration = new EndpointConfiguration();
         configuration.GetSection("Endpoint").Bind(endpointConfiguration);

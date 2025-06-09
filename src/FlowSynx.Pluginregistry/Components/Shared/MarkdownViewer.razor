@@ -1,6 +1,8 @@
 ﻿@inject HttpClient Http
 @inject NavigationManager Navigation
+@inject EndpointConfiguration endpoint
 
+@using FlowSynx.PluginRegistry.Application.Configuration
 @using Markdig
 
 @code {
@@ -25,7 +27,9 @@
 
         try
         {
-            var apiUrl = $"{Navigation.BaseUri}api/plugins/{Uri.EscapeDataString(PluginType)}/{Uri.EscapeDataString(PluginVersion)}/readme";
+            var baseAddress = endpoint.BaseAddress ?? "http://localhost:7236/";
+            var uri = new Uri(baseAddress);
+            var apiUrl = $"{uri}api/plugins/{Uri.EscapeDataString(PluginType)}/{Uri.EscapeDataString(PluginVersion)}/readme";
             var bytes = await Http.GetByteArrayAsync(apiUrl);
             var markdown = System.Text.Encoding.UTF8.GetString(bytes);
             var html = Markdown.ToHtml(markdown);
