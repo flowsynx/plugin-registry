@@ -9,15 +9,16 @@ public static class WebApplicationExtensions
 {
     public static WebApplication ConfigRedirection(this WebApplication app)
     {
+        app.UseForwardedHeaders(new ForwardedHeadersOptions
+        {
+            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+            ForwardLimit = 1
+        });
+
         var endpointConfiguration = app.Services.GetRequiredService<EndpointConfiguration>();
 
         if (endpointConfiguration.HttpsRedirection is true)
             app.UseHttpsRedirection();
-
-        app.UseForwardedHeaders(new ForwardedHeadersOptions
-        {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-        });
 
         return app;
     }

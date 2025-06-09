@@ -129,6 +129,7 @@
     {
         Navigation.LocationChanged += OnLocationChanged;
         await LoadPage();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async void OnLocationChanged(object? sender, LocationChangedEventArgs args)
@@ -155,7 +156,14 @@
                 query = "";
         }
 
-        plugins = await Stats.GetPlugins(query, currentPage);
+        try
+        {
+            plugins = await Stats.GetPlugins(query, currentPage).ConfigureAwait(true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error fetching plugins: " + ex);
+        }
     }
 
     public void Dispose()

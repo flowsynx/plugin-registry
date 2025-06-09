@@ -43,67 +43,66 @@
         }
         else
         {
-            if (plugins?.Data?.Count() == 0)
-            {
-                <div class="col-md-12 mx-auto">
-                    <div class="card p-5">
-                        <h4 class="text-muted">No profile found</h4>
-                        <p class="text-secondary">We couldn’t find any profile matching your search.</p>
-                    </div>
-                </div>
-            }
-            else
-            {
             <div class="row">
                 <div class="col-md-9 mx-auto">
-                    @foreach (var plugin in plugins?.Data!)
+                    @if (plugins?.Data?.Count() == 0)
                     {
-                        <div class="card mb-2 border">
-                            <div class="card-body">
-                                <h4 class="card-title"><a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a></h4>
-                                @if (plugin.Owners.Any())
-                                {
-                                    <div>
-                                        By:
-                                        @foreach (var owner in plugin.Owners)
-                                        {
-                                            <a class="me-2" href="/profiles/@owner">@owner</a>
-                                        }
-                                    </div>
-                                }
-                                @{
-                                    @if (plugin.Tags.Any())
+                        <div class="card p-5">
+                            <h4 class="text-muted">No plugins found</h4>
+                            <p class="text-secondary">No pluins found for <b>@UserName</b> profile.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var plugin in plugins?.Data!)
+                        {
+                            <div class="card mb-2 border">
+                                <div class="card-body">
+                                    <h4 class="card-title"><a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a></h4>
+                                    @if (plugin.Owners.Any())
                                     {
                                         <div>
-                                            @foreach (var tag in plugin.Tags)
+                                            By:
+                                            @foreach (var owner in plugin.Owners)
                                             {
-                                                <a href="/plugins?q=@WebUtility.UrlEncode($"tag:{tag}")">
-                                                    <span class="badge border border-secondary text-secondary me-1">@tag</span>
-                                                </a>
+                                                <a class="me-2" href="/profiles/@owner">@owner</a>
                                             }
                                         </div>
                                     }
-                                }
-                                <div class="d-flex flex-column flex-md-row align-items-start text-start gap-0 mt-3">
-                                    <div class="me-3">
-                                        <i class="bi bi-download text-secondary"></i>
-                                        @plugin.TotalDownload.ToString("N0") total downloads
+                                    @{
+                                        @if (plugin.Tags.Any())
+                                        {
+                                            <div>
+                                                @foreach (var tag in plugin.Tags)
+                                                {
+                                                    <a href="/plugins?q=@WebUtility.UrlEncode($"tag:{tag}")">
+                                                        <span class="badge border border-secondary text-secondary me-1">@tag</span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                    <div class="d-flex flex-column flex-md-row align-items-start text-start gap-0 mt-3">
+                                        <div class="me-3">
+                                            <i class="bi bi-download text-secondary"></i>
+                                            @plugin.TotalDownload.ToString("N0") total downloads
+                                        </div>
+                                        <div class="me-3">
+                                            <i class="bi bi-clock-history text-secondary"></i>
+                                            last updated: @TimeHelper.GetHumanReadableDate(plugin.LastUpdated)
+                                        </div>
+                                        <div class="me-3">
+                                            <i class="bi bi-tag text-secondary"></i>
+                                            Latest version: @plugin.Version
+                                        </div>
                                     </div>
-                                    <div class="me-3">
-                                        <i class="bi bi-clock-history text-secondary"></i>
-                                        last updated: @TimeHelper.GetHumanReadableDate(plugin.LastUpdated)
-                                    </div>
-                                    <div class="me-3">
-                                        <i class="bi bi-tag text-secondary"></i>
-                                        Latest version: @plugin.Version
-                                    </div>
+                                    <p class="mt-3 card-text">@plugin.Description</p>
                                 </div>
-                                <p class="mt-3 card-text">@plugin.Description</p>
                             </div>
-                        </div>
-                    }
+                        }
 
-                    <Pagination CurrentPage="@currentPage" TotalPages="@totalPages" />
+                        <Pagination CurrentPage="@currentPage" TotalPages="@totalPages" />
+                    }
                 </div>
                 <div class="col-md-3 mx-auto bg-light">
                     <div class="card border-0 bg-light">
@@ -131,7 +130,6 @@
                 </div>
             </div>
             }
-        }
     </div>
 </div>
 
@@ -146,16 +144,16 @@
     private int totalPages => plugins == null ? 1 : plugins.TotalPages;
 
     private string? email => (pluginStatistics == null || !pluginStatistics.Succeeded) 
-    ? "" 
-    : pluginStatistics.Data.Email;
+        ? "" 
+        : pluginStatistics.Data.Email;
 
     private int totalPluins => (pluginStatistics == null || !pluginStatistics.Succeeded) 
-    ? 0 
-    : pluginStatistics.Data.TotalCount;
+        ? 0 
+        : pluginStatistics.Data.TotalCount;
 
     private long totalPluinsDownloads => (pluginStatistics == null || !pluginStatistics.Succeeded) 
-    ? 0 
-    : pluginStatistics.Data.TotalDownload;
+        ? 0 
+        : pluginStatistics.Data.TotalDownload;
 
     protected override async Task OnInitializedAsync()
     {

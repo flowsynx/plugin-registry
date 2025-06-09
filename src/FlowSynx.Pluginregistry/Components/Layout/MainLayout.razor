@@ -5,6 +5,7 @@
 @inject NavigationManager Navigation
 @inject IHttpContextAccessor HttpContextAccessor
 @inject IGravatar gravatar
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <main class="flex-shrink-0">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark" data-bs-theme="dark">
@@ -78,17 +79,25 @@
 @code {
     [Parameter] public string? q { get; set; }
 
-    ClaimsPrincipal? User => HttpContextAccessor.HttpContext?.User;
-    bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
-    string? Name => User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
-    string? Login => User?.FindFirst("login")?.Value;
-    string? Email => User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+    private ClaimsPrincipal? User;
+    private bool IsAuthenticated;
+    private string? Name;
+    private string? Login;
+    private string? Email;
 
-    protected override void OnInitialized()
+    protected override async void OnInitialized()
     {
         var uri = new Uri(Navigation.Uri);
         var queryString = System.Web.HttpUtility.ParseQueryString(uri.Query);
         q = queryString["q"];
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        User = authState.User;
+        IsAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+        Name = User?.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value;
+        Login = User?.FindFirst("login")?.Value;
+        Email = User?.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+        await InvokeAsync(StateHasChanged);
     }
 
     private string GetLoginUrl()

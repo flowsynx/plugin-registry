@@ -20,19 +20,23 @@ public class Account : EndpointGroupBase
 
     public async Task Login(HttpContext context, CancellationToken cancellationToken)
     {
-        var returnUrl = context.Request.Query["returnUrl"].ToString() ?? "/";
+        var returnUrl = context.Request.Query["returnUrl"].ToString();
+        if (string.IsNullOrEmpty(returnUrl))
+            returnUrl = "/";
+
+        if (context.Request.Query["error"] == "access_denied")
+        {
+            throw new Exception("GitHub authentication was canceled or denied.");
+        }
+
         var props = new AuthenticationProperties
         {
             RedirectUri = returnUrl
         };
 
         await context.ChallengeAsync("GitHub", props);
-
-        if(context.Request.Query["error"] == "access_denied")
-        {
-            throw new Exception("GitHub authentication was canceled or denied.");
-        }
     }
+
 
     public async Task Logout(HttpContext context, CancellationToken cancellationToken)
     {

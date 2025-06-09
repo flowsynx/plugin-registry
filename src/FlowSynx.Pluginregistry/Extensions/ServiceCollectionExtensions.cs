@@ -6,6 +6,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FlowSynx.PluginRegistry.Application.Configuration;
 using FlowSynx.PluginRegistry.Domain.Profile;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace FlowSynx.Pluginregistry.Extensions;
 
@@ -20,26 +22,39 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddBaseAddress(this IServiceCollection services, IConfiguration configuration)
     {
-        var endpointConfiguration = new EndpointConfiguration();
-        configuration.GetSection("Endpoint").Bind(endpointConfiguration);
-        services.AddSingleton(endpointConfiguration);
-
         services.AddHttpClient("Api", (sp, client) =>
         {
-            var accessor = sp.GetRequiredService<IHttpContextAccessor>();
-            var request = accessor.HttpContext?.Request;
-
-            if (request != null)
-            {
-                var scheme = request.Scheme;
-                var host = request.Host.Value;
-                client.BaseAddress = new Uri($"{scheme}://{host}/");
-            }
+            var baseUri = ResolveBaseUri(sp);
+            client.BaseAddress = new Uri(baseUri);
         });
 
         return services;
     }
 
+    private static string ResolveBaseUri(IServiceProvider serviceProvider)
+    {
+        var accessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
+        var endpoint = serviceProvider.GetRequiredService<EndpointConfiguration>();
+        var request = accessor.HttpContext?.Request;
+
+        if (request is not null)
+        {
+            var scheme = request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? request.Scheme;
+            var host = request.Headers["X-Forwarded-Host"].FirstOrDefault() ?? request.Host.Value;
+            return $"{scheme}://{host}/";
+        }
+
+        return endpoint.BaseAddress ?? "http://localhost:7236/";
+    }
+
+    public static IServiceCollection AddDataProtectionService(this IServiceCollection services)
+    {
+        services.AddDataProtection()
+            .SetApplicationName("PluginRegistryApp")
+            .PersistKeysToFileSystem(new DirectoryInfo("/app/dpkeys"));
+
+        return services;
+    }
     public static IServiceCollection AddGitHubAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var authenticationConfiguration = new AuthenticationConfiguration();
@@ -48,7 +63,18 @@ public static class ServiceCollectionExtensions
 
         if (authenticationConfiguration.GitHub is null)
             throw new Exception("The GitHub authentication is not initilized!");
-        
+
+        services.Configure<CookiePolicyOptions>(options =>
+        {
+            options.MinimumSameSitePolicy = SameSiteMode.Lax;
+        });
+
+        services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme, options =>
+        {
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        });
+
         services.AddAuthentication(options =>
         {
             options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -58,7 +84,6 @@ public static class ServiceCollectionExtensions
         {
             options.ExpireTimeSpan = TimeSpan.FromMinutes(authenticationConfiguration.GitHub.CookieExpireTimeSpanMinutes);
             options.SlidingExpiration = true;
-            options.Cookie.SameSite = SameSiteMode.Lax;
         })
         .AddOAuth("GitHub", options =>
         {

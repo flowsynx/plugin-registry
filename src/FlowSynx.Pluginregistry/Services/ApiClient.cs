@@ -1,6 +1,4 @@
-﻿using System.Net.Http;
-
-namespace FlowSynx.Pluginregistry.Services;
+﻿namespace FlowSynx.Pluginregistry.Services;
 
 public class ApiClient : IApiClient
 {
@@ -15,13 +13,16 @@ public class ApiClient : IApiClient
     {
         try
         {
+            Console.WriteLine($"BasedAddress: {_client.BaseAddress}");
             var response = await _client.GetAsync(url);
+            Console.WriteLine($"Url: {url}");
             return response.IsSuccessStatusCode
                 ? await response.Content.ReadFromJsonAsync<T>()
                 : default;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine("🔥 Exception in GetAsync: " + ex);
             return default;
         }
     }
