@@ -27,7 +27,7 @@ public class ProfileService : IProfileService
         {
             using var context = _appContextFactory.CreateDbContext();
             var result = await context.Profiles
-                .FirstOrDefaultAsync(p => p.UserId == userId && p.IsDeleted == false, cancellationToken)
+                .FirstOrDefaultAsync(p => p.UserId.ToLower() == userId.ToLower() && p.IsDeleted == false, cancellationToken)
                 .ConfigureAwait(false);
 
             return result;
@@ -55,7 +55,7 @@ public class ProfileService : IProfileService
             .SelectMany(v => v.Statistics)
             .CountAsync(cancellationToken);
 
-        var email = await context.Profiles.FirstOrDefaultAsync(x => x.UserName == username);
+        var email = await context.Profiles.FirstOrDefaultAsync(x => x.UserName.ToLower() == username.ToLower());
         return (pluginCount, downloadCount, email?.Email);
     }
 

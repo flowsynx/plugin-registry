@@ -87,11 +87,11 @@ public class PluginService : IPluginService
 
             if (!string.IsNullOrEmpty(query))
             {
-                pluginEntities = pluginEntities.Where(p => EF.Functions.ILike(p.Type, $"%{query}%") ||
+                pluginEntities = pluginEntities.Where(p => EF.Functions.ILike(p.Type.ToLower(), $"%{query}%") ||
                     EF.Functions.ILike(p.LatestVersion!.Description ?? string.Empty, $"%{query}%") ||
                     EF.Functions.ILike(p.LatestVersion!.Version, $"%{query}%") ||
                     p.LatestVersion!.PluginVersionTags.Any(t =>
-                    EF.Functions.ILike(t.Tag!.Name, $"%{query}%")));
+                    EF.Functions.ILike(t.Tag!.Name.ToLower(), $"%{query}%")));
             }
 
             var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);
@@ -128,7 +128,7 @@ public class PluginService : IPluginService
             if (!string.IsNullOrEmpty(tag))
             {
                 pluginEntities = pluginEntities.Where(p => p.LatestVersion!.PluginVersionTags.Any(t =>
-                    EF.Functions.ILike(t.Tag!.Name, $"%{tag}%")));
+                    EF.Functions.ILike(t.Tag!.Name.ToLower(), $"%{tag}%")));
             }
 
             var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);

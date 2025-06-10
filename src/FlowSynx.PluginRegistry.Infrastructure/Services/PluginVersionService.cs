@@ -59,7 +59,9 @@ public class PluginVersionService : IPluginVersionService
                 .Include(i => i!.Statistics)
                 .Include(i => i.Plugin).ThenInclude(i=>i.Owners).ThenInclude(i => i.Profile)
                 .Include(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
-                .Where(p => !p.IsDeleted && p.Plugin != null && p.Version == pluginVersion && p.Plugin.Type == pluginType);
+                .Where(p => !p.IsDeleted && p.Plugin != null 
+                    && p.Version.ToLower() == pluginVersion.ToLower() 
+                    && p.Plugin.Type.ToLower() == pluginType.ToLower());
 
             return await pluginVersionEntities
                 .FirstOrDefaultAsync(cancellationToken)
