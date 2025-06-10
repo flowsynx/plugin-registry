@@ -10,8 +10,8 @@ RUN groupadd -g $APP_GID appgroup && \
     useradd -m -u $APP_UID -g $APP_GID appuser
 
 # Set up secure directories (as root)
-RUN mkdir -p /app /app/plugins /var/dpkeys && \
-    chown -R $APP_UID:$APP_GID /app /app/plugins /var/dpkeys
+RUN mkdir -p /app /app/plugins /app/dpkeys && \
+    chown -R $APP_UID:$APP_GID /app /app/plugins /app/dpkeys
 
 WORKDIR /app
 EXPOSE 7236
