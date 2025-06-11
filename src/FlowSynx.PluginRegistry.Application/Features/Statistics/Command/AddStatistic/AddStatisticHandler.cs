@@ -1,4 +1,5 @@
-﻿using FlowSynx.PluginRegistry.Application.Wrapper;
+﻿using FlowSynx.PluginRegistry.Application.Services;
+using FlowSynx.PluginRegistry.Application.Wrapper;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using FlowSynx.PluginRegistry.Domain.Statistic;
 using MediatR;
@@ -11,16 +12,19 @@ internal class AddStatisticHandler : IRequestHandler<AddStatisticRequest, Result
     private readonly ILogger<AddStatisticHandler> _logger;
     private readonly IPluginVersionService _versionService;
     private readonly IStatisticService _statisticService;
+    private readonly ISystemClock _systemClock;
 
     public AddStatisticHandler(
         ILogger<AddStatisticHandler> logger,
         IPluginVersionService versionService,
-        IStatisticService statisticService)
+        IStatisticService statisticService,
+        ISystemClock systemClock)
     {
         ArgumentNullException.ThrowIfNull(logger);
         _logger = logger;
         _versionService = versionService;
         _statisticService = statisticService;
+        _systemClock = systemClock;
     }
 
     public async Task<Result<Unit>> Handle(
@@ -39,6 +43,7 @@ internal class AddStatisticHandler : IRequestHandler<AddStatisticRequest, Result
                 PluginId = plugin.PluginId,
                 PluginVersionId = plugin.Id,
                 IPAddress = request.IPAddress,
+                DownloadedAt = _systemClock.UtcNow,
                 UserAgent = request.UserAgent
             };
 
