@@ -3,6 +3,7 @@ using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginVersions;
 using FlowSynx.PluginRegistry.Application.Wrapper;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using FlowSynx.PluginRegistry.Domain.Profile;
@@ -53,6 +54,12 @@ public class StatsApiService : IStatsApiService
     {
         var url = $"/api/plugins/{type}/{version}";
         return _apiClient.GetAsync<Result<PluginDetailsResponse>>(url);
+    }
+
+    public Task<Result<IEnumerable<PluginVersionsResponse>>?> GetPluginVersions(string? type)
+    {
+        var url = $"/api/plugins/{type}/versions";
+        return _apiClient.GetAsync<Result<IEnumerable<PluginVersionsResponse>>>(url);
     }
 
     public Task<PaginatedResult<PluginsListByProfileResponse>?> GetPluginsByUserName(string userName, int? page)
@@ -194,6 +201,31 @@ public class StatsApiService : IStatsApiService
         string savedPath,
         CancellationToken cancellationToken)
     {
+        if (!Version.TryParse(metadata.Version, out var publishingVersion))
+        {
+            throw new InvalidOperationException($"Invalid version format: {metadata.Version}");
+        }
+
+        var latestVersionEntity = plugin.Versions
+            .OrderByDescending(v => Version.TryParse(v.Version, out var ver) ? ver : new Version(0, 0))
+            .FirstOrDefault();
+
+        if (latestVersionEntity != null &&
+            Version.TryParse(latestVersionEntity.Version, out var latestVersion) &&
+            publishingVersion <= latestVersion)
+        {
+            throw new Exception($"The publishing plugin version must be greater than the current latest version. " +
+                $"You try to upload plugin version '{metadata.Version}', " +
+                $"while the current latest plugin version is '{latestVersionEntity.Version}'");
+        }
+
+        // Mark all existing versions as not latest
+        foreach (var pluginVersionEntity in plugin.Versions)
+        {
+            pluginVersionEntity.IsLatest = false;
+            await _pluginVersionService.Update(pluginVersionEntity, cancellationToken);
+        }
+
         var version = CreatePluginVersionEntity(Guid.NewGuid(), plugin.Id, metadata, destinationIconPath,
             destinationReadMePath, destinationManifestPath, checksum, savedPath);
 

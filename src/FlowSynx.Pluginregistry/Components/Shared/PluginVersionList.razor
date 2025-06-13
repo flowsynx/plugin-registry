@@ -1,0 +1,105 @@
+﻿@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject EndpointConfiguration endpoint
+
+@using FlowSynx.PluginRegistry.Application.Configuration
+@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginVersions
+@using FlowSynx.Pluginregistry.Helpers
+@using FlowSynx.Pluginregistry.Services
+@using FlowSynx.PluginRegistry.Application.Wrapper
+
+@inject IStatsApiService Stats
+
+@code {
+    [Parameter]
+    public string PluginType { get; set; } = string.Empty;
+
+    private string? _error;
+    private bool _loading = true;
+    Result<IEnumerable<PluginVersionsResponse>>? PluginVersions;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            PluginVersions = await Stats.GetPluginVersions(PluginType);
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    void NavigateToPluginDetails(string version)
+    {
+        var url = $"/plugins/{PluginType}/{version}";
+        Navigation.NavigateTo(url, forceLoad: true);
+    }
+}
+
+@if (_loading)
+{
+    <p><em>Loading plugin version ...</em></p>
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="text-danger">Error: @_error</div>
+}
+else
+{
+    if (PluginVersions is null)
+    {
+        _error = "There is error to loading plugins versions!";
+        <div class="text-danger">Error: @_error</div>
+    }
+    if (!PluginVersions.Succeeded)
+    {
+        _error = string.Join(Environment.NewLine, @PluginVersions.Messages);
+        <div class="text-danger">Error: @_error</div>
+    }
+    else 
+    {
+        <table class="table">
+            <thead class="table-light">
+                <tr>
+                    <th>Version</th>
+                    <th>Latest</th>
+                    <th>Downloads</th>
+                    <th>Last updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var version in PluginVersions.Data)
+                {
+                    <tr>
+                        <td>
+                            <a href="#" @onclick="() => NavigateToPluginDetails(version.Version)">
+                                @version.Version
+                            </a>
+                        </td>
+                        <td>
+                            @if (version.IsLatest is true)
+                            {
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                            }
+                            else
+                            {
+                                
+                            }
+                        </td>
+                        <td>
+                            @version.Downloads
+                        </td>
+                        <td>
+                            @TimeHelper.GetOnlyDate(@version.LastUpdated)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

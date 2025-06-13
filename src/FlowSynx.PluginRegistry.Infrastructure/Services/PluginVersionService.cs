@@ -58,6 +58,7 @@ public class PluginVersionService : IPluginVersionService
                 .Include(i => i.PluginVersionTags)
                 .Include(i => i!.Statistics)
                 .Include(i => i.Plugin).ThenInclude(i=>i.Owners).ThenInclude(i => i.Profile)
+                .Include(i=>i.Plugin).ThenInclude(i=>i.Versions)
                 .Include(i => i.PluginVersionTags).ThenInclude(i => i.Tag)
                 .Where(p => !p.IsDeleted && p.Plugin != null 
                     && p.Version.ToLower() == pluginVersion.ToLower() 
@@ -65,6 +66,28 @@ public class PluginVersionService : IPluginVersionService
 
             return await pluginVersionEntities
                 .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<IReadOnlyCollection<PluginVersionEntity>> GetVersionsByPluginType(
+        string pluginType, 
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var context = _appContextFactory.CreateDbContext();
+
+            return await context.PluginVersions
+                .Include(pv => pv.Statistics)
+                .Include(pv => pv.Plugin).ThenInclude(p => p.Versions)
+                .Where(pv => !pv.IsDeleted && pv.Plugin != null && pv.Plugin.Type.ToLower() == pluginType.ToLower())
+                .OrderByDescending(pv => pv.LastModifiedOn).ThenByDescending(pv=>pv.CreatedOn)
+                .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -145,15 +168,33 @@ public class PluginVersionService : IPluginVersionService
             .ConfigureAwait(false);
     }
 
+    public async Task Update(PluginVersionEntity pluginVersionEntity, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+            context.Entry(pluginVersionEntity).State = EntityState.Modified;
+            context.PluginVersions.Update(pluginVersionEntity);
+
+            await context
+                .SaveChangesAsync(cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     public async Task<bool> Delete(
-        PluginVersionEntity pluginEntity,
+        PluginVersionEntity pluginVersionEntity,
         CancellationToken cancellationToken)
     {
         try
         {
             using var context = _appContextFactory.CreateDbContext();
-            context.PluginVersions.Remove(pluginEntity);
-            context.SoftDelete(pluginEntity);
+            context.PluginVersions.Remove(pluginVersionEntity);
+            context.SoftDelete(pluginVersionEntity);
 
             await context
                 .SaveChangesAsync(cancellationToken)

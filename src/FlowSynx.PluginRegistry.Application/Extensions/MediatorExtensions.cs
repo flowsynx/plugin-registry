@@ -5,6 +5,7 @@ using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginReadme;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginVersions;
 using FlowSynx.PluginRegistry.Application.Features.Statistics.Command.AddStatistic;
 using FlowSynx.PluginRegistry.Application.Wrapper;
 using MediatR;
@@ -40,6 +41,15 @@ public static class MediatorExtensions
         { 
             PluginType = pluginType, 
             PluginVersion = pluginVersion 
+        }, cancellationToken);
+    }
+
+    public static Task<Result<IEnumerable<PluginVersionsResponse>>> PluginVersions(
+        this IMediator mediator, string pluginType, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new PluginVersionsRequest
+        {
+            PluginType = pluginType
         }, cancellationToken);
     }
 

@@ -200,16 +200,16 @@ public class PluginService : IPluginService
         try
         {
             await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
-            context.Entry(pluginEntity).State = EntityState.Detached;
+            context.Entry(pluginEntity).State = EntityState.Modified;
             context.Plugins.Update(pluginEntity);
 
             await context
                 .SaveChangesAsync(cancellationToken)
                 .ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            throw new Exception(ex.Message);
+            throw;
         }
     }
 

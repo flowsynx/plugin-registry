@@ -21,6 +21,9 @@ public class Plugins : EndpointGroupBase
         group.MapGet("/{type}/{version}", GetPluginWithTypeAsync)
             .WithName("GetPluginWithType");
 
+        group.MapGet("/{type}/versions", GetPluginVersionsWithTypeAsync)
+            .WithName("GetPluginVersionsWithType");
+
         group.MapGet("/{type}/{version}/icon", GetPluginIconWithTypeAsync)
             .WithName("GetPluginIconWithType");
 
@@ -42,6 +45,13 @@ public class Plugins : EndpointGroupBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.PluginDetails(type, version, cancellationToken);
+        return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
+    }
+
+    public async Task<IResult> GetPluginVersionsWithTypeAsync(string type, [FromServices] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.PluginVersions(type, cancellationToken);
         return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
     }
 
