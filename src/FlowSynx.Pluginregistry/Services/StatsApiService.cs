@@ -97,9 +97,9 @@ public class StatsApiService : IStatsApiService
             var extractedPluginPath = ExtractPlugin(pluginFile, tempPath);
             var destPath = Path.Combine(metadata.Type, metadata.Version);
 
-            var destinationIconPath = await HandleAssetAsync(metadata.Icon, extractedPluginPath, destPath);
-            var destinationReadMePath = await HandleAssetAsync(metadata.ReadMe, extractedPluginPath, destPath);
-            var destinationManifestPath = await HandleAssetAsync(Path.Combine(tempPath, "manifest.json"), extractedPluginPath, destPath);
+            var destinationIconPath = await HandleAssetAsync(metadata.Icon, extractedPluginPath, destPath, false);
+            var destinationReadMePath = await HandleAssetAsync(metadata.ReadMe, extractedPluginPath, destPath, false);
+            var destinationManifestPath = await HandleAssetAsync(Path.Combine(tempPath, "manifest.json"), extractedPluginPath, destPath, true);
 
             await SavePluginAsync(metadata, filePath, destPath, destinationIconPath, destinationReadMePath, 
                                   destinationManifestPath, profileId, checksum, cancellationToken);
@@ -263,7 +263,7 @@ public class StatsApiService : IStatsApiService
         };
     }
 
-    private async Task<string> HandleAssetAsync(string? assetPath, string extractedPath, string destPath)
+    private async Task<string> HandleAssetAsync(string? assetPath, string extractedPath, string destPath, bool errorIfSourcePathNotFound = false)
     {
         if (string.IsNullOrWhiteSpace(assetPath))
             return string.Empty;
@@ -282,13 +282,13 @@ public class StatsApiService : IStatsApiService
         }
 
         var destinationPath = Path.Combine(destPath, fileName);
-        await DownloadFileAsync(sourcePath, destinationPath);
-        return destinationPath;
+        var isFileDownloaded = await DownloadFileAsync(sourcePath, destinationPath, errorIfSourcePathNotFound);
+        return isFileDownloaded ? destinationPath : "";
     }
 
     private bool IsHttpPath(string path) => Uri.TryCreate(path, UriKind.Absolute, out var uri) && uri.Scheme.StartsWith("http");
 
-    private async Task DownloadFileAsync(string sourcePathOrUrl, string destinationPath)
+    private async Task<bool> DownloadFileAsync(string sourcePathOrUrl, string destinationPath, bool errorIfSourcePathNotFound = false)
     {
         if (string.IsNullOrWhiteSpace(sourcePathOrUrl))
             throw new ArgumentException("Source path or URL cannot be null or empty.", nameof(sourcePathOrUrl));
@@ -300,14 +300,21 @@ public class StatsApiService : IStatsApiService
         {
             var content = await _apiClient.DownloadAsync(sourcePathOrUrl);
             await _fileStorage.SaveFileAsync(destinationPath, content);
+            return true;
         }
         else
         {
             if (!File.Exists(sourcePathOrUrl))
-                throw new FileNotFoundException("Local source file not found.", sourcePathOrUrl);
+            {
+                if (errorIfSourcePathNotFound)
+                    throw new FileNotFoundException("Local source file not found.", sourcePathOrUrl);
+
+                return false;
+            }
 
             var content = await File.ReadAllBytesAsync(sourcePathOrUrl);
             await _fileStorage.SaveFileAsync(destinationPath, content);
+            return true;
         }
     }
 
