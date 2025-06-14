@@ -58,7 +58,7 @@ public class PluginService : IPluginService
             await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
             IQueryable<PluginEntity> pluginEntity = context.Plugins
                 .Include(i => i.Versions.Where(v=> !v.IsDeleted && v.IsActive))
-                .Where(p => !p.IsDeleted);
+                .Where(p => !p.IsDeleted && p.Type.ToLower() == pluginType.ToLower());
 
             return await pluginEntity
                 .FirstOrDefaultAsync(cancellationToken)
