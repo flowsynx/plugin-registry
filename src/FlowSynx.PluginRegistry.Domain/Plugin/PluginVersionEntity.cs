@@ -17,6 +17,7 @@ public class PluginVersionEntity : AuditableEntity<Guid>, ISoftDeletable
     public string? Copyright { get; set; }
     public string? RepositoryUrl { get; set; }
     public string? ReadMe { get; set; }
+    public required Guid PluginCategoryId { get; set; }
     public bool? IsLatest { get; set; }
     public string? Manifest { get; set; }
     public string? Checksum { get; set; }
@@ -24,6 +25,7 @@ public class PluginVersionEntity : AuditableEntity<Guid>, ISoftDeletable
     public bool IsDeleted { get; set; } = false;
 
     public PluginEntity Plugin { get; set; } = default!;
+    public PluginCategoryEntity PluginCategory { get; set; } = default!;
     public ICollection<StatisticEntity> Statistics { get; set; } = new List<StatisticEntity>();
     public ICollection<PluginVersionTagEntity> PluginVersionTags { get; set; } = new List<PluginVersionTagEntity>();
 }

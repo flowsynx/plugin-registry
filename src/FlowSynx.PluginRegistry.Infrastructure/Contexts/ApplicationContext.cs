@@ -32,6 +32,7 @@ public class ApplicationContext : AuditableContext
 
     public DbSet<PluginEntity> Plugins { get; set; }
     public DbSet<PluginVersionEntity> PluginVersions { get; set; }
+    public DbSet<PluginCategoryEntity> PluginCategories { get; set; }
     public DbSet<StatisticEntity> Statistics { get; set; }
     public DbSet<ProfileEntity> Profiles { get; set; }
     public DbSet<ApiKeyEntity> ApiKeys { get; set; }

@@ -21,7 +21,7 @@ public class StatsApiService : IStatsApiService
     private readonly IPluginService _pluginService;
     private readonly IFileValidator _fileValidator;
     private readonly IPluginMetadataReader _metadataReader;
-
+    private readonly IPluginCategoryService _pluginCategoryService;
     private const int MaxUploadSize = 100 * 1024 * 1024; // 100MB
 
     public StatsApiService(
@@ -31,7 +31,8 @@ public class StatsApiService : IStatsApiService
         IPluginVersionService pluginVersionService,
         IPluginService pluginService,
         IFileValidator fileValidator,
-        IPluginMetadataReader metadataReader)
+        IPluginMetadataReader metadataReader,
+        IPluginCategoryService pluginCategoryService)
     {
         _apiClient = apiClient;
         _environment = environment;
@@ -40,6 +41,7 @@ public class StatsApiService : IStatsApiService
         _pluginService = pluginService;
         _fileValidator = fileValidator;
         _metadataReader = metadataReader;
+        _pluginCategoryService = pluginCategoryService;
     }
 
     public Task<PaginatedResult<PluginsListResponse>?> GetPlugins(string? query, int? page)
@@ -138,17 +140,21 @@ public class StatsApiService : IStatsApiService
         if (pluginEntity?.Versions.Any(v => v.Version == metadata.Version) == true)
             throw new Exception($"The plugin '{metadata.Type}' v{metadata.Version} already exists.");
 
+        var pluginCategoryEntity = await _pluginCategoryService.GetByCategoryId(metadata.CategoryId, cancellationToken);
+        if (pluginCategoryEntity == null)
+            throw new Exception($"The plugin category '{metadata.CategoryId}' is not valid.");
+
         var savedPath = await SaveFinalPluginFile(filePath, destPath, metadata);
 
         if (isNewPlugin)
         {
             await AddNewPluginAsync(metadata, iconPath, readMePath, manifestPath, savedPath, 
-                profileId, checksum, cancellationToken);
+                profileId, pluginCategoryEntity.Id, checksum, cancellationToken);
         }
         else
         {
             await AddPluginVersionAsync(pluginEntity!, metadata, iconPath, readMePath, manifestPath, 
-                savedPath, checksum, cancellationToken);
+                savedPath, checksum, pluginCategoryEntity.Id, cancellationToken);
         }
     }
 
@@ -160,14 +166,22 @@ public class StatsApiService : IStatsApiService
         return destinationFile;
     }
 
-    private async Task AddNewPluginAsync(PluginMetadata metadata, string destinationIconPath, string destinationReadMePath,
-        string destinationManifestPath, string savedPath, Guid profileId, string checksum, CancellationToken cancellationToken)
+    private async Task AddNewPluginAsync(
+        PluginMetadata metadata,
+        string destinationIconPath,
+        string destinationReadMePath,
+        string destinationManifestPath, 
+        string savedPath, 
+        Guid profileId, 
+        Guid pluginCategoryId, 
+        string checksum, 
+        CancellationToken cancellationToken)
     {
         var pluginId = Guid.NewGuid();
         var versionId = Guid.NewGuid();
 
         var version = CreatePluginVersionEntity(versionId, pluginId, metadata, destinationIconPath,
-            destinationReadMePath, destinationManifestPath, checksum, savedPath);
+            destinationReadMePath, destinationManifestPath, checksum, savedPath, pluginCategoryId);
         var plugin = new PluginEntity
         {
             Id = pluginId,
@@ -199,6 +213,7 @@ public class StatsApiService : IStatsApiService
         string destinationManifestPath,
         string checksum,
         string savedPath,
+        Guid pluginCategoryId,
         CancellationToken cancellationToken)
     {
         if (!Version.TryParse(metadata.Version, out var publishingVersion))
@@ -227,7 +242,7 @@ public class StatsApiService : IStatsApiService
         }
 
         var version = CreatePluginVersionEntity(Guid.NewGuid(), plugin.Id, metadata, destinationIconPath,
-            destinationReadMePath, destinationManifestPath, checksum, savedPath);
+            destinationReadMePath, destinationManifestPath, checksum, savedPath, pluginCategoryId);
 
         await _pluginVersionService.Add(version, cancellationToken);
 
@@ -239,7 +254,7 @@ public class StatsApiService : IStatsApiService
 
     private PluginVersionEntity CreatePluginVersionEntity(Guid id, Guid pluginId, PluginMetadata metadata,
         string destinationIconPath, string destinationReadMePath, string destinationManifestPath, 
-        string checksum, string path)
+        string checksum, string path, Guid pluginCategoryId)
     {
         return new PluginVersionEntity
         {
@@ -256,6 +271,7 @@ public class StatsApiService : IStatsApiService
             ProjectUrl = metadata.ProjectUrl,
             RepositoryUrl = metadata.RepositoryUrl,
             ReadMe = destinationReadMePath,
+            PluginCategoryId = pluginCategoryId,
             IsLatest = true,
             Manifest = destinationManifestPath,
             Checksum = checksum,

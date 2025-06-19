@@ -72,7 +72,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.EnsureApplicationDatabaseCreated();
+await app.EnsureApplicationDatabaseCreated();
 app.UseAntiforgery();
 
 app.UseAuthentication();
