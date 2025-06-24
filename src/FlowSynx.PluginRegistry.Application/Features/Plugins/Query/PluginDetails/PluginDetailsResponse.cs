@@ -11,6 +11,7 @@ public class PluginDetailsResponse
     public string? ProjectUrl { get; set; }
     public string? RepositoryUrl { get; set; }
     public string? Copyright { get; set; }
+    public string? CategoryTitle { get; set; }
     public DateTime LastUpdated { get; set; }
     public int TotalDownload { get; set; } = 0;
     public IEnumerable<string> Tags { get; set; } = new List<string>();

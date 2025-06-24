@@ -37,6 +37,7 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                 ProjectUrl = plugin.ProjectUrl,
                 RepositoryUrl = plugin.RepositoryUrl,
                 Copyright = plugin.Copyright,
+                CategoryTitle = plugin.PluginCategory.Title,
                 License = plugin.License,
                 LicenseUrl = plugin.LicenseUrl,
                 Icon = plugin.Icon,

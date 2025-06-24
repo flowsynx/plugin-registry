@@ -36,6 +36,7 @@ internal class PluginsListByProfileHandler : IRequestHandler<PluginsListByProfil
                 Type = p.Type,
                 Version = p.LatestVersion!.Version,
                 Owners = p.Owners.Select(x => x.Profile!.UserName),
+                CategoryTitle = p.LatestVersion.PluginCategory.Title,
                 Description = p.LatestVersion!.Description,
                 LastUpdated = p.LastModifiedOn ?? p.CreatedOn,
                 Tags = p.LatestVersion!.PluginVersionTags.Select(x => x.Tag!.Name),

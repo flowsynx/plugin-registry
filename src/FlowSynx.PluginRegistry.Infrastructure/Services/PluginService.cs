@@ -29,6 +29,7 @@ public class PluginService : IPluginService
             IQueryable<PluginEntity> pluginEntities = context.Plugins
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i=>i.Tag)
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.Statistics)
+                .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginCategory)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
                 .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                 .Where(p => !p.IsDeleted && p.LatestVersion != null);
@@ -81,6 +82,7 @@ public class PluginService : IPluginService
             IQueryable<PluginEntity> pluginEntities = context.Plugins
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i => i.Tag)
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.Statistics)
+                .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginCategory)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
                 .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                 .Where(p => !p.IsDeleted && p.LatestVersion != null);
@@ -121,6 +123,7 @@ public class PluginService : IPluginService
             IQueryable<PluginEntity> pluginEntities = context.Plugins
                 .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i => i.Tag)
                 .Include(p => p.LatestVersion).ThenInclude(i=> i!.Statistics)
+                .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginCategory)
                 .Include(i => i.Owners).ThenInclude(i => i.Profile)
                 .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                 .Where(p => !p.IsDeleted && p.LatestVersion != null);
@@ -156,7 +159,8 @@ public class PluginService : IPluginService
             IQueryable<PluginEntity> pluginEntities = context.Plugins
                     .Where(p => !p.IsDeleted && p.Owners.Any(o => o.Profile != null && o.Profile.UserName == username))
                     .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i => i.Tag)
-                    .Include(p => p.LatestVersion).ThenInclude(x=>x.Statistics)
+                    .Include(p => p.LatestVersion).ThenInclude(i => i!.Statistics)
+                    .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginCategory)
                     .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
                     .Include(p => p.Owners).ThenInclude(o => o.Profile);
 

@@ -57,6 +57,7 @@ public class PluginVersionService : IPluginVersionService
             IQueryable<PluginVersionEntity> pluginVersionEntities = context.PluginVersions
                 .Include(i => i.PluginVersionTags)
                 .Include(i => i!.Statistics)
+                .Include(i=>i.PluginCategory)
                 .Include(i => i.Plugin).ThenInclude(i=>i.Owners).ThenInclude(i => i.Profile)
                 .Include(i=>i.Plugin).ThenInclude(i=>i.Versions)
                 .Include(i => i.PluginVersionTags).ThenInclude(i => i.Tag)

@@ -39,6 +39,7 @@ internal class PluginsListHandler : IRequestHandler<PluginsListRequest, Paginate
                 Version = p.LatestVersion!.Version,
                 Owners = p.Owners.Select(x=>x.Profile!.UserName),
                 Description = p.LatestVersion!.Description,
+                CategoryTitle = p.LatestVersion.PluginCategory.Title,
                 LastUpdated = p.LastModifiedOn ?? p.CreatedOn,
                 Tags = p.LatestVersion!.PluginVersionTags.Select(x => x.Tag!.Name),
                 TotalDownload = p.Versions.Sum(x=>x.Statistics.Count)

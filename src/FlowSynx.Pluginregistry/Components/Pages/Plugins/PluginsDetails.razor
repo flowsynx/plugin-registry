@@ -73,32 +73,6 @@
                             </div>
                             <div class="tab-pane fade" id="versions" role="tabpanel" aria-labelledby="versions-tab">
                                 <PluginVersionList PluginType="@plugin.Data.Type" />
-@* 
-                                <table class="table">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Version</th>
-                                            <th>Downloads</th>
-                                            <th>Last updated</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var version in plugin.Data.Versions)
-                                        {
-                                            <tr>
-                                                <td>
-                                                    <a href="/plugins/@plugin.Data.Type/@plugin.Data.Version">@version</a>
-                                                </td>
-                                                <td>
-                                                    @plugin.Data.TotalDownload
-                                                </td>
-                                                <td>
-                                                    @TimeHelper.GetOnlyDate(@plugin.Data.LastUpdated)
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table> *@
                             </div>
                         </div>
                     </div>
@@ -143,6 +117,13 @@
                                             {
                                                 @plugin.Data.License
                                             }
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(plugin.Data.CategoryTitle))
+                                    {
+                                        <div class="mb-3">
+                                            <i class="bi bi-bookmark-check"></i>
+                                            @plugin.Data.CategoryTitle
                                         </div>
                                     }
                                     @if (plugin.Data.Owners.Any())
