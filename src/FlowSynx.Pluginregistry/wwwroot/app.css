@@ -83,3 +83,19 @@ h1:focus {
     width: 4rem;
     font-size: 2rem;
 }
+
+.hero-banner {
+    background-image: url('/images/hero-img.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero-content {
+    margin: 0 auto;
+}
+
+::selection {
+    background-color: #DAFEFE;
+    color: #000;
+}
