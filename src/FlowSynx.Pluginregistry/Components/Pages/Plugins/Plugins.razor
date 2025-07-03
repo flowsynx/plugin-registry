@@ -61,7 +61,7 @@
                 </div>
                 @foreach (var plugin in plugins?.Data!)
                 {
-                    <div class="card mb-2 border">
+                    <div class="card hover-shadow-sm mb-2">
                         <div class="row">
                             <div class="col-auto d-none d-sm-block p-2 ps-3">
                                 <img src="/api/plugins/@plugin.Type/@plugin.Version/icon" height="64" width="64" />
@@ -89,7 +89,7 @@
                                                 @foreach (var tag in plugin.Tags)
                                                 {
                                                     <a href="/plugins?q=@WebUtility.UrlEncode($"tag:{tag}")">
-                                                        <span class="badge border border-secondary text-secondary me-1">@tag</span>
+                                                        <span class="badge badge-hover border border-secondary text-secondary me-1">@tag</span>
                                                     </a>
                                                 }
                                             </div>

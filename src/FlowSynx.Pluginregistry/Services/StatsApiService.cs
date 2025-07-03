@@ -153,8 +153,8 @@ public class StatsApiService : IStatsApiService
         }
         else
         {
-            await AddPluginVersionAsync(pluginEntity!, metadata, iconPath, readMePath, manifestPath, 
-                savedPath, checksum, pluginCategoryEntity.Id, cancellationToken);
+            await AddPluginVersionAsync(pluginEntity!, metadata, iconPath, readMePath, manifestPath,
+                savedPath, pluginCategoryEntity.Id, checksum, cancellationToken);
         }
     }
 
@@ -181,7 +181,7 @@ public class StatsApiService : IStatsApiService
         var versionId = Guid.NewGuid();
 
         var version = CreatePluginVersionEntity(versionId, pluginId, metadata, destinationIconPath,
-            destinationReadMePath, destinationManifestPath, checksum, savedPath, pluginCategoryId);
+            destinationReadMePath, destinationManifestPath, savedPath, pluginCategoryId, checksum);
         var plugin = new PluginEntity
         {
             Id = pluginId,
@@ -211,9 +211,9 @@ public class StatsApiService : IStatsApiService
         string destinationIconPath,
         string destinationReadMePath,
         string destinationManifestPath,
-        string checksum,
         string savedPath,
         Guid pluginCategoryId,
+        string checksum,
         CancellationToken cancellationToken)
     {
         if (!Version.TryParse(metadata.Version, out var publishingVersion))
@@ -242,7 +242,7 @@ public class StatsApiService : IStatsApiService
         }
 
         var version = CreatePluginVersionEntity(Guid.NewGuid(), plugin.Id, metadata, destinationIconPath,
-            destinationReadMePath, destinationManifestPath, checksum, savedPath, pluginCategoryId);
+            destinationReadMePath, destinationManifestPath, savedPath, pluginCategoryId, checksum);
 
         await _pluginVersionService.Add(version, cancellationToken);
 
@@ -254,7 +254,7 @@ public class StatsApiService : IStatsApiService
 
     private PluginVersionEntity CreatePluginVersionEntity(Guid id, Guid pluginId, PluginMetadata metadata,
         string destinationIconPath, string destinationReadMePath, string destinationManifestPath, 
-        string checksum, string path, Guid pluginCategoryId)
+        string path, Guid pluginCategoryId, string checksum)
     {
         return new PluginVersionEntity
         {

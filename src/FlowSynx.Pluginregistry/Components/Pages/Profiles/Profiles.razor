@@ -56,7 +56,7 @@
                     {
                         @foreach (var plugin in plugins?.Data!)
                         {
-                            <div class="card mb-2 border">
+                            <div class="card hover-shadow-sm mb-2">
                                 <div class="card-body">
                                     <h4 class="card-title"><a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a></h4>
                                     @if (plugin.Owners.Any())
@@ -80,7 +80,7 @@
                                                 @foreach (var tag in plugin.Tags)
                                                 {
                                                     <a href="/plugins?q=@WebUtility.UrlEncode($"tag:{tag}")">
-                                                        <span class="badge border border-secondary text-secondary me-1">@tag</span>
+                                                        <span class="badge badge-hover border border-secondary text-secondary me-1">@tag</span>
                                                     </a>
                                                 }
                                             </div>

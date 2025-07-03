@@ -99,3 +99,18 @@ h1:focus {
     background-color: #DAFEFE;
     color: #000;
 }
+
+.badge-hover:hover {
+    background-color: #eeeeee !important;
+    border-color: #000000 !important;
+}
+
+.hover-shadow-sm {
+    transition: box-shadow 0.3s ease;
+    border-color: #eee !important;
+}
+
+.hover-shadow-sm:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-color: #ccc !important;
+}
