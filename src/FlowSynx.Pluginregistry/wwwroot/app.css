@@ -114,3 +114,15 @@ h1:focus {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     border-color: #ccc !important;
 }
+
+.markdown-body pre {
+    background-color: #F8F9FA !important;
+    color: #24292e !important;
+    padding: 3px;
+}
+
+.markdown-body code {
+    background-color: #F8F9FA !important;
+    color: #24292e !important;
+    padding: 3px;
+}

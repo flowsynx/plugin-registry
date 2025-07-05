@@ -32,7 +32,12 @@
             var apiUrl = $"{uri}api/plugins/{Uri.EscapeDataString(PluginType)}/{Uri.EscapeDataString(PluginVersion)}/readme";
             var bytes = await Http.GetByteArrayAsync(apiUrl);
             var markdown = System.Text.Encoding.UTF8.GetString(bytes);
-            var html = Markdown.ToHtml(markdown);
+
+            var pipeline = new MarkdownPipelineBuilder()
+                              .UseAdvancedExtensions()
+                              .Build();
+
+            var html = Markdown.ToHtml(markdown, pipeline);
             _htmlContent = new MarkupString(html);
         }
         catch (Exception ex)

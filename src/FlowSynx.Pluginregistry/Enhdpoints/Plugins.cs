@@ -91,6 +91,7 @@ public class Plugins : EndpointGroupBase
     public async Task<IResult> GetPluginReadmeWithTypeAsync(string type, string version, [FromServices] IMediator mediator,
         IFileStorage fileStorage, CancellationToken cancellationToken)
     {
+        const string contentType = "text/markdown; charset=utf-8";
         var result = await mediator.PluginReadme(type, version, cancellationToken);
         var defaultReadme = result.Data.Description;
 
@@ -108,7 +109,7 @@ public class Plugins : EndpointGroupBase
             else
                 bytes = System.Text.Encoding.UTF8.GetBytes("No README defined");
             
-            return Results.File(bytes, "text/markdown");
+            return Results.File(bytes, contentType);
         }
 
         var fileExist = await fileStorage.FileExistsAsync(result.Data.Readme);
@@ -120,15 +121,12 @@ public class Plugins : EndpointGroupBase
             else
                 bytes = System.Text.Encoding.UTF8.GetBytes("No README defined");
 
-            return Results.File(bytes, "text/markdown");
+            return Results.File(bytes, contentType);
         }
 
-        var iconToServe = await fileStorage.ReadFileAsync(result.Data.Readme);
+        var readmeToServe = await fileStorage.ReadFileAsync(result.Data.Readme);
         var provider = new FileExtensionContentTypeProvider();
-        if (!provider.TryGetContentType(result.Data.Readme, out var contentType))
-            contentType = "application/octet-stream";
-
-        return Results.File(iconToServe, contentType);
+        return Results.File(readmeToServe, contentType);
     }
 
     public async Task DownloadPluginByTypeAsync(
