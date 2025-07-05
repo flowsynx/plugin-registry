@@ -1,0 +1,117 @@
+﻿@page "/downloads"
+
+@using FlowSynx.Pluginregistry.Models;
+@using FlowSynx.Pluginregistry.Services
+
+@inject NavigationManager Navigation
+@inject IGitHubReleaseService gitHubReleaseService
+
+<PageTitle>Downloads</PageTitle>
+
+<div class="container p-5">
+    <div class="row">
+        @if (releases == null)
+        {
+            <div class="col-md-12 mx-auto">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p>Loading ...</p>
+                    </div>
+                </div>
+            </div>
+        }
+        else if (releases.Count == 0)
+        {
+            <div class="col-md-12 mx-auto">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p>No releases found.</p>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-12 mx-auto">
+
+                    <h2 class="text-muted">FlowPack</h2>
+                    <p class="text-secondary">FlowPack is a .NET packaging utility for building, packaging, and distributing FlowSynx's plugins. It takes a .NET project, compiles it, generates metadata, and bundles it into a distributable <b>.fspack</b> file.</p>
+
+                    <div class="accordion d-grid gap-1" id="releasesAccordion">
+                        @for (int i = 0; i < releases.Count; i++)
+                        {
+                            var release = releases[i];
+                            var collapseId = $"collapse-{i}";
+                            var headingId = $"heading-{i}";
+
+                            <div class="accordion-item border">
+                                <h2 class="accordion-header" id="@headingId">
+                                    <button class="accordion-button @(i != 0 ? "collapsed" : "")"
+                                            type="button"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#@collapseId"
+                                            aria-expanded="@(i == 0 ? "true" : "false")"
+                                            aria-controls="@collapseId">
+                                        <b>Version: @release.Version</b>
+                                    </button>
+                                </h2>
+                                <div id="@collapseId"
+                                     class="accordion-collapse collapse @(i == 0 ? "show" : "")"
+                                     aria-labelledby="@headingId"
+                                     data-bs-parent="#releasesAccordion">
+                                    <div class="accordion-body">
+                                        <div class="mb-2">
+                                            @if (!string.IsNullOrEmpty(release.WindowsDownloadUrl))
+                                            {
+                                                <a href="@release.WindowsDownloadUrl"
+                                                   class="btn btn-outline-dark me-2"
+                                                   target="_blank">
+                                                    <i class="bi bi-windows"></i> Download for Windows
+                                                </a>
+                                            }
+
+                                            @if (!string.IsNullOrEmpty(release.LinuxDownloadUrl))
+                                            {
+                                                <a href="@release.LinuxDownloadUrl"
+                                                   class="btn btn-outline-dark me-2"
+                                                   target="_blank">
+                                                    <i class="bi bi-tux"></i> Download for Linux
+                                                </a>
+                                            }
+
+                                            @if (!string.IsNullOrEmpty(release.MacOsDownloadUrl))
+                                            {
+                                                <a href="@release.MacOsDownloadUrl"
+                                                   class="btn btn-outline-dark"
+                                                   target="_blank">
+                                                    <i class="bi bi-apple"></i> Download for macOS
+                                                </a>
+                                            }
+
+                                            @if (string.IsNullOrEmpty(release.WindowsDownloadUrl) &&
+                                           string.IsNullOrEmpty(release.LinuxDownloadUrl) &&
+                                           string.IsNullOrEmpty(release.MacOsDownloadUrl))
+                                            {
+                                                <span class="text-muted">No platform-specific assets available.</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            }
+    </div>
+</div>
+
+@code {
+    private List<GitHubReleaseInfo>? releases;
+
+    protected override async Task OnInitializedAsync()
+    {
+        releases = await gitHubReleaseService.GetAllReleasesAsync();
+    }
+}

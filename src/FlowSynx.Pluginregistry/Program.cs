@@ -48,6 +48,7 @@ builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
 builder.Services.AddScoped<IApiClient, ApiClient>();
 builder.Services.AddScoped<IFileValidator, FileValidator>();
 builder.Services.AddScoped<IPluginMetadataReader, PluginMetadataReader>();
+builder.Services.AddScoped<IGitHubReleaseService, GitHubReleaseService>();
 
 builder.Services.AddGitHubAuthentication(config);
 builder.Services.AddAuthorization();
