@@ -45,6 +45,8 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                 TotalDownload = plugin.Statistics.Count,
                 Checksum = plugin.Checksum,
                 Tags = plugin.PluginVersionTags.Select(x=>x.Tag!.Name),
+                MinimumFlowSynxVersion = plugin.MinimumFlowSynxVersion,
+                TargetFlowSynxVersion = plugin.TargetFlowSynxVersion,
                 Versions = plugin.Plugin.Versions
                                  .OrderByDescending(x=>x.LastModifiedOn)
                                  .ThenByDescending(x=>x.CreatedOn)

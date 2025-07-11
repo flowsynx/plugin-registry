@@ -18,6 +18,8 @@ public class PluginVersionEntity : AuditableEntity<Guid>, ISoftDeletable
     public string? RepositoryUrl { get; set; }
     public string? ReadMe { get; set; }
     public required Guid PluginCategoryId { get; set; }
+    public required string MinimumFlowSynxVersion { get; set; }
+    public string? TargetFlowSynxVersion { get; set; }
     public bool? IsLatest { get; set; }
     public string? Manifest { get; set; }
     public string? Checksum { get; set; }

@@ -51,6 +51,13 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
         builder.Property(t => t.LicenseUrl)
                .HasMaxLength(4096);
 
+        builder.Property(t => t.MinimumFlowSynxVersion)
+               .HasMaxLength(50)
+               .IsRequired();
+
+        builder.Property(t => t.TargetFlowSynxVersion)
+               .HasMaxLength(50);
+
         builder.HasIndex(v => new { v.PluginId, v.Version })
                .IsUnique();
     }

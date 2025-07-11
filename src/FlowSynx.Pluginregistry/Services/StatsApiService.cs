@@ -272,6 +272,8 @@ public class StatsApiService : IStatsApiService
             RepositoryUrl = metadata.RepositoryUrl,
             ReadMe = destinationReadMePath,
             PluginCategoryId = pluginCategoryId,
+            MinimumFlowSynxVersion = metadata.MinimumFlowSynxVersion,
+            TargetFlowSynxVersion = metadata.TargetFlowSynxVersion,
             IsLatest = true,
             Manifest = destinationManifestPath,
             Checksum = checksum,

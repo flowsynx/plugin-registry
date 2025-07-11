@@ -12,6 +12,8 @@ public class PluginDetailsResponse
     public string? RepositoryUrl { get; set; }
     public string? Copyright { get; set; }
     public string? CategoryTitle { get; set; }
+    public required string MinimumFlowSynxVersion { get; set; }
+    public string? TargetFlowSynxVersion { get; set; }
     public DateTime LastUpdated { get; set; }
     public int TotalDownload { get; set; } = 0;
     public IEnumerable<string> Tags { get; set; } = new List<string>();
