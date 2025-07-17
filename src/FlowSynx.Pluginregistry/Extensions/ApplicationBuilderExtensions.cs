@@ -184,9 +184,9 @@ public static class ApplicationBuilderExtensions
                 new PluginCategoryEntity
                 {
                     Id = Guid.Parse("64e2474c-9a6a-43fc-b202-a42c1cf71019"),
-                    CategoryId = "controlflow",
-                    Title = "ControlFlow plugins",
-                    Description = "Plugins that provide control-flow constructs for workflows, such as conditional branching, loops, parallel execution, and event-driven triggers. These plugins are used to control the execution logic of workflow tasks."
+                    CategoryId = "execution",
+                    Title = "Execution plugins",
+                    Description = "Plugins that execute external processes, scripts, or commands and capture their output, enabling integration of external tasks within workflows."
                 },
             };
 
