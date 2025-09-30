@@ -188,6 +188,27 @@ public static class ApplicationBuilderExtensions
                     Title = "Execution plugins",
                     Description = "Plugins that execute external processes, scripts, or commands and capture their output, enabling integration of external tasks within workflows."
                 },
+                new PluginCategoryEntity
+                {
+                    Id = Guid.Parse("17ab5757-95f9-49d3-aaa3-23c9b1fb668f"),
+                    CategoryId = "compression",
+                    Title = "Compression plugins",
+                    Description = "Plugins that handle compression, decompression, and archive management (ZIP, TAR, GZip, 7z, etc.)."
+                },
+                new PluginCategoryEntity
+                {
+                    Id = Guid.Parse("1a9de5ac-0681-4272-bdfd-7fefa600594e"),
+                    CategoryId = "iot",
+                    Title = "IoT plugins",
+                    Description = "Plugins that interact with IoT devices, sensors, embedded hardware, or external peripherals."
+                },
+                new PluginCategoryEntity
+                {
+                    Id = Guid.Parse("cd27d75c-aaa0-43ac-a277-cc1bb7859496"),
+                    CategoryId = "media",
+                    Title = "Media plugins",
+                    Description = "Plugins for media processing, such as images, audio, or video manipulation."
+                },
             };
 
             context.PluginCategories.AddRange(categories);
