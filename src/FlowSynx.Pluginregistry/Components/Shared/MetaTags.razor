@@ -1,0 +1,45 @@
+﻿@inject IJSRuntime JS
+
+@code {
+    // Standard SEO
+    [Parameter] public string? Title { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public string? Author { get; set; }
+    [Parameter] public string? Keywords { get; set; }
+
+    // Open Graph
+    [Parameter] public string? OgTitle { get; set; }
+    [Parameter] public string? OgDescription { get; set; }
+    [Parameter] public string? OgImage { get; set; }
+    [Parameter] public string? OgUrl { get; set; }
+    [Parameter] public string? OgType { get; set; } = "website";
+
+    // Twitter
+    [Parameter] public string? TwitterSite { get; set; }
+    [Parameter] public string? TwitterCreator { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        // Standard SEO
+        await JS.InvokeVoidAsync("metaManager.setTitle", Title);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "description", Description);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "author", Author);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "keywords", Keywords);
+
+        // Open Graph
+        await JS.InvokeVoidAsync("metaManager.setMeta", "og:title", OgTitle ?? Title);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "og:description", OgDescription ?? Description);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "og:image", OgImage);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "og:url", OgUrl);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "og:type", OgType);
+
+        // Twitter
+        await JS.InvokeVoidAsync("metaManager.setMeta", "twitter:site", TwitterSite);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "twitter:creator", TwitterCreator);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "twitter:title", OgTitle ?? Title);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "twitter:description", OgDescription ?? Description);
+        await JS.InvokeVoidAsync("metaManager.setMeta", "twitter:image", OgImage);
+    }
+}
