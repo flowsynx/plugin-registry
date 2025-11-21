@@ -10,4 +10,5 @@ public class PluginsListResponse
     public string? CategoryTitle { get; set; }
     public DateTime LastUpdated { get; set; }
     public int TotalDownload { get; set; } = 0;
+    public bool IsTrusted { get; set; } = false;
 }

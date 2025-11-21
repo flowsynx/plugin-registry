@@ -49,7 +49,7 @@
                 </div>
                 <div class="card p-5">
                     <h4 class="text-muted">No plugins found</h4>
-                    <p class="text-secondary">We couldn’t find anything matching your search.</p>
+                    <p class="text-secondary">We couldn't find anything matching your search.</p>
                 </div>
             </div>
         }
@@ -68,7 +68,13 @@
                             </div>
                             <div class="col">
                                 <div class="card-body">
-                                    <h4 class="card-title"><a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a></h4>
+                                    <h4 class="card-title">
+                                        <a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a>
+                                        @if (plugin.IsTrusted)
+                                        {
+                                            <i class="bi bi-patch-check-fill trusted-plugin-icon-small ms-2" title="Trusted Plugin"></i>
+                                        }
+                                    </h4>
                                     @if (plugin.Owners.Any())
                                     {
                                         <div>

@@ -40,7 +40,8 @@ internal class PluginsListByProfileHandler : IRequestHandler<PluginsListByProfil
                 Description = p.LatestVersion!.Description,
                 LastUpdated = p.LastModifiedOn ?? p.CreatedOn,
                 Tags = p.LatestVersion!.PluginVersionTags.Select(x => x.Tag!.Name),
-                TotalDownload = p.Versions.Sum(x => x.Statistics.Count)
+                TotalDownload = p.Versions.Sum(x => x.Statistics.Count),
+                IsTrusted = p.IsTrusted
             }).ToList();
 
             return PaginatedResult<PluginsListByProfileResponse>.Success(response, plugins.TotalCount, request.Page ?? 1, plugins.PageSize);

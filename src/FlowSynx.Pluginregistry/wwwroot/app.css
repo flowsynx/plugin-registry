@@ -126,3 +126,21 @@ h1:focus {
     color: #24292e !important;
     padding: 3px;
 }
+
+.trusted-plugin-badge {
+    background-color: rgba(0, 139, 139, 0.1);
+    border-color: #008b8b !important;
+}
+
+.trusted-plugin-icon {
+    color: #008b8b !important;
+}
+
+.trusted-plugin-text {
+    color: #008b8b !important;
+}
+
+.trusted-plugin-icon-small {
+    color: #008b8b !important;
+    font-size: 1.2rem;
+}

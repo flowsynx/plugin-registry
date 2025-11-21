@@ -42,7 +42,8 @@ internal class PluginsListHandler : IRequestHandler<PluginsListRequest, Paginate
                 CategoryTitle = p.LatestVersion.PluginCategory.Title,
                 LastUpdated = p.LastModifiedOn ?? p.CreatedOn,
                 Tags = p.LatestVersion!.PluginVersionTags.Select(x => x.Tag!.Name),
-                TotalDownload = p.Versions.Sum(x=>x.Statistics.Count)
+                TotalDownload = p.Versions.Sum(x=>x.Statistics.Count),
+                IsTrusted = p.IsTrusted
             }).ToList();
 
             return PaginatedResult<PluginsListResponse>.Success(response, plugins.TotalCount, request.Page ?? 1, plugins.PageSize);

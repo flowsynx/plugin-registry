@@ -10,4 +10,5 @@ public class PluginsListByProfileResponse
     public string? CategoryTitle { get; set; }
     public DateTime LastUpdated { get; set; }
     public long TotalDownload { get; set; } = 0;
+    public bool IsTrusted { get; set; } = false;
 }

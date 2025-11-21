@@ -58,7 +58,13 @@
                         {
                             <div class="card hover-shadow-sm mb-2">
                                 <div class="card-body">
-                                    <h4 class="card-title"><a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a></h4>
+                                    <h4 class="card-title">
+                                        <a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a>
+                                        @if (plugin.IsTrusted)
+                                        {
+                                            <i class="bi bi-patch-check-fill trusted-plugin-icon-small ms-2" title="Trusted Plugin"></i>
+                                        }
+                                    </h4>
                                     @if (plugin.Owners.Any())
                                     {
                                         <div>

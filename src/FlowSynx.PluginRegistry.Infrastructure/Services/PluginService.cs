@@ -180,6 +180,35 @@ public class PluginService : IPluginService
         }
     }
 
+    public async Task<Pagination<PluginEntity>> AllTrustedPlugins(int page, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+            IQueryable<PluginEntity> pluginEntities = context.Plugins
+                .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginVersionTags).ThenInclude(i => i.Tag)
+                .Include(p => p.LatestVersion).ThenInclude(i => i!.Statistics)
+                .Include(p => p.LatestVersion).ThenInclude(i => i!.PluginCategory)
+                .Include(i => i.Owners).ThenInclude(i => i.Profile)
+                .Include(p => p.Versions.Where(v => !v.IsDeleted && v.IsActive)).ThenInclude(v => v.Statistics)
+                .Where(p => !p.IsDeleted && p.LatestVersion != null && p.IsTrusted);
+
+            var totalCount = await pluginEntities.CountAsync(cancellationToken).ConfigureAwait(false);
+
+            var skip = (page - 1) * _pageSize;
+            pluginEntities = pluginEntities.OrderBy(p => p.Type)
+                .Skip(skip)
+                .Take(_pageSize);
+
+            var result = await pluginEntities.ToListAsync(cancellationToken).ConfigureAwait(false);
+            return new Pagination<PluginEntity>(result, totalCount, page, _pageSize);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
     public async Task Add(PluginEntity pluginEntity, CancellationToken cancellationToken)
     {
         try
@@ -229,6 +258,28 @@ public class PluginService : IPluginService
                 .SaveChangesAsync(cancellationToken)
                 .ConfigureAwait(false);
 
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
+
+    public async Task<bool> SetTrustedStatus(string pluginType, bool isTrusted, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+            var plugin = await context.Plugins
+                .FirstOrDefaultAsync(p => p.Type.ToLower() == pluginType.ToLower() && !p.IsDeleted, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (plugin == null)
+                return false;
+
+            plugin.IsTrusted = isTrusted;
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             return true;
         }
         catch (Exception ex)

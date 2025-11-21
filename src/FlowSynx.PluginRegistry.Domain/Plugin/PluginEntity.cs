@@ -8,6 +8,7 @@ public class PluginEntity : AuditableEntity<Guid>, ISoftDeletable
     public required string Type { get; set; }
     public Guid? LatestVersionId { get; set; }
     public bool IsDeleted { get; set; } = false;
+    public bool IsTrusted { get; set; } = false;
 
     public PluginVersionEntity? LatestVersion { get; set; }
     public ICollection<PluginVersionEntity> Versions { get; set; } = new List<PluginVersionEntity>();

@@ -52,11 +52,26 @@
         {
             <div class="row">
                 <div class="col-md-9 mx-auto">
-                    <h2 class="fw-bolder mb-1">
-                        <img src="/api/plugins/@plugin.Data.Type/@plugin.Data.Version/icon" height="64" width="64" />
-                        @plugin.Data.Type
-                    </h2>
-                    <h5 class="fw-bolder mb-4 text-muted">Version: @plugin.Data.Version</h5>
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="/api/plugins/@plugin.Data.Type/@plugin.Data.Version/icon"
+                             height="64" width="64" class="me-3" />
+
+                        <div>
+                            <h2 class="fw-bolder m-0 d-flex align-items-center">
+                                @plugin.Data.Type
+
+                                @if (plugin.Data.IsTrusted)
+                                {
+                                    <i class="bi bi-patch-check-fill trusted-plugin-icon ms-2"
+                                       title="Trusted Plugin" style="font-size: 1.5rem;"></i>
+                                }
+                            </h2>
+
+                            <h5 class="fw-bolder text-muted m-0">
+                                Version: @plugin.Data.Version
+                            </h5>
+                        </div>
+                    </div>
                     <div class="position-relative mb-2">
                         <CodeCopy CodeToCopy="@jsonCodeBlock" />
                         <pre class="plugin-code-block border bg-light"><code>@jsonCodeBlock</code>
@@ -96,6 +111,16 @@
                             <div class="d-flex">
                                 <div>
                                     <div class="h2 fw-bolder">About</div>
+                                    @if (plugin.Data.IsTrusted)
+                                    {
+                                        <div class="mb-3 p-2 trusted-plugin-badge border rounded">
+                                            <i class="bi bi-patch-check-fill trusted-plugin-icon"></i>
+                                            <strong class="trusted-plugin-text">Trusted Plugin</strong>
+                                            <div class="small text-muted mt-1">
+                                                This plugin has been verified and is trusted by the FlowSynx team.
+                                            </div>
+                                        </div>
+                                    }
                                     <div class="mb-3">
                                         <i class="bi bi-download text-secondary"></i>
                                         @plugin.Data.TotalDownload.ToString("N0") total downloads
