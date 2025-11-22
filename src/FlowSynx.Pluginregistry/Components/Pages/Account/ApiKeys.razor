@@ -1,0 +1,339 @@
+@page "/account/apikeys"
+@using FlowSynx.PluginRegistry.Application.Features.ApiKeys.Command.GenerateKey
+@using FlowSynx.Pluginregistry.Models
+@using FlowSynx.Pluginregistry.Services
+@inject IApiKeyClientService ApiKeyService
+@inject IJSRuntime JSRuntime
+@attribute [Authorize]
+
+<PageTitle>API Keys - FlowSynx Plugin Registry</PageTitle>
+
+<div class="container p-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>API Key Management</h2>
+            <p class="text-muted">
+                Manage your API keys for programmatic plugin uploads. Keep your keys secure and never share them publicly.
+            </p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <button class="btn btn-primary" @onclick="ShowCreateDialog">
+                <i class="bi bi-plus-circle"></i> Create New API Key
+            </button>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <span class="ms-2">Loading API keys...</span>
+            </div>
+        </div>
+    }
+    else if (_error != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> @_error
+        </div>
+    }
+    else if (_apiKeys?.Any() == true)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Permissions</th>
+                        <th>Created</th>
+                        <th>Expires</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var key in _apiKeys)
+                    {
+                        <tr>
+                            <td>
+                                <div>
+                                    <strong>@key.Name</strong>
+                                    <br />
+                                    <small class="text-muted font-monospace">@key.Key[..8]...</small>
+                                </div>
+                            </td>
+                            <td>
+                                @if (key.IsActive)
+                                {
+                                    <span class="badge bg-success">Active</span>
+                                }
+                                else if (key.IsRevoked)
+                                {
+                                    <span class="badge bg-danger">Revoked</span>
+                                }
+                                else if (key.IsExpired)
+                                {
+                                    <span class="badge bg-warning">Expired</span>
+                                }
+                            </td>
+                            <td>
+                                @if (key.CanPushNewPlugins)
+                                {
+                                    <span class="badge bg-info me-1">New Plugins</span>
+                                }
+                                @if (key.CanPushPluginVersions)
+                                {
+                                    <span class="badge bg-info me-1">Versions</span>
+                                }
+                                @if (key.AssignedPlugins.Any())
+                                {
+                                    <span class="badge bg-secondary">@key.AssignedPlugins.Count Plugin(s)</span>
+                                }
+                            </td>
+                            <td>@key.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                @if (key.ExpiresAt.HasValue)
+                                {
+                                    @key.ExpiresAt.Value.ToString("yyyy-MM-dd")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Never</span>
+                                }
+                            </td>
+                            <td>
+                                @if (key.IsActive)
+                                {
+                                    <button class="btn btn-sm btn-danger" @onclick="() => ConfirmRevoke(key.Id)">
+                                        <i class="bi bi-trash"></i> Revoke
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="card text-center p-5">
+            <div class="card-body">
+                <i class="bi bi-key" style="font-size: 3rem; color: #6c757d;"></i>
+                <h5 class="mt-3">No API Keys</h5>
+                <p class="text-muted">Create your first API key to start uploading plugins programmatically.</p>
+            </div>
+        </div>
+    }
+</div>
+
+@if (_showCreateDialog)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New API Key</h5>
+                    <button type="button" class="btn-close" @onclick="HideCreateDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <CreateApiKeyDialog OnKeyCreated="HandleKeyCreated" OnCancel="HideCreateDialog" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_showKeyDialog)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle-fill"></i> API Key Created Successfully
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="HideKeyDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <strong>Important:</strong> Save this key now. You won't be able to see it again!
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">API Key</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control font-monospace" value="@_newRawKey" readonly />
+                            <button class="btn btn-outline-secondary" type="button" @onclick="CopyToClipboard">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <strong>Usage Example:</strong>
+                        <pre class="bg-light p-3 mt-2 rounded"><code>curl -X POST https://your-registry.com/api/plugins/upload \
+  -H "X-API-Key: @_newRawKey" \
+  -F "file=@@plugin.zip"</code></pre>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="HideKeyDialog">
+                        I've Saved My Key
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (_showConfirmDialog)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Revoke API Key</h5>
+                    <button type="button" class="btn-close" @onclick="HideConfirmDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to revoke this API key? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="HideConfirmDialog">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick="RevokeKey">
+                        @if (_revoking)
+                        {
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        }
+                        Revoke
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<ApiKeyViewModel>? _apiKeys;
+    private bool _loading = true;
+    private string? _error;
+    private bool _showCreateDialog;
+    private bool _showKeyDialog;
+    private bool _showConfirmDialog;
+    private bool _revoking;
+    private string _newRawKey = string.Empty;
+    private Guid _keyToRevoke;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadApiKeys();
+    }
+
+    private async Task LoadApiKeys()
+    {
+        _loading = true;
+        _error = null;
+        try
+        {
+            var result = await ApiKeyService.GetApiKeysAsync();
+            if (result?.Succeeded == true)
+            {
+                _apiKeys = result.Data;
+            }
+            else
+            {
+                _error = string.Join(", ", result?.Messages ?? new List<string> { "Failed to load API keys" });
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Error loading API keys: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private void ShowCreateDialog()
+    {
+        _showCreateDialog = true;
+    }
+
+    private void HideCreateDialog()
+    {
+        _showCreateDialog = false;
+    }
+
+    private async Task HandleKeyCreated(GenerateApiKeyResponse result)
+    {
+        _showCreateDialog = false;
+        _newRawKey = result.RawKey;
+        _showKeyDialog = true;
+        await LoadApiKeys();
+    }
+
+    private void HideKeyDialog()
+    {
+        _showKeyDialog = false;
+        _newRawKey = string.Empty;
+    }
+
+    private async Task CopyToClipboard()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", _newRawKey);
+            await JSRuntime.InvokeVoidAsync("alert", "API key copied to clipboard!");
+        }
+        catch
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to copy to clipboard");
+        }
+    }
+
+    private void ConfirmRevoke(Guid keyId)
+    {
+        _keyToRevoke = keyId;
+        _showConfirmDialog = true;
+    }
+
+    private void HideConfirmDialog()
+    {
+        _showConfirmDialog = false;
+        _keyToRevoke = Guid.Empty;
+    }
+
+    private async Task RevokeKey()
+    {
+        _revoking = true;
+        try
+        {
+            var result = await ApiKeyService.RevokeApiKeyAsync(_keyToRevoke);
+            if (result?.Succeeded == true)
+            {
+                await LoadApiKeys();
+                HideConfirmDialog();
+            }
+            else
+            {
+                _error = string.Join(", ", result?.Messages ?? new List<string> { "Failed to revoke API key" });
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Error revoking API key: {ex.Message}";
+        }
+        finally
+        {
+            _revoking = false;
+        }
+    }
+}

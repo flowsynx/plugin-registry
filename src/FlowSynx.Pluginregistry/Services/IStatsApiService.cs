@@ -16,7 +16,7 @@ public interface IStatsApiService
     Task<PaginatedResult<PluginsListByProfileResponse>?> GetPluginsByUserName(string userName, int? page);
     Task<Result<PluginsStatisticsByProfileResponse>?> GetPluginStatisticsByUsername(string? userName);
     Task UploadFileAsync(IBrowserFile file, Func<int, Task> onProgress, 
-        Guid profileId, CancellationToken cancellationToken = default);
+        Guid profileId, string? apiKey = null, CancellationToken cancellationToken = default);
     Task<Result<bool>> EnablePluginVersion(string pluginType, string version);
     Task<Result<bool>> DisablePluginVersion(string pluginType, string version);
 }

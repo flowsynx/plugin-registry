@@ -1,0 +1,197 @@
+@using FlowSynx.PluginRegistry.Application.Features.ApiKeys.Command.GenerateKey
+@using FlowSynx.Pluginregistry.Models
+@using FlowSynx.Pluginregistry.Services
+@using System.Security.Claims
+@inject IApiKeyClientService ApiKeyService
+@inject IStatsApiService StatsApiService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<EditForm Model="@_request" OnValidSubmit="CreateKey">
+    <DataAnnotationsValidator />
+    
+    <div class="mb-3">
+        <label for="keyName" class="form-label">API Key Name <span class="text-danger">*</span></label>
+        <InputText id="keyName" class="form-control" @bind-Value="_request.Name" placeholder="e.g., CI/CD Pipeline Key" />
+        <ValidationMessage For="@(() => _request.Name)" />
+        <div class="form-text">A descriptive name to help you identify this key</div>
+    </div>
+
+    <div class="mb-3">
+        <label for="expirationDate" class="form-label">Expiration Date (Optional)</label>
+        <InputDate id="expirationDate" class="form-control" @bind-Value="_expirationDate" min="@DateTime.UtcNow.Date.AddDays(1).ToString("yyyy-MM-dd")" />
+        <div class="form-text">Leave empty for no expiration (UTC time zone)</div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Permissions</label>
+        <div class="form-check">
+            <InputCheckbox id="canPushNew" class="form-check-input" @bind-Value="_request.CanPushNewPlugins" />
+            <label class="form-check-label" for="canPushNew">
+                Can Push New Plugins
+            </label>
+        </div>
+        <div class="form-check">
+            <InputCheckbox id="canPushVersions" class="form-check-input" @bind-Value="_request.CanPushPluginVersions" />
+            <label class="form-check-label" for="canPushVersions">
+                Can Push Plugin Versions
+            </label>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Plugin Restrictions (Optional)</label>
+        <p class="form-text mb-2">
+            Leave empty to allow access to all plugins. Select specific plugins to restrict access.
+        </p>
+
+        @if (_loadingPlugins)
+        {
+            <div class="spinner-border spinner-border-sm" role="status">
+                <span class="visually-hidden">Loading plugins...</span>
+            </div>
+        }
+        else if (_userPlugins?.Any() == true)
+        {
+            <select class="form-select" multiple @onchange="HandlePluginSelection" size="5">
+                @foreach (var plugin in _userPlugins)
+                {
+                    <option value="@plugin.Id">@plugin.Type</option>
+                }
+            </select>
+            <div class="form-text">Hold Ctrl/Cmd to select multiple plugins</div>
+        }
+    </div>
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        The API key will be shown only once after creation. Make sure to save it securely.
+    </div>
+
+    @if (_error != null)
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill"></i> @_error
+        </div>
+    }
+
+    <div class="d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-secondary" @onclick="OnCancel" disabled="@_creating">
+            Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" disabled="@(_creating || string.IsNullOrWhiteSpace(_request.Name))">
+            @if (_creating)
+            {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                <span>Creating...</span>
+            }
+            else
+            {
+                <i class="bi bi-key"></i>
+                <span> Create API Key</span>
+            }
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter] public EventCallback<GenerateApiKeyResponse> OnKeyCreated { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private GenerateApiKeyRequest _request = new();
+    private DateTime? _expirationDate;
+    private List<Guid> _selectedPluginIds = new();
+    private bool _creating;
+    private bool _loadingPlugins;
+    private string? _error;
+    private List<PluginSummary>? _userPlugins;
+    private string? _userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            _userName = user.FindFirstValue("login");
+            if (!string.IsNullOrEmpty(_userName))
+            {
+                await LoadUserPlugins();
+            }
+        }
+    }
+
+    private async Task LoadUserPlugins()
+    {
+        _loadingPlugins = true;
+        try
+        {
+            var result = await StatsApiService.GetPluginsByUserName(_userName!, 1);
+            if (result?.Succeeded == true && result.Data != null)
+            {
+                _userPlugins = result.Data.Select(p => new PluginSummary
+                {
+                    Id = p.Id,
+                    Type = p.Type
+                }).ToList();
+            }
+        }
+        catch
+        {
+            // Silently fail - plugin restriction is optional
+        }
+        finally
+        {
+            _loadingPlugins = false;
+        }
+    }
+
+    private void HandlePluginSelection(ChangeEventArgs e)
+    {
+        if (e.Value is string[] selectedValues)
+        {
+            _selectedPluginIds = selectedValues
+                .Select(v => Guid.TryParse(v, out var id) ? id : Guid.Empty)
+                .Where(id => id != Guid.Empty)
+                .ToList();
+        }
+    }
+
+    private async Task CreateKey()
+    {
+        _creating = true;
+        _error = null;
+
+        try
+        {
+            _request.ExpiresAt = _expirationDate.HasValue 
+                ? DateTime.SpecifyKind(_expirationDate.Value, DateTimeKind.Utc)
+                : null;
+            _request.PluginIds = _selectedPluginIds;
+
+            var result = await ApiKeyService.GenerateApiKeyAsync(_request);
+            if (result?.Succeeded == true)
+            {
+                await OnKeyCreated.InvokeAsync(result.Data);
+            }
+            else
+            {
+                _error = string.Join(", ", result?.Messages ?? new List<string> { "Failed to create API key" });
+            }
+        }
+        catch (Exception ex)
+        {
+            _error = $"Error creating API key: {ex.Message}";
+        }
+        finally
+        {
+            _creating = false;
+        }
+    }
+
+    private class PluginSummary
+    {
+        public Guid Id { get; set; }
+        public string Type { get; set; } = string.Empty;
+    }
+}

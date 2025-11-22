@@ -33,6 +33,7 @@ internal class PluginsListByProfileHandler : IRequestHandler<PluginsListByProfil
 
             var response = plugins.Data.Select(p => new PluginsListByProfileResponse
             {
+                Id = p.Id,
                 Type = p.Type,
                 Version = p.LatestVersion!.Version,
                 Owners = p.Owners.Select(x => x.Profile!.UserName),

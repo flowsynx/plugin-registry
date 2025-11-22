@@ -58,8 +58,14 @@ public class ApiKeyService : IApiKeyService
         }
     }
 
-    public async Task<(string rawKey, ApiKeyEntity savedKey)> GenerateKey(string name, Guid profileId, 
-        DateTime? expiresAt, List<Guid>? pluginIds, CancellationToken cancellationToken)
+    public async Task<ApiKeyEntity> GenerateKey(
+        string name, 
+        Guid profileId,
+        bool? canPushNewPlugins,
+        bool? canPushPluginVersions,
+        DateTime? expiresAt, 
+        List<Guid>? pluginIds, 
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -67,15 +73,22 @@ public class ApiKeyService : IApiKeyService
             var rawKey = ApiKeyHelper.Generate();
             var hashed = ApiKeyHelper.Hash(rawKey);
 
+            var apiKeyId = Guid.NewGuid();
             var apiKey = new ApiKeyEntity
             {
-                Id = Guid.NewGuid(),
+                Id = apiKeyId,
                 Name = name,
                 Key = hashed,
                 RawKey = rawKey,
                 ProfileId = profileId,
                 ExpiresAt = expiresAt,
-                PluginAssignments = pluginIds?.Select(pid => new ApiKeyPluginEntity { PluginId = pid }).ToList() ?? new()
+                CanPushNewPlugins = canPushNewPlugins ?? false,
+                CanPushPluginVersions = canPushPluginVersions ?? false,
+                PluginAssignments = pluginIds?.Select(pid => new ApiKeyPluginEntity
+                {
+                    ApiKeyId = apiKeyId,
+                    PluginId = pid 
+                }).ToList() ?? new()
             };
 
             await context.ApiKeys
@@ -86,7 +99,7 @@ public class ApiKeyService : IApiKeyService
                 .SaveChangesAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            return (rawKey, apiKey);
+            return apiKey;
         }
         catch (Exception ex)
         {
@@ -149,14 +162,19 @@ public class ApiKeyService : IApiKeyService
 
         var key = await context.ApiKeys
             .Include(k => k.PluginAssignments)
-            .FirstOrDefaultAsync(k => k.Key == hashedKey && !k.IsRevoked);
+            .FirstOrDefaultAsync(k => k.Key == hashedKey && !k.IsRevoked && k.ProfileId == currentUserId);
 
         if (key == null || key.IsExpired)
             return false;
 
-        if (!key.PluginAssignments.Any(p => p.PluginId == pluginId))
-            return false;
+        // If plugin assignments exist, validate against them
+        if (key.PluginAssignments.Any())
+        {
+            if (!isNewPackage && pluginId.HasValue && !key.PluginAssignments.Any(p => p.PluginId == pluginId.Value))
+                return false;
+        }
 
+        // Check permissions based on operation type
         if (isNewPackage && !key.CanPushNewPlugins)
             return false;
 

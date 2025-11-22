@@ -1,5 +1,6 @@
 ﻿using FlowSynx.Pluginregistry.Services;
 using FlowSynx.PluginRegistry.Application.Configuration;
+using FlowSynx.PluginRegistry.Application.Services;
 using FlowSynx.PluginRegistry.Domain.Profile;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -49,6 +50,13 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    public static IServiceCollection AddUserService(this IServiceCollection services)
+    {
+        services.AddTransient<ICurrentUserService, CurrentUserService>();
+        return services;
+    }
+
     public static IServiceCollection AddGitHubAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
         var authenticationConfiguration = new AuthenticationConfiguration();

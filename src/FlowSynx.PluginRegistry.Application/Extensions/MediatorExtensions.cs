@@ -1,4 +1,5 @@
-﻿using FlowSynx.PluginRegistry.Application.Features.Plugins.Command.SetPluginVersionActiveStatus;
+﻿using FlowSynx.PluginRegistry.Application.Features.ApiKeys.Command.GenerateKey;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Command.SetPluginVersionActiveStatus;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginIcon;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginLocation;
@@ -130,6 +131,14 @@ public static class MediatorExtensions
     #region Statistics
     public static Task<Result<Unit>> IncreaseDownloadCountAsync(
         this IMediator mediator, AddStatisticRequest request, CancellationToken cancellationToken)
+    {
+        return mediator.Send(request, cancellationToken);
+    }
+    #endregion
+
+    #region ApiKeys
+    public static Task<Result<GenerateApiKeyResponse>> GenerateApiKey(
+    this IMediator mediator, GenerateApiKeyRequest request, CancellationToken cancellationToken)
     {
         return mediator.Send(request, cancellationToken);
     }

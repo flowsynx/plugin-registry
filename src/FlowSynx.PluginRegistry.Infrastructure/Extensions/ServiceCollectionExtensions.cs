@@ -1,4 +1,5 @@
 ﻿using FlowSynx.PluginRegistry.Application.Services;
+using FlowSynx.PluginRegistry.Domain.ApiKey;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using FlowSynx.PluginRegistry.Domain.Profile;
 using FlowSynx.PluginRegistry.Infrastructure.Contexts;
@@ -25,6 +26,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<IPluginCategoryService, PluginCategoryService>()
             .AddScoped<IStatisticService, StatisticService>()
             .AddScoped<IProfileService, ProfileService>()
+            .AddScoped<IApiKeyService, ApiKeyService>()
             .AddScoped<IGravatar, Gravatar>()
             .AddDbContextFactory<ApplicationContext>(options =>
             {

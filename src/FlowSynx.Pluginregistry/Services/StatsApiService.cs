@@ -7,6 +7,7 @@ using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginVersions;
 using FlowSynx.PluginRegistry.Application.Wrapper;
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using FlowSynx.PluginRegistry.Domain.Profile;
+using FlowSynx.PluginRegistry.Domain.ApiKey;
 using Microsoft.AspNetCore.Components.Forms;
 using System.IO.Compression;
 
@@ -22,6 +23,7 @@ public class StatsApiService : IStatsApiService
     private readonly IFileValidator _fileValidator;
     private readonly IPluginMetadataReader _metadataReader;
     private readonly IPluginCategoryService _pluginCategoryService;
+    private readonly IApiKeyService _apiKeyService;
     private const int MaxUploadSize = 100 * 1024 * 1024; // 100MB
 
     public StatsApiService(
@@ -32,7 +34,8 @@ public class StatsApiService : IStatsApiService
         IPluginService pluginService,
         IFileValidator fileValidator,
         IPluginMetadataReader metadataReader,
-        IPluginCategoryService pluginCategoryService)
+        IPluginCategoryService pluginCategoryService,
+        IApiKeyService apiKeyService)
     {
         _apiClient = apiClient;
         _environment = environment;
@@ -42,6 +45,7 @@ public class StatsApiService : IStatsApiService
         _fileValidator = fileValidator;
         _metadataReader = metadataReader;
         _pluginCategoryService = pluginCategoryService;
+        _apiKeyService = apiKeyService;
     }
 
     public Task<PaginatedResult<PluginsListResponse>?> GetPlugins(string? query, int? page)
@@ -122,6 +126,7 @@ public class StatsApiService : IStatsApiService
         IBrowserFile file,
         Func<int, Task> onProgress,
         Guid profileId,
+        string? apiKey = null,
         CancellationToken cancellationToken = default)
     {
         _fileValidator.Validate(file);
@@ -135,6 +140,12 @@ public class StatsApiService : IStatsApiService
             _fileValidator.ValidatePackageContents(tempPath, out var pluginFile, out var expectedHash);
             var checksum = await _fileValidator.ValidateChecksumAsync(pluginFile, expectedHash, cancellationToken);
             var metadata = await _metadataReader.ReadAsync(tempPath);
+
+            // Validate API key if provided
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                await ValidateApiKeyForUpload(apiKey, metadata.Type, profileId, cancellationToken);
+            }
 
             var extractedPluginPath = ExtractPlugin(pluginFile, tempPath);
             var destPath = Path.Combine(metadata.Type, metadata.Version);
@@ -153,6 +164,23 @@ public class StatsApiService : IStatsApiService
         finally
         {
             CleanupTempDirectory(tempPath);
+        }
+    }
+
+    private async Task ValidateApiKeyForUpload(string apiKey, string pluginType, Guid profileId, CancellationToken cancellationToken)
+    {
+        var pluginEntity = await _pluginService.GetByPluginType(pluginType, cancellationToken);
+        var isNewPlugin = pluginEntity == null;
+        var pluginId = pluginEntity?.Id;
+
+        var canPush = await _apiKeyService.CanPushAsync(apiKey, pluginId, profileId, isNewPlugin, cancellationToken);
+        
+        if (!canPush)
+        {
+            throw new UnauthorizedAccessException(
+                isNewPlugin 
+                    ? "API key does not have permission to push new plugins." 
+                    : "API key does not have permission to push plugin versions for this plugin.");
         }
     }
 

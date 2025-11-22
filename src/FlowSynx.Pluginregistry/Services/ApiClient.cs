@@ -9,13 +9,13 @@ public class ApiClient : IApiClient
         _client = factory.CreateClient("Api");
     }
 
-    public async Task<T?> GetAsync<T>(string url)
+    public async Task<T?> GetAsync<T>(string url, CancellationToken cancellationToken = default)
     {
         try
         {
-            var response = await _client.GetAsync(url);
+            var response = await _client.GetAsync(url, cancellationToken);
             return response.IsSuccessStatusCode
-                ? await response.Content.ReadFromJsonAsync<T>()
+                ? await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken)
                 : default;
         }
         catch (Exception ex)
@@ -47,6 +47,35 @@ public class ApiClient : IApiClient
             return default;
 
         return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken: cancellationToken);
+    }
+
+    public async Task<TResponse?> PostAsync<TResponse, TData>(string url, TData? data,
+        CancellationToken cancellationToken = default)
+    {
+        HttpResponseMessage response;
+        if (data is null)
+        {
+            // Send NO CONTENT BODY and NO CONTENT-TYPE
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            response = await _client.SendAsync(request, cancellationToken);
+        }
+        else
+        {
+            response = await _client.PostAsJsonAsync(url, data, cancellationToken);
+        }
+        response.EnsureSuccessStatusCode();
+        if (response.Content.Headers.ContentLength == 0)
+            return default;
+        return await response.Content.ReadFromJsonAsync<TResponse>(cancellationToken: cancellationToken);
+    }
+
+    public async Task<T?> DeleteAsync<T>(string url, CancellationToken cancellationToken = default)
+    {
+        var response = await _client.DeleteAsync(url, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        if (response.Content.Headers.ContentLength == 0)
+            return default;
+        return await response.Content.ReadFromJsonAsync<T>(cancellationToken: cancellationToken);
     }
 
     public async Task<byte[]> DownloadAsync(string uri)

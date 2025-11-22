@@ -6,8 +6,14 @@ public interface IApiKeyService
 
     Task Add(ApiKeyEntity apiKeyEntity, CancellationToken cancellationToken);
 
-    Task<(string rawKey, ApiKeyEntity savedKey)> GenerateKey(string name, Guid profileId, DateTime? expiresAt, 
-        List<Guid>? pluginIds, CancellationToken cancellationToken);
+    Task<ApiKeyEntity> GenerateKey(
+        string name, 
+        Guid profileId, 
+        bool? canPushNewPlugins,
+        bool? canPushPluginVersions,
+        DateTime? expiresAt, 
+        List<Guid>? pluginIds, 
+        CancellationToken cancellationToken);
 
     Task<bool> ValidateApiKeyAsync(string rawKey, Guid pluginId, CancellationToken cancellationToken);
 

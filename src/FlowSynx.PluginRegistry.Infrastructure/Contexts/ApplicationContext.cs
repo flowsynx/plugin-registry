@@ -46,6 +46,7 @@ public class ApplicationContext : AuditableContext
         {
             HandleSoftDelete();
             ApplyAuditing();
+            NormalizeDateTimes();
 
             var userId = GetUserId();
             if (string.IsNullOrEmpty(userId))
@@ -55,7 +56,7 @@ public class ApplicationContext : AuditableContext
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.Message);
+            throw new Exception(ex.Message, ex);
         }
     }
 
@@ -72,7 +73,7 @@ public class ApplicationContext : AuditableContext
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.Message);
+            throw new Exception(ex.Message, ex);
         }
     }
 
@@ -104,7 +105,35 @@ public class ApplicationContext : AuditableContext
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.Message);
+            throw new Exception(ex.Message, ex);
+        }
+    }
+
+    private void NormalizeDateTimes()
+    {
+        try
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+
+            foreach (var entry in entries)
+            {
+                foreach (var property in entry.Properties)
+                {
+                    if (property.CurrentValue is DateTime dateTime && dateTime.Kind == DateTimeKind.Unspecified)
+                    {
+                        var utcDateTime = DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
+                        // For nullable DateTime properties, explicitly cast to object to ensure proper boxing
+                        property.CurrentValue = property.Metadata.ClrType == typeof(DateTime?) 
+                            ? (DateTime?)utcDateTime 
+                            : utcDateTime;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message, ex);
         }
     }
 
@@ -120,7 +149,7 @@ public class ApplicationContext : AuditableContext
         }
         catch (Exception ex)
         {
-            throw new Exception(ex.Message);
+            throw new Exception(ex.Message, ex);
         }
     }
 }

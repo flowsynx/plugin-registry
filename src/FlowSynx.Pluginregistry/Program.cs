@@ -28,6 +28,7 @@ IConfiguration config = builder.Configuration;
 
 builder.Services
        .AddHttpContextAccessor()
+       .AddUserService()
        .AddEndpointConfiguration(config)
        .AddRazorComponents()
        .AddInteractiveServerComponents();
@@ -49,6 +50,7 @@ builder.Services.AddScoped<IApiClient, ApiClient>();
 builder.Services.AddScoped<IFileValidator, FileValidator>();
 builder.Services.AddScoped<IPluginMetadataReader, PluginMetadataReader>();
 builder.Services.AddScoped<IGitHubReleaseService, GitHubReleaseService>();
+builder.Services.AddScoped<IApiKeyClientService, ApiKeyClientService>();
 
 builder.Services.AddGitHubAuthentication(config);
 builder.Services.AddAuthorization();

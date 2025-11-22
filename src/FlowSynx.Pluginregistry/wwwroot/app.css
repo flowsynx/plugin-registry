@@ -15,45 +15,81 @@ a, .btn-link {
 }
 
 .btn-primary {
-    color: #fff;
-    background-color: #008b8b;
-    border-color: #007575;
+    color: #fff !important;
+    background-color: #008b8b !important;
+    border-color: #007575 !important;
+    transition: color 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
+    .btn-primary:hover {
+        color: #fff !important;
+        background-color: #007575 !important;
+        border-color: #006565 !important;
+    }
+
+    .btn-primary:focus,
+    .btn-primary.focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 139, 139, 0.25);
+    }
+
+    .btn-primary:active,
+    .btn-primary.active,
+    .show > .btn-primary.dropdown-toggle {
+        color: #fff !important;
+        background-color: #006565 !important;
+        border-color: #005555 !important;
+    }
+
+        .btn-primary:active:focus {
+            color: #fff !important;
+            background-color: #006565 !important;
+            border-color: #005555 !important;
+        }
+
+    .btn-primary:disabled,
+    .btn-primary.disabled {
+        color: #fff !important;
+        background-color: #008b8b !important;
+        border-color: #007575 !important;
+        opacity: 0.65;
+    }
+
 .btn-outline-primary {
-    color: #008b8b;
-    border-color: #008b8b;
+    color: #008b8b !important;
+    border-color: #008b8b !important;
     transition: color 0.3s, background-color 0.3s, border-color 0.3s;
 }
 
     .btn-outline-primary:hover {
-        color: #fff;
-        background-color: #008b8b;
-        border-color: #008b8b;
+        color: #fff !important;
+        background-color: #008b8b !important;
+        border-color: #008b8b !important;
     }
 
     .btn-outline-primary:focus,
     .btn-outline-primary.focus {
-        box-shadow: 0 0 0 0.25rem rgba(0, 139, 139, 0.25);
+        color: #fff !important;
+        background-color: #008b8b !important;
+        border-color: #008b8b !important;
     }
 
     .btn-outline-primary:active,
     .btn-outline-primary.active,
     .show > .btn-outline-primary.dropdown-toggle {
-        color: #fff;
-        background-color: #007575;
-        border-color: #006565;
+        color: #fff !important;
+        background-color: #007575 !important;
+        border-color: #006565 !important;
     }
 
     .btn-outline-primary:disabled,
     .btn-outline-primary.disabled {
-        color: #008b8b;
-        background-color: transparent;
-        opacity: 0.65;
+        color: #008b8b !important;
+        background-color: transparent !important;
+        opacity: 0.65 !important;
     }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb !important;
 }
 
 .content {
@@ -283,3 +319,18 @@ h1:focus {
     .accordion-button:hover {
         color: #008b8b;
     }
+
+/* Add these styles if you want better modal appearance */
+.modal.show {
+    display: block !important;
+}
+
+.font-monospace {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+pre code {
+    display: block;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
