@@ -121,7 +121,7 @@
                     {
                         <div class="alert alert-warning" role="alert">
                             <i class="bi bi-exclamation-triangle me-2"></i>
-                            <strong>This version is unlisted.</strong> It won't appear in public plugin listings or search results, 
+                            <strong>This version is unlisted.</strong> It won't appear in public plugin listings or search results,
                             but can still be accessed directly via this URL.
                         </div>
                     }
@@ -186,14 +186,20 @@
                                     {
                                         <div class="mb-3">
                                             <i class="bi bi-globe text-secondary"></i>
-                                            <a href="@plugin.Data.ProjectUrl" target="_blank">Project Website</a>
+                                            <a title="View Project Website"
+                                               href="@plugin.Data.ProjectUrl" target="_blank">
+                                                Project Website
+                                            </a>
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(plugin.Data.RepositoryUrl))
                                     {
                                         <div class="mb-3">
                                             <i class="bi bi-git text-secondary"></i>
-                                            <a href="@plugin.Data.RepositoryUrl" target="_blank">Source Repository</a>
+                                            <a title="View Source Repository"
+                                               href="@plugin.Data.RepositoryUrl" target="_blank">
+                                                Source Repository
+                                            </a>
                                         </div>
                                     }
                                     @if (!string.IsNullOrEmpty(plugin.Data.License))
@@ -202,7 +208,10 @@
                                             <i class="bi bi-patch-check text-secondary"></i>
                                             @if (!string.IsNullOrEmpty(plugin.Data.LicenseUrl))
                                             {
-                                                <a href="@plugin.Data.LicenseUrl" target="_blank">@plugin.Data.License</a>
+                                                <a title="View License"
+                                                   href="@plugin.Data.LicenseUrl" target="_blank">
+                                                    @plugin.Data.License
+                                                </a>
                                             }
                                             else
                                             {
@@ -210,6 +219,13 @@
                                             }
                                         </div>
                                     }
+                                    <div class="mb-3">
+                                        <i class="bi bi-file-earmark-arrow-down text-secondary"></i>
+                                        <a title="Download raw fspack file."
+                                           href="/api/plugins/@plugin.Data.Type/@plugin.Data.Version/download">
+                                            Download Plugin
+                                        </a>
+                                    </div>
                                     @if (!string.IsNullOrEmpty(plugin.Data.CategoryTitle))
                                     {
                                         <div class="mb-3">
@@ -223,7 +239,10 @@
                                             <h6>Owners</h6>
                                             @foreach (var owner in plugin.Data.Owners)
                                             {
-                                                <a class="me-2" href="/profiles/@owner">@owner</a>
+                                                <a title="View Profile" 
+                                                    class="me-2" 
+                                                    href="/profiles/@owner">@owner
+                                                </a>
                                             }
                                         </div>
                                     }
@@ -233,7 +252,9 @@
                                             <h6>Tags</h6>
                                             @foreach (var tag in plugin.Data.Tags)
                                             {
-                                                <a href="/plugins?q=tag:@tag"><span class="badge badge-hover border border-secondary text-secondary me-1">@tag</span></a>
+                                                <a title="View all plugins with tag '@tag'"
+                                                   href="/plugins?q=tag:@tag"><span class="badge badge-hover border border-secondary text-secondary me-1">@tag</span>
+                                               </a>
                                             }
                                         </div>
                                     }
@@ -286,7 +307,7 @@
 
             if (!string.IsNullOrEmpty(currentUsername) && plugin?.Data?.Owners != null)
             {
-                isOwner = plugin.Data.Owners.Any(o => 
+                isOwner = plugin.Data.Owners.Any(o =>
                     o.Equals(currentUsername, StringComparison.OrdinalIgnoreCase));
             }
         }
@@ -301,12 +322,12 @@
         try
         {
             var result = await Stats.EnablePluginVersion(Type, Version);
-            
+
             if (result.Succeeded)
             {
                 statusSuccess = true;
                 statusMessage = "Plugin version listed successfully!";
-                
+
                 // Refresh plugin data
                 plugin = await Stats.GetPluginDetails(Type, Version);
             }
@@ -337,12 +358,12 @@
         try
         {
             var result = await Stats.DisablePluginVersion(Type, Version);
-            
+
             if (result.Succeeded)
             {
                 statusSuccess = true;
                 statusMessage = "Plugin version unlisted successfully!";
-                
+
                 // Refresh plugin data
                 plugin = await Stats.GetPluginDetails(Type, Version);
             }

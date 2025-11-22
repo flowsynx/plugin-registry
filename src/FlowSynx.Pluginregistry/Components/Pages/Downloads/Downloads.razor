@@ -62,32 +62,9 @@
                                      data-bs-parent="#releasesAccordion">
                                     <div class="accordion-body">
                                         <div class="mb-2">
-                                            @if (!string.IsNullOrEmpty(release.WindowsDownloadUrl))
-                                            {
-                                                <a href="@release.WindowsDownloadUrl"
-                                                   class="btn btn-outline-primary me-2"
-                                                   target="_blank">
-                                                    <i class="bi bi-windows"></i> Download for Windows
-                                                </a>
-                                            }
-
-                                            @if (!string.IsNullOrEmpty(release.LinuxDownloadUrl))
-                                            {
-                                                <a href="@release.LinuxDownloadUrl"
-                                                   class="btn btn-outline-primary me-2"
-                                                   target="_blank">
-                                                    <i class="bi bi-tux"></i> Download for Linux
-                                                </a>
-                                            }
-
-                                            @if (!string.IsNullOrEmpty(release.MacOsDownloadUrl))
-                                            {
-                                                <a href="@release.MacOsDownloadUrl"
-                                                   class="btn btn-outline-primary"
-                                                   target="_blank">
-                                                    <i class="bi bi-apple"></i> Download for macOS
-                                                </a>
-                                            }
+                                            @RenderDownloadButton(release.WindowsDownloadUrl, "windows", "Windows")
+                                            @RenderDownloadButton(release.LinuxDownloadUrl, "tux", "Linux")
+                                            @RenderDownloadButton(release.MacOsDownloadUrl, "apple", "macOS")
 
                                             @if (string.IsNullOrEmpty(release.WindowsDownloadUrl) &&
                                            string.IsNullOrEmpty(release.LinuxDownloadUrl) &&
@@ -114,4 +91,17 @@
     {
         releases = await gitHubReleaseService.GetAllReleasesAsync();
     }
+
+    private RenderFragment RenderDownloadButton(string? url, string icon, string platform) => __builder =>
+    {
+        if (!string.IsNullOrEmpty(url))
+        {
+            <a href="@url"
+               class="btn btn-sm btn-outline-primary me-2"
+               target="_blank"
+               rel="noopener noreferrer">
+                <i class="bi bi-@icon"></i> Download for @platform
+            </a>
+        }
+    };
 }

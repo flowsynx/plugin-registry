@@ -14,6 +14,11 @@ a, .btn-link {
     border-color: #008b8b !important;
 }
 
+.bg-primary {
+    background-color: #008b8b !important;
+    color: #fff !important;
+}
+
 .btn-primary {
     color: #fff !important;
     background-color: #008b8b !important;
@@ -333,4 +338,98 @@ pre code {
     display: block;
     white-space: pre-wrap;
     word-break: break-all;
+}
+
+.form-select {
+    color: #495057;
+    border-color: #ced4da;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-select:focus {
+    color: #008b8b;
+    border-color: #008b8b;
+    box-shadow: 0 0 0 0.25rem rgba(0, 139, 139, 0.25);
+    outline: 0;
+}
+
+.form-select:hover:not(:disabled):not([readonly]) {
+    border-color: #008b8b;
+}
+
+.form-select option {
+    color: #008b8b;
+    background-color: #fff;
+}
+
+.form-select option:checked {
+    background-color: #008b8b;
+    color: #fff;
+}
+
+.form-select:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.form-check-input {
+    border-color: #ced4da;
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+    .form-check-input:hover:not(:disabled):not(:checked) {
+        border-color: #008b8b;
+    }
+
+    .form-check-input:checked {
+        background-color: #008b8b;
+        border-color: #008b8b;
+    }
+
+        .form-check-input:checked[type="checkbox"] {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+        }
+
+        .form-check-input:checked[type="radio"] {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+        }
+
+    .form-check-input:focus {
+        border-color: #008b8b;
+        box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #008b8b;
+    }
+
+    .form-check-input:active {
+        filter: brightness(90%);
+    }
+
+    .form-check-input:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+        .form-check-input:disabled ~ .form-check-label {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+    .form-check-input[type="checkbox"]:indeterminate {
+        background-color: #008b8b;
+        border-color: #008b8b;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+    }
+
+.darker-border-checkbox.form-check-input {
+    border-color: #929292;
+}
+
+    .darker-border-checkbox.form-check-input:checked {
+        background-color: #008b8b;
+        border-color: #008b8b;
+    }
+
+.btn-xs {
+    padding: 0.1rem 0.25rem;
+    font-size: 0.65rem;
+    border-radius: 0.2rem;
 }
