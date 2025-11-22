@@ -9,4 +9,5 @@ public interface IPluginVersionService
     Task AddTagsToPluginVersionAsync(Guid pluginVersionId, List<string> tagNames, CancellationToken cancellationToken);
     Task Update(PluginVersionEntity pluginVersionEntity, CancellationToken cancellationToken);
     Task<bool> Delete(PluginVersionEntity pluginVersionEntity, CancellationToken cancellationToken);
+    Task<bool> SetActiveStatus(string pluginType, string pluginVersion, bool isActive, CancellationToken cancellationToken);
 }

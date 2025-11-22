@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using FlowSynx.Pluginregistry.Services;
+using FlowSynx.PluginRegistry.Application.Configuration;
+using FlowSynx.PluginRegistry.Domain.Profile;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using FlowSynx.PluginRegistry.Application.Configuration;
-using FlowSynx.PluginRegistry.Domain.Profile;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.DataProtection;
 
 namespace FlowSynx.Pluginregistry.Extensions;
 
@@ -26,7 +27,10 @@ public static class ServiceCollectionExtensions
         {
             var baseUri = ResolveBaseUri(sp);
             client.BaseAddress = new Uri(baseUri);
-        });
+        })
+        .AddHttpMessageHandler<AuthorizationMessageHandler>();
+
+        services.AddScoped<AuthorizationMessageHandler>();
 
         return services;
     }

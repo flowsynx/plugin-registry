@@ -45,6 +45,7 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                 TotalDownload = plugin.Statistics.Count,
                 Checksum = plugin.Checksum,
                 IsTrusted = plugin.Plugin.IsTrusted,
+                IsActive = plugin.IsActive,
                 Tags = plugin.PluginVersionTags.Select(x=>x.Tag!.Name),
                 MinimumFlowSynxVersion = plugin.MinimumFlowSynxVersion,
                 TargetFlowSynxVersion = plugin.TargetFlowSynxVersion,

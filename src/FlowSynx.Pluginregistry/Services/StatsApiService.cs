@@ -58,6 +58,46 @@ public class StatsApiService : IStatsApiService
         return _apiClient.GetAsync<Result<PluginDetailsResponse>>(url);
     }
 
+    public async Task<Result<bool>> EnablePluginVersion(string pluginType, string version)
+    {
+        try
+        {
+            var url = $"/api/plugins/{pluginType}/{version}/enable";
+            var response = await _apiClient.PutAsync<Result<bool>, bool>(url, true, CancellationToken.None);
+
+            if (response != null)
+            {
+                return response ?? await Result<bool>.SuccessAsync(true);
+            }
+
+            return await Result<bool>.FailAsync("Failed to enable plugin version");
+        }
+        catch (Exception ex)
+        {
+            return await Result<bool>.FailAsync($"Error: {ex.Message}");
+        }
+    }
+
+    public async Task<Result<bool>> DisablePluginVersion(string pluginType, string version)
+    {
+        try
+        {
+            var url = $"/api/plugins/{pluginType}/{version}/disable";
+            var response = await _apiClient.PutAsync<Result<bool>, bool>(url, false, CancellationToken.None);
+
+            if (response != null)
+            {
+                return response ?? await Result<bool>.SuccessAsync(true);
+            }
+
+            return await Result<bool>.FailAsync("Failed to enable plugin version");
+        }
+        catch (Exception ex)
+        {
+            return await Result<bool>.FailAsync($"Error: {ex.Message}");
+        }
+    }
+
     public Task<Result<IEnumerable<PluginVersionsResponse>>?> GetPluginVersions(string? type)
     {
         var url = $"/api/plugins/{type}/versions";

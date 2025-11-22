@@ -17,6 +17,7 @@ public class PluginDetailsResponse
     public DateTime LastUpdated { get; set; }
     public int TotalDownload { get; set; } = 0;
     public bool IsTrusted { get; set; } = false;
+    public bool IsActive { get; set; } = false;
     public IEnumerable<string> Tags { get; set; } = new List<string>();
     public IEnumerable<string> Versions { get; set; } = new List<string>();
     public IEnumerable<string> Owners { get; set; } = new List<string>();

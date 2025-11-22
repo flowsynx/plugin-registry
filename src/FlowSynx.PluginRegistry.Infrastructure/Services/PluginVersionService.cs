@@ -208,4 +208,32 @@ public class PluginVersionService : IPluginVersionService
             throw new Exception(ex.Message);
         }
     }
+
+    public async Task<bool> SetActiveStatus(string pluginType, string pluginVersion, bool isActive, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var context = await _appContextFactory.CreateDbContextAsync(cancellationToken);
+            var version = await context.PluginVersions
+                .Include(pv => pv.Plugin)
+                .FirstOrDefaultAsync(pv => 
+                    pv.Plugin != null && 
+                    pv.Plugin.Type.ToLower() == pluginType.ToLower() && 
+                    pv.Version.ToLower() == pluginVersion.ToLower() && 
+                    !pv.IsDeleted, 
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            if (version == null)
+                return false;
+
+            version.IsActive = isActive;
+            await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
+    }
 }

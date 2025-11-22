@@ -7,9 +7,11 @@
 @using FlowSynx.Pluginregistry.Helpers
 @using FlowSynx.Pluginregistry.Services
 @using FlowSynx.Pluginregistry.Components.Shared;
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject NavigationManager Navigation
 @inject IStatsApiService Stats
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Plugin details for @Type version @Version</PageTitle>
 
@@ -52,30 +54,81 @@
         {
             <div class="row">
                 <div class="col-md-9 mx-auto">
-                    <div class="d-flex align-items-center mb-4">
-                        <img src="/api/plugins/@plugin.Data.Type/@plugin.Data.Version/icon"
-                             height="64" width="64" class="me-3" />
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="d-flex align-items-center">
+                            <img src="/api/plugins/@plugin.Data.Type/@plugin.Data.Version/icon"
+                                 height="64" width="64" class="me-3" />
 
-                        <div>
-                            <h2 class="fw-bolder m-0 d-flex align-items-center">
-                                @plugin.Data.Type
+                            <div>
+                                <h2 class="fw-bolder m-0 d-flex align-items-center">
+                                    @plugin.Data.Type
 
-                                @if (plugin.Data.IsTrusted)
-                                {
-                                    <i class="bi bi-patch-check-fill trusted-plugin-icon ms-2"
-                                       title="Trusted Plugin" style="font-size: 1.5rem;"></i>
-                                }
-                            </h2>
+                                    @if (plugin.Data.IsTrusted)
+                                    {
+                                        <i class="bi bi-patch-check-fill trusted-plugin-icon ms-2"
+                                           title="Trusted Plugin" style="font-size: 1.5rem;"></i>
+                                    }
+                                </h2>
 
-                            <h5 class="fw-bolder text-muted m-0">
-                                Version: @plugin.Data.Version
-                            </h5>
+                                <h5 class="fw-bolder text-muted m-0">
+                                    Version: @plugin.Data.Version
+                                    @if (!plugin.Data.IsActive)
+                                    {
+                                        <span class="badge bg-warning text-dark ms-2">
+                                            <i class="bi bi-eye-slash"></i> Unlisted
+                                        </span>
+                                    }
+                                </h5>
+                            </div>
                         </div>
+
+                        @if (isOwner)
+                        {
+                            <div>
+                                @if (isProcessing)
+                                {
+                                    <button class="btn btn-secondary" disabled>
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        Processing...
+                                    </button>
+                                }
+                                else if (plugin.Data.IsActive)
+                                {
+                                    <button class="btn btn-sm btn-warning" @onclick="DisableVersion" title="Unlist this version from public listings">
+                                        <i class="bi bi-eye-slash"></i> Unlist Version
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-success" @onclick="EnableVersion" title="List this version in public listings">
+                                        <i class="bi bi-eye"></i> List Version
+                                    </button>
+                                }
+                            </div>
+                        }
                     </div>
+
+                    @if (!string.IsNullOrEmpty(statusMessage))
+                    {
+                        <div class="alert @(statusSuccess ? "alert-success" : "alert-danger") alert-dismissible fade show" role="alert">
+                            <i class="bi @(statusSuccess ? "bi-check-circle" : "bi-exclamation-triangle")"></i>
+                            @statusMessage
+                            <button type="button" class="btn-close" @onclick="ClearStatusMessage"></button>
+                        </div>
+                    }
+
+                    @if (!plugin.Data.IsActive)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>This version is unlisted.</strong> It won't appear in public plugin listings or search results, 
+                            but can still be accessed directly via this URL.
+                        </div>
+                    }
+
                     <div class="position-relative mb-2">
                         <CodeCopy CodeToCopy="@jsonCodeBlock" />
-                        <pre class="plugin-code-block border bg-light"><code>@jsonCodeBlock</code>
-                                </pre>
+                        <pre class="plugin-code-block border bg-light"><code>@jsonCodeBlock</code></pre>
                     </div>
 
                     <p class="p-2 border">@plugin.Data.Description</p>
@@ -214,8 +267,106 @@
     }, new JsonSerializerOptions { WriteIndented = true });
 
     Result<PluginDetailsResponse>? plugin;
+    private bool isOwner = false;
+    private bool isProcessing = false;
+    private string? statusMessage;
+    private bool statusSuccess = false;
+    private string? currentUsername;
+
     protected override async Task OnInitializedAsync()
     {
         plugin = await Stats.GetPluginDetails(Type, Version);
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            currentUsername = user.FindFirst("login")?.Value ?? user.FindFirst("preferred_username")?.Value; ;
+
+            if (!string.IsNullOrEmpty(currentUsername) && plugin?.Data?.Owners != null)
+            {
+                isOwner = plugin.Data.Owners.Any(o => 
+                    o.Equals(currentUsername, StringComparison.OrdinalIgnoreCase));
+            }
+        }
+    }
+
+    private async Task EnableVersion()
+    {
+        isProcessing = true;
+        statusMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await Stats.EnablePluginVersion(Type, Version);
+            
+            if (result.Succeeded)
+            {
+                statusSuccess = true;
+                statusMessage = "Plugin version listed successfully!";
+                
+                // Refresh plugin data
+                plugin = await Stats.GetPluginDetails(Type, Version);
+            }
+            else
+            {
+                statusSuccess = false;
+                statusMessage = string.Join(", ", result.Messages);
+            }
+        }
+        catch (Exception ex)
+        {
+            statusSuccess = false;
+            statusMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DisableVersion()
+    {
+        isProcessing = true;
+        statusMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var result = await Stats.DisablePluginVersion(Type, Version);
+            
+            if (result.Succeeded)
+            {
+                statusSuccess = true;
+                statusMessage = "Plugin version unlisted successfully!";
+                
+                // Refresh plugin data
+                plugin = await Stats.GetPluginDetails(Type, Version);
+            }
+            else
+            {
+                statusSuccess = false;
+                statusMessage = string.Join(", ", result.Messages);
+            }
+        }
+        catch (Exception ex)
+        {
+            statusSuccess = false;
+            statusMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ClearStatusMessage()
+    {
+        statusMessage = null;
+        StateHasChanged();
     }
 }

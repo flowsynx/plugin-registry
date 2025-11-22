@@ -1,4 +1,5 @@
-﻿using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
+﻿using FlowSynx.PluginRegistry.Application.Features.Plugins.Command.SetPluginVersionActiveStatus;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginIcon;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginLocation;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginReadme;
@@ -86,6 +87,34 @@ public static class MediatorExtensions
         {
             PluginType = pluginType,
             PluginVersion = pluginVersion
+        }, cancellationToken);
+    }
+
+    public static Task<Result<bool>> EnablePluginVersion(
+        this IMediator mediator, 
+        string pluginType, 
+        string pluginVersion, 
+        CancellationToken cancellationToken)
+    {
+        return mediator.Send(new SetPluginVersionActiveStatusRequest
+        {
+            PluginType = pluginType,
+            PluginVersion = pluginVersion,
+            IsActive = true
+        }, cancellationToken);
+    }
+
+    public static Task<Result<bool>> DisablePluginVersion(
+        this IMediator mediator, 
+        string pluginType, 
+        string pluginVersion, 
+        CancellationToken cancellationToken)
+    {
+        return mediator.Send(new SetPluginVersionActiveStatusRequest
+        {
+            PluginType = pluginType,
+            PluginVersion = pluginVersion,
+            IsActive = false
         }, cancellationToken);
     }
     #endregion

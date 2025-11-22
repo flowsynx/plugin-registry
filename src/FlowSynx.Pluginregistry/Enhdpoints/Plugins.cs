@@ -6,6 +6,7 @@ using MediatR;
 using FlowSynx.Pluginregistry.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using FlowSynx.PluginRegistry.Application.Features.Statistics.Command.AddStatistic;
+using FlowSynx.PluginRegistry.Domain.Plugin;
 
 namespace FlowSynx.Endpoints;
 
@@ -32,31 +33,51 @@ public class Plugins : EndpointGroupBase
 
         group.MapGet("/{type}/{version}/download", DownloadPluginByTypeAsync)
             .WithName("DownloadPluginByType");
+
+        group.MapPut("/{type}/{version}/enable", EnablePluginVersionAsync)
+            .WithName("EnablePluginVersion")
+            .RequireAuthorization();
+
+        group.MapPut("/{type}/{version}/disable", DisablePluginVersionAsync)
+            .WithName("DisablePluginVersion")
+            .RequireAuthorization();
     }
 
-    public async Task<IResult> PluginsListAsync([FromQuery] string? q, [FromQuery] int? page, 
-        [FromServices] IMediator mediator, CancellationToken cancellationToken)
+    public async Task<IResult> PluginsListAsync(
+        [FromQuery] string? q, 
+        [FromQuery] int? page, 
+        [FromServices] IMediator mediator, 
+        CancellationToken cancellationToken)
     {
         var result = await mediator.PluginsList(q, page, cancellationToken);
         return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
     }
 
-    public async Task<IResult> GetPluginWithTypeAsync(string type, string version, [FromServices] IMediator mediator,
+    public async Task<IResult> GetPluginWithTypeAsync(
+        string type, 
+        string version, 
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         var result = await mediator.PluginDetails(type, version, cancellationToken);
         return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
     }
 
-    public async Task<IResult> GetPluginVersionsWithTypeAsync(string type, [FromServices] IMediator mediator,
+    public async Task<IResult> GetPluginVersionsWithTypeAsync(
+        string type, 
+        [FromServices] IMediator mediator,
         CancellationToken cancellationToken)
     {
         var result = await mediator.PluginVersions(type, cancellationToken);
         return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
     }
 
-    public async Task<IResult> GetPluginIconWithTypeAsync(string type, string version, [FromServices] IMediator mediator,
-       IFileStorage fileStorage,  CancellationToken cancellationToken)
+    public async Task<IResult> GetPluginIconWithTypeAsync(
+        string type, 
+        string version, 
+        [FromServices] IMediator mediator,
+       IFileStorage fileStorage,  
+       CancellationToken cancellationToken)
     {
         var defaultIconPath = Path.Combine("wwwroot", "images", "NoPluginIcon.png");
         var result = await mediator.PluginIcon(type, version, cancellationToken);
@@ -88,8 +109,12 @@ public class Plugins : EndpointGroupBase
         return Results.File(iconToServe, contentType);
     }
 
-    public async Task<IResult> GetPluginReadmeWithTypeAsync(string type, string version, [FromServices] IMediator mediator,
-        IFileStorage fileStorage, CancellationToken cancellationToken)
+    public async Task<IResult> GetPluginReadmeWithTypeAsync(
+        string type, 
+        string version, 
+        [FromServices] IMediator mediator,
+        IFileStorage fileStorage, 
+        CancellationToken cancellationToken)
     {
         const string contentType = "text/markdown; charset=utf-8";
         var result = await mediator.PluginReadme(type, version, cancellationToken);
@@ -177,5 +202,77 @@ public class Plugins : EndpointGroupBase
         context.Response.ContentLength = content.Length;
 
         await context.Response.Body.WriteAsync(content, 0, content.Length);
+    }
+
+    public async Task<Microsoft.AspNetCore.Http.IResult> EnablePluginVersionAsync(
+        string type, 
+        string version,
+        [FromServices] IMediator mediator,
+        [FromServices] IPluginVersionService pluginVersionService,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        // Get authenticated user
+        var username = httpContext.User.FindFirst("login")?.Value 
+                       ?? httpContext.User.FindFirst("preferred_username")?.Value;
+        
+        if (string.IsNullOrEmpty(username))
+        {
+            return Results.Unauthorized();
+        }
+
+        // Verify ownership
+        var plugin = await pluginVersionService.GetByPluginType(type, version, cancellationToken);
+        if (plugin == null)
+        {
+            return Results.NotFound(await PluginRegistry.Application.Wrapper.Result<bool>.FailAsync("Plugin not found"));
+        }
+
+        var isOwner = plugin.Plugin.Owners.Any(o => 
+            o.Profile!.UserName!.Equals(username, StringComparison.OrdinalIgnoreCase));
+        
+        if (!isOwner)
+        {
+            return Results.Forbid();
+        }
+
+        var result = await mediator.EnablePluginVersion(type, version, cancellationToken);
+        return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
+    }
+
+    public async Task<Microsoft.AspNetCore.Http.IResult> DisablePluginVersionAsync(
+        string type, 
+        string version,
+        [FromServices] IMediator mediator,
+        [FromServices] IPluginVersionService pluginVersionService,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        // Get authenticated user
+        var username = httpContext.User.FindFirst("login")?.Value 
+                       ?? httpContext.User.FindFirst("preferred_username")?.Value;
+        
+        if (string.IsNullOrEmpty(username))
+        {
+            return Results.Unauthorized();
+        }
+
+        // Verify ownership
+        var plugin = await pluginVersionService.GetByPluginType(type, version, cancellationToken);
+        if (plugin == null)
+        {
+            return Results.NotFound(await PluginRegistry.Application.Wrapper.Result<bool>.FailAsync("Plugin not found"));
+        }
+
+        var isOwner = plugin.Plugin.Owners.Any(o => 
+            o.Profile!.UserName!.Equals(username, StringComparison.OrdinalIgnoreCase));
+        
+        if (!isOwner)
+        {
+            return Results.Forbid();
+        }
+
+        var result = await mediator.DisablePluginVersion(type, version, cancellationToken);
+        return result.Succeeded ? Results.Ok(result) : Results.BadRequest(result);
     }
 }

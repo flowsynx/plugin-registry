@@ -8,9 +8,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <main class="flex-shrink-0">
-    <div class="hero-banner">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container px-5">
+    <div class="hero-banner pb-3">
+        <div class="container px-5">
+            <nav class="navbar navbar-expand-lg">
                 <a class="navbar-brand pe-2" href="/">
                     <img src="/images/logo.png" alt="Logo" width="24" height="24" class="d-inline-block align-text-top">
                     Plugin Registry
@@ -47,8 +47,9 @@
                         }
                     </ul>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </div>
+
 
         <div class="py-3">
             <div class="container px-5">
@@ -83,7 +84,18 @@
 <footer class="bg-light py-4 mt-auto">
     <div class="container px-5">
         <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-            <div class="col-auto"><div class="small m-0">Copyright &copy; <a href="https://flowsynx.io" target="_blank">FlowSynx</a> 2025</div></div>
+            <div class="col-auto">
+                <div class="small m-0">Copyright &copy; <a href="https://flowsynx.io" target="_blank">FlowSynx</a> 2025</div>
+            </div>
+            <div class="col-auto">
+                <ul class="list-inline small mb-0">
+                    <li class="list-inline-item"><a href="/policies/privacy" class="text-decoration-none text-muted">Privacy Policy</a></li>
+                    <li class="list-inline-item">•</li>
+                    <li class="list-inline-item"><a href="/policies/terms" class="text-decoration-none text-muted">Terms of Service</a></li>
+                    <li class="list-inline-item">•</li>
+                    <li class="list-inline-item"><a href="/policies/contact" class="text-decoration-none text-muted">Contact</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </footer>
