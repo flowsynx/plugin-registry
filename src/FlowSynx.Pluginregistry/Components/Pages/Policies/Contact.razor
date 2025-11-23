@@ -2,110 +2,272 @@
 
 <PageTitle>Contact Us - FlowSynx Plugin Registry</PageTitle>
 
-<section class="py-5">
+<section class="p-5">
     <div class="container px-5">
         <div class="row gx-5">
             <div class="col-lg-12 mx-auto">
-                <h1 class="fw-bolder mb-4">Contact Us</h1>
-                <p class="lead mb-5">
-                    Have questions, feedback, or need assistance? We're here to help! Reach out to the FlowSynx team using any of the methods below.
-                </p>
+                <!-- Header Section -->
+                <div class="text-center mb-5">
+                    <h1 class="fw-bolder mb-3">Contact Us</h1>
+                    <p class="lead text-muted">
+                        Have questions, feedback, or need assistance? We're here to help!<br/>
+                        Reach out to the FlowSynx team using any of the methods below.
+                    </p>
+                </div>
 
-                <div class="row g-4 mb-5">
-                    <div class="col-md-12">
-                        <div class="card h-100 border shadow-sm">
-                            <div class="card-body p-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-envelope-fill text-primary me-3" style="font-size: 2rem;"></i>
-                                    <h3 class="h5 mb-0">Email Support</h3>
+                <!-- Contact Methods Grid -->
+                <div class="row g-4 mb-5 justify-content-center">
+                    <div class="col-md-12 col-lg-12">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-4 text-center">
+                                <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 d-inline-flex align-items-center justify-content-center" style="width: 4rem; height: 4rem;">
+                                    <i class="bi bi-envelope-fill" style="font-size: 1.5rem;"></i>
                                 </div>
-                                <p class="text-muted mb-3">
-                                    For general inquiries, technical support, or plugin-related questions.
+                                <h3 class="h5 fw-bold mb-3">Email Support</h3>
+                                <p class="text-muted small mb-3">
+                                    General inquiries, technical support, and feedback
                                 </p>
-                                <p class="mb-0">
+                                <a href="mailto:support@flowsynx.io" class="btn btn-outline-primary btn-lg">
                                     <i class="bi bi-send me-2"></i>support@flowsynx.io
-                                </p>
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card border-0 bg-light mb-5">
-                    <div class="card-body p-4">
-                        <h2 class="h4 fw-bold mb-4">Frequently Asked Questions</h2>
-                        
-                        <div class="mb-4">
-                            <h3 class="h6 fw-bold">How do I upload a plugin?</h3>
-                            <p class="text-muted mb-0">
-                                First, authenticate using your GitHub account. Then navigate to the 
-                                <a href="/manage/upload">Upload</a> page and follow the instructions to submit your plugin package.
-                            </p>
+                <!-- Response Time Alert -->
+                <div class="alert alert-info border-0 shadow-sm mb-5" role="alert">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="bi bi-clock-history" style="font-size: 1.5rem;"></i>
                         </div>
-
-                        <div class="mb-4">
-                            <h3 class="h6 fw-bold">How do I download and use plugins?</h3>
-                            <p class="text-muted mb-0">
-                                Browse the <a href="/plugins">Plugins</a> page, select a plugin, and use the provided installation 
-                                instructions. You can integrate plugins into your FlowSynx workflows using the plugin type and version information.
+                        <div>
+                            <h5 class="alert-heading mb-2">Response Time</h5>
+                            <p class="mb-1">
+                                We aim to respond to all inquiries within <strong>24-48 hours</strong> during business days (Monday-Friday, 9 AM - 5 PM UTC).
                             </p>
-                        </div>
-
-                        <div class="mb-4">
-                            <h3 class="h6 fw-bold">What does "Trusted Plugin" mean?</h3>
-                            <p class="text-muted mb-0">
-                                Plugins marked with the <i class="bi bi-patch-check-fill trusted-plugin-icon-small"></i> badge have been 
-                                verified by the FlowSynx team for quality, security, and reliability.
-                            </p>
-                        </div>
-
-                        <div class="mb-4">
-                            <h3 class="h6 fw-bold">How do I enable or disable my plugin?</h3>
-                            <p class="text-muted mb-0">
-                                Log in with your GitHub account, navigate to your profile, and use the toggle button to enable or disable 
-                                your plugins. Disabled plugins will not appear in public listings or be available for download, similar to 
-                                unlisting packages on NuGet. This is useful for temporarily removing a plugin without permanently deleting it.
-                            </p>
-                        </div>
-
-                        <div class="mb-4">
-                            <h3 class="h6 fw-bold">How do I report a security issue?</h3>
-                            <p class="text-muted mb-0">
-                                For security vulnerabilities, please email us directly at 
-                                <a href="mailto:security@flowsynx.io">security@flowsynx.io</a>. We take security seriously 
-                                and will respond promptly.
-                            </p>
-                        </div>
-
-                        <div class="mb-4">
-                            <h3 class="h6 fw-bold">Can I contribute to the plugin registry?</h3>
-                            <p class="text-muted mb-0">
-                                Yes! We welcome contributions. Visit our <a href="https://github.com/flowsynx/plugin-registry" target="_blank">GitHub repository</a>
-                                to report issues, submit pull requests, or suggest new features.
+                            <p class="mb-0 small">
+                                For urgent security issues, please mark your email as <strong>"URGENT"</strong> in the subject line.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="alert alert-info" role="alert">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <strong>Response Time:</strong> We aim to respond to all inquiries within 24-48 hours during business days. 
-                    For urgent security issues, please mark your email as "URGENT" in the subject line.
+                <!-- FAQ Section with Accordion -->
+                <div class="card border shadow-sm mb-5">
+                    <div class="card-body p-4 p-md-5">
+                        <h2 class="h3 fw-bold mb-4">
+                            <i class="bi bi-question-circle text-primary me-2"></i>
+                            Frequently Asked Questions
+                        </h2>
+                        
+                        <div class="accordion accordion-flush" id="faqAccordion">
+                            <!-- FAQ 1 -->
+                            <div class="accordion-item bg-transparent border-bottom">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        How do I upload a plugin?
+                                    </button>
+                                </h3>
+                                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        First, authenticate using your GitHub account. Then navigate to the 
+                                        <a href="/manage/upload">Upload</a> page and follow the instructions to submit your plugin package.
+                                        Make sure your plugin follows our guidelines and includes all required metadata.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 2 -->
+                            <div class="accordion-item bg-transparent border-bottom">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        How do I download and use plugins?
+                                    </button>
+                                </h3>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        Browse the <a href="/plugins">Plugins</a> page, select a plugin, and use the provided installation 
+                                        instructions. You can integrate plugins into your FlowSynx workflows using the plugin type and version information.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 3 -->
+                            <div class="accordion-item bg-transparent border-bottom">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        What does "Trusted Plugin" mean?
+                                    </button>
+                                </h3>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        Plugins marked with the <i class="bi bi-patch-check-fill trusted-plugin-icon-small"></i> badge have been 
+                                        verified by the FlowSynx team for quality, security, and reliability. These plugins undergo thorough code review
+                                        and security scanning before receiving trusted status.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 4 -->
+                            <div class="accordion-item bg-transparent border-bottom">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                        How do I enable or disable my plugin?
+                                    </button>
+                                </h3>
+                                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        Log in with your GitHub account, navigate to your profile, and use the toggle button to enable or disable 
+                                        your plugins. Disabled plugins will not appear in public listings or be available for download, similar to 
+                                        unlisting packages on NuGet. This is useful for temporarily removing a plugin without permanently deleting it.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 5 -->
+                            <div class="accordion-item bg-transparent border-bottom">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                                        How does plugin versioning work?
+                                    </button>
+                                </h3>
+                                <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        FlowSynx Plugin Registry follows semantic versioning (SemVer). Each plugin version is immutable once published.
+                                        You can publish multiple versions of the same plugin, and users can choose which version to use in their workflows.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 6 -->
+                            <div class="accordion-item bg-transparent border-bottom">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                                        How do I report a security issue?
+                                    </button>
+                                </h3>
+                                <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        For security vulnerabilities, please email us directly at 
+                                        <a href="mailto:security@flowsynx.io">security@flowsynx.io</a>. We take security seriously 
+                                        and will respond promptly. Please do not disclose security issues publicly until they've been addressed.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 7 -->
+                            <div class="accordion-item bg-transparent border-bottom">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                                        Can I contribute to the plugin registry?
+                                    </button>
+                                </h3>
+                                <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        Yes! We welcome contributions. Visit our <a href="https://github.com/flowsynx/plugin-registry" target="_blank">GitHub repository</a>
+                                        to report issues, submit pull requests, or suggest new features. Check out our contributing guidelines to get started.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FAQ 8 -->
+                            <div class="accordion-item bg-transparent">
+                                <h3 class="accordion-header">
+                                    <button class="accordion-button collapsed bg-transparent fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
+                                        What license should I use for my plugin?
+                                    </button>
+                                </h3>
+                                <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body text-muted">
+                                        You can use any OSI-approved open source license for your plugin. Popular choices include MIT, Apache 2.0, and GPL.
+                                        Make sure to include a LICENSE file in your plugin package and specify the license in your plugin metadata.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="card border-primary">
+                <!-- Quick Links Section -->
+                <div class="card border shadow-sm mb-5">
                     <div class="card-body p-4">
-                        <h2 class="h4 fw-bold mb-3">
-                            <i class="bi bi-lightbulb text-warning me-2"></i>
-                            Feature Requests & Feedback
+                        <h2 class="h4 fw-bold mb-4">
+                            <i class="bi bi-link-45deg text-primary me-2"></i>
+                            Quick Links
                         </h2>
-                        <p class="mb-3">
-                            Have an idea to improve the FlowSynx Plugin Registry? We'd love to hear from you! 
-                            Share your suggestions, feature requests, or general feedback to help us build a better platform.
-                        </p>
-                        <ul class="mb-0">
-                            <li>Open a feature request on our <a href="https://github.com/flowsynx/plugin-registry/issues" target="_blank">GitHub Issues</a> page</li>
-                            <li>Email us at <a href="mailto:support@flowsynx.io">support@flowsynx.io</a></li>
-                        </ul>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <a href="/plugins" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-bg-primary-subtle">
+                                        <i class="bi bi-grid-fill text-primary me-3" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <div class="fw-semibold">Browse Plugins</div>
+                                            <div class="small text-muted">Explore available plugins</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="/manage/upload" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-bg-primary-subtle">
+                                        <i class="bi bi-cloud-upload-fill text-primary me-3" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <div class="fw-semibold">Upload Plugin</div>
+                                            <div class="small text-muted">Publish your plugin</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="https://flowsynx.io/docs" target="_blank" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-bg-primary-subtle">
+                                        <i class="bi bi-book-fill text-primary me-3" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <div class="fw-semibold">Documentation</div>
+                                            <div class="small text-muted">Read the guides</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="https://github.com/flowsynx" target="_blank" class="text-decoration-none">
+                                    <div class="d-flex align-items-center p-3 bg-light rounded hover-bg-primary-subtle">
+                                        <i class="bi bi-github text-primary me-3" style="font-size: 1.5rem;"></i>
+                                        <div>
+                                            <div class="fw-semibold">GitHub Organization</div>
+                                            <div class="small text-muted">View source code</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Request CTA -->
+                <div class="card border-primary shadow-sm">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="row align-items-center">
+                            <div class="col-lg-8 mb-3 mb-lg-0">
+                                <h2 class="h4 fw-bold mb-3">
+                                    <i class="bi bi-lightbulb text-warning me-2"></i>
+                                    Have an Idea?
+                                </h2>
+                                <p class="mb-0 text-muted">
+                                    Help us improve the FlowSynx Plugin Registry! Share your suggestions, feature requests, 
+                                    or general feedback to help us build a better platform for the community.
+                                </p>
+                            </div>
+                            <div class="col-lg-4 text-lg-end">
+                                <a href="https://github.com/flowsynx/plugin-registry/issues/new" target="_blank" class="btn btn-primary btn-lg mb-2 w-100 w-lg-auto">
+                                    <i class="bi bi-plus-circle me-2"></i>Submit Idea
+                                </a>
+                                <a href="mailto:support@flowsynx.io?subject=Feature Request" class="btn btn-outline-primary btn-lg w-100 w-lg-auto">
+                                    <i class="bi bi-envelope me-2"></i>Email Us
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -6,16 +6,30 @@
 @inject NavigationManager Navigation
 @inject IGitHubReleaseService gitHubReleaseService
 
-<PageTitle>Downloads</PageTitle>
+<PageTitle>Downloads - FlowSynx Plugin Registry</PageTitle>
 
 <div class="container p-5">
     <div class="row">
         @if (releases == null)
         {
             <div class="col-md-12 mx-auto">
-                <div class="card mb-3">
+                <!-- Enhanced Loading State -->
+                <div class="card mb-3 border-0 shadow-sm">
                     <div class="card-body">
-                        <p>Loading ...</p>
+                        <div class="d-flex align-items-center">
+                            <div class="spinner-border spinner-border-sm text-primary me-3" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span class="text-muted">Loading releases...</span>
+                        </div>
+                        <!-- Skeleton Loader -->
+                        <div class="mt-3">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-12 mb-2"></span>
+                                <span class="placeholder col-8 mb-2"></span>
+                                <span class="placeholder col-6"></span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -23,9 +37,11 @@
         else if (releases.Count == 0)
         {
             <div class="col-md-12 mx-auto">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <p>No releases found.</p>
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-inbox display-4 text-muted mb-3"></i>
+                        <h5 class="text-muted">No releases found</h5>
+                        <p class="text-secondary small">Check back later for available downloads.</p>
                     </div>
                 </div>
             </div>
@@ -34,26 +50,71 @@
         {
             <div class="row">
                 <div class="col-md-12 mx-auto">
+                    <!-- Header Section -->
+                    <div class="mb-4">
+                        <h2 class="mb-3">
+                            <i class="bi bi-download text-primary me-2"></i>FlowPack Downloads
+                        </h2>
+                        <p class="text-secondary mb-3">
+                            FlowPack is a .NET packaging utility for building, packaging, and distributing FlowSynx's plugins. 
+                            It takes a .NET project, compiles it, generates metadata, and bundles it into a distributable <span class="badge bg-light text-dark">.fspack</span> file.
+                        </p>
+                        
+                        <!-- Quick Stats Card -->
+                        <div class="card border mb-4">
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-4">
+                                        <i class="bi bi-box-seam text-primary fs-4"></i>
+                                        <h5 class="mt-2 mb-0">@releases.Count</h5>
+                                        <small class="text-muted">Releases</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="bi bi-laptop text-primary fs-4"></i>
+                                        <h5 class="mt-2 mb-0">3</h5>
+                                        <small class="text-muted">Platforms</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <i class="bi bi-star text-primary fs-4"></i>
+                                        <h5 class="mt-2 mb-0">Latest</h5>
+                                        <small class="text-muted">@releases.FirstOrDefault()?.Version</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                    <h2>FlowPack</h2>
-                    <p class="text-secondary">FlowPack is a .NET packaging utility for building, packaging, and distributing FlowSynx's plugins. It takes a .NET project, compiles it, generates metadata, and bundles it into a distributable <b>.fspack</b> file.</p>
+                        <!-- Installation Instructions -->
+                        <div class="alert alert-info border-0 shadow-sm" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <strong>Quick Start:</strong> Download the version for your platform, extract the archive, and add it to your PATH.
+                        </div>
+                    </div>
 
-                    <div class="accordion d-grid gap-1" id="releasesAccordion">
+                    <!-- Releases Accordion -->
+                    <div class="accordion shadow-sm" id="releasesAccordion">
                         @for (int i = 0; i < releases.Count; i++)
                         {
                             var release = releases[i];
                             var collapseId = $"collapse-{i}";
                             var headingId = $"heading-{i}";
+                            var isLatest = i == 0;
 
-                            <div class="accordion-item border">
+                            <div class="accordion-item @(isLatest ? "border-primary" : "")">
                                 <h2 class="accordion-header" id="@headingId">
-                                    <button class="accordion-button @(i != 0 ? "collapsed" : "")"
+                                    <button class="accordion-button @(i != 0 ? "collapsed" : "") d-flex align-items-center"
                                             type="button"
                                             data-bs-toggle="collapse"
                                             data-bs-target="#@collapseId"
                                             aria-expanded="@(i == 0 ? "true" : "false")"
                                             aria-controls="@collapseId">
-                                        <b>Version: @release.Version</b>
+                                        <div class="d-flex align-items-center w-100">
+                                            <i class="bi bi-tag-fill me-2 text-primary"></i>
+                                            <strong class="me-2">Version @release.Version</strong>
+                                            @if (isLatest)
+                                            {
+                                                <span class="badge bg-primary ms-2">Latest</span>
+                                            }
+                                        </div>
                                     </button>
                                 </h2>
                                 <div id="@collapseId"
@@ -61,7 +122,11 @@
                                      aria-labelledby="@headingId"
                                      data-bs-parent="#releasesAccordion">
                                     <div class="accordion-body">
-                                        <div class="mb-2">
+                                        <!-- Platform Downloads -->
+                                        <h6 class="text-muted mb-3">
+                                            <i class="bi bi-download me-1"></i>Download for your platform:
+                                        </h6>
+                                        <div class="d-flex flex-wrap gap-2 mb-3">
                                             @RenderDownloadButton(release.WindowsDownloadUrl, "windows", "Windows")
                                             @RenderDownloadButton(release.LinuxDownloadUrl, "tux", "Linux")
                                             @RenderDownloadButton(release.MacOsDownloadUrl, "apple", "macOS")
@@ -70,7 +135,10 @@
                                            string.IsNullOrEmpty(release.LinuxDownloadUrl) &&
                                            string.IsNullOrEmpty(release.MacOsDownloadUrl))
                                             {
-                                                <span class="text-muted">No platform-specific assets available.</span>
+                                                <div class="alert alert-warning mb-0 w-100" role="alert">
+                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                    No platform-specific assets available for this release.
+                                                </div>
                                             }
                                         </div>
                                     </div>
@@ -80,7 +148,7 @@
                     </div>
                 </div>
             </div>
-            }
+        }
     </div>
 </div>
 
@@ -97,10 +165,13 @@
         if (!string.IsNullOrEmpty(url))
         {
             <a href="@url"
-               class="btn btn-sm btn-outline-primary me-2"
+               class="btn btn-outline-primary d-inline-flex align-items-center"
                target="_blank"
-               rel="noopener noreferrer">
-                <i class="bi bi-@icon"></i> Download for @platform
+               rel="noopener noreferrer"
+               title="Download for @platform">
+                <i class="bi bi-@icon me-2"></i>
+                <span>@platform</span>
+                <i class="bi bi-download ms-2"></i>
             </a>
         }
     };

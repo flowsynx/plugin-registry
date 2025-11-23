@@ -433,3 +433,16 @@ pre code {
     font-size: 0.65rem;
     border-radius: 0.2rem;
 }
+
+.progress-bar {
+    background-color: #008b8b !important;
+}
+
+.progress {
+    background-color: rgba(0, 139, 139, 0.1);
+}
+
+.hover-bg-primary-subtle:hover {
+    background-color: rgba(0, 139, 139, 0.1) !important;
+    transition: background-color 0.2s ease-in-out;
+}
