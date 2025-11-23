@@ -1,0 +1,37 @@
+@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile
+@using FlowSynx.PluginRegistry.Application.Wrapper
+
+@if (Plugins?.Data?.Count() == 0)
+{
+    <EmptyState Title="No Plugins Found"
+               Message="@($"{UserName} hasn't published any plugins yet.")"
+               ResetUrl="/plugins"
+               ResetButtonText="Browse All Plugins"
+               IconClass="bi-inbox" />
+}
+else
+{
+    @foreach (var plugin in Plugins?.Data!)
+    {
+        <ProfilePluginCard Plugin="@plugin" />
+    }
+
+    <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" />
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public PaginatedResult<PluginsListByProfileResponse>? Plugins { get; set; }
+
+    [Parameter]
+    public string UserName { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TotalPlugins { get; set; }
+
+    [Parameter]
+    public int CurrentPage { get; set; }
+
+    [Parameter]
+    public int TotalPages { get; set; }
+}

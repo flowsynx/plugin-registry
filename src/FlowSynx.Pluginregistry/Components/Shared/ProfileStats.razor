@@ -1,0 +1,23 @@
+<div class="stats-container">
+    <div class="stat-item p-3 mb-3 bg-primary-subtle rounded-3">
+        <div class="stat-value text-primary fw-bold fs-1">@TotalPlugins.ToString("N0")</div>
+        <div class="stat-label text-muted">
+            <i class="bi bi-plugin me-2"></i>Plugins Published
+        </div>
+    </div>
+    
+    <div class="stat-item p-3 bg-secondary-subtle rounded-3">
+        <div class="stat-value text-secondary fw-bold fs-1">@TotalDownloads.ToString("N0")</div>
+        <div class="stat-label text-muted">
+            <i class="bi bi-download me-2"></i>Total Downloads
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TotalPlugins { get; set; }
+
+    [Parameter]
+    public long TotalDownloads { get; set; }
+}

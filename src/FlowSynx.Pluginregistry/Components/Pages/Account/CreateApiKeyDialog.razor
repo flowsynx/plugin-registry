@@ -52,13 +52,22 @@
         }
         else if (_userPlugins?.Any() == true)
         {
-            <select class="form-select" multiple @onchange="HandlePluginSelection" size="5">
+            <div class="plugin-select-container">
                 @foreach (var plugin in _userPlugins)
                 {
-                    <option value="@plugin.Id">@plugin.Type</option>
+                    <div class="form-check plugin-check-item">
+                        <input class="form-check-input" 
+                               type="checkbox" 
+                               id="plugin_@plugin.Id" 
+                               value="@plugin.Id"
+                               checked="@_selectedPluginIds.Contains(plugin.Id)"
+                               @onchange="@(e => HandlePluginCheckboxChange(plugin.Id, e))" />
+                        <label class="form-check-label" for="plugin_@plugin.Id">
+                            @plugin.Type
+                        </label>
+                    </div>
                 }
-            </select>
-            <div class="form-text">Hold Ctrl/Cmd to select multiple plugins</div>
+            </div>
         }
     </div>
 
@@ -154,6 +163,24 @@
                 .Select(v => Guid.TryParse(v, out var id) ? id : Guid.Empty)
                 .Where(id => id != Guid.Empty)
                 .ToList();
+        }
+    }
+
+    private void HandlePluginCheckboxChange(Guid pluginId, ChangeEventArgs e)
+    {
+        if (e.Value is bool isChecked)
+        {
+            if (isChecked)
+            {
+                if (!_selectedPluginIds.Contains(pluginId))
+                {
+                    _selectedPluginIds.Add(pluginId);
+                }
+            }
+            else
+            {
+                _selectedPluginIds.Remove(pluginId);
+            }
         }
     }
 

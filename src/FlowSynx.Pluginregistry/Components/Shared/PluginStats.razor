@@ -1,0 +1,28 @@
+@using FlowSynx.Pluginregistry.Helpers
+
+<div class="d-flex flex-wrap gap-3 text-muted plugin-stats">
+    <div class="d-flex align-items-center stat-item">
+        <i class="bi bi-download text-primary"></i>
+        <strong class="text-dark">@TotalDownloads.ToString("N0")</strong>
+        <span class="ms-1">downloads</span>
+    </div>
+    <div class="d-flex align-items-center stat-item">
+        <i class="bi bi-clock-history text-primary"></i>
+        <span>Updated @TimeHelper.GetHumanReadableDate(LastUpdated)</span>
+    </div>
+    <div class="d-flex align-items-center stat-item">
+        <i class="bi bi-tag text-primary"></i>
+        <span>v @Version</span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public long TotalDownloads { get; set; }
+
+    [Parameter]
+    public DateTime LastUpdated { get; set; }
+
+    [Parameter]
+    public string Version { get; set; } = string.Empty;
+}

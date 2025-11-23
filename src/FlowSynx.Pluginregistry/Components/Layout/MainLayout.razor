@@ -1,5 +1,6 @@
 ﻿@using System.Security.Claims
 @using FlowSynx.PluginRegistry.Application.Services
+@using FlowSynx.Pluginregistry.Components.Shared
 
 @inherits LayoutComponentBase
 @inject NavigationManager Navigation
@@ -8,41 +9,75 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <main class="flex-shrink-0">
-    <div class="hero-banner pb-3">
-        <div class="container px-5">
-            <nav class="navbar navbar-expand-lg">
-                <a class="navbar-brand pe-2" href="/">
-                    <img src="/images/logo.png" alt="Logo" width="24" height="24" class="d-inline-block align-text-top">
-                    Plugin Registry
+    <div class="hero-banner">
+        <div class="container px-3 px-lg-3">
+            <nav class="navbar navbar-expand-lg navbar-light py-3 px-1">
+                <a class="navbar-brand d-flex align-items-center" href="/">
+                    <img src="/images/logo.png" alt="Logo" width="48" height="48" class="me-2">
+                    <span class="fw-bold fs-2">Plugin Registry</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="/plugins">Plugins</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/manage/upload">Upload</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/downloads">Downloads</a></li>
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1">
+                        <li class="nav-item">
+                            <a class="nav-link rounded-2 px-3" href="/plugins">
+                                <i class="bi bi-plugin me-1"></i>Plugins
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rounded-2 px-3" href="/manage/upload">
+                                <i class="bi bi-cloud-upload me-1"></i>Upload
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rounded-2 px-3" href="/downloads">
+                                <i class="bi bi-download me-1"></i>Downloads
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link rounded-2 px-3" href="/policies/contact">
+                                <i class="bi bi-envelope me-1"></i>Contact
+                            </a>
+                        </li>
                     </ul>
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <div class="vr mx-2 d-none d-lg-block"></div>
+                    <ul class="navbar-nav mb-2 mb-lg-0">
                         @if (!IsAuthenticated)
                         {
-                            <li class="nav-item"><a class="nav-link" href="@GetLoginUrl()">Login</a></li>
+                            <li class="nav-item">
+                                <a class="nav-link rounded-2 px-3" href="@GetLoginUrl()">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                                </a>
+                            </li>
                         }
                         else
                         {
                             <li class="nav-item dropdown">
-                                <a href="#" role="button" class="d-flex nav-link align-items-center text-decoration-none dropdown-toggle" id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="@gravatar.GetGravatarUrl(@Email!, 24);" width="24" height="24" class="rounded-circle me-2" alt="@Name">
-                                    <span class="d-none d-sm-inline">@Name</span>
+                                <a href="#" role="button" class="nav-link d-flex align-items-center text-decoration-none dropdown-toggle rounded-2 px-3"
+                                   id="accountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="@gravatar.GetGravatarUrl(@Email!, 24);" width="24" height="24" 
+                                         class="rounded-circle border border-2 border-light shadow-sm me-2" alt="@Name">
+                                    <span class="fw-semibold d-none d-lg-inline">@Name</span>
                                 </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                                    <li><a class="dropdown-item" href="/profiles/@Login">View Profile</a></li>
-                                    <li><a class="dropdown-item" href="/account/apikeys">Api Keys</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="/api/account/logout">Logout</a></li>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="accountDropdown">
+                                    <li class="px-3 py-2 border-bottom">
+                                        <small class="text-muted">Signed in as</small>
+                                        <div class="fw-semibold">@Name</div>
+                                    </li>
+                                    <li><a class="dropdown-item rounded-2 my-1" href="/profiles/@Login">
+                                        <i class="bi bi-person me-2"></i>View Profile
+                                    </a></li>
+                                    <li><a class="dropdown-item rounded-2 my-1" href="/account/apikeys">
+                                        <i class="bi bi-key me-2"></i>API Keys
+                                    </a></li>
+                                    <li><hr class="dropdown-divider my-2"></li>
+                                    <li><a class="dropdown-item rounded-2 text-danger" href="/api/account/logout">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                    </a></li>
                                 </ul>
                             </li>
                         }
@@ -51,32 +86,43 @@
             </nav>
         </div>
 
+        <div class="container px-3 px-lg-3 py-4">
+            <form class="d-flex justify-content-center" role="search" method="get" action="/plugins">
+                <div class="search-wrapper">
+                    <InputText @bind-Value="q"
+                               type="search"
+                               class="form-control form-control-lg custom-search-input"
+                               placeholder="Search for plugins..."
+                               aria-label="Search plugins..." />
 
-        <div class="py-3">
-            <div class="container px-5">
-                <form class="d-flex" role="search" method="get" action="/plugins">
-                    <div class="input-group">
-                        <InputText @bind-Value="q" type="search" class="form-control border-dark" placeholder="Search plugins..." aria-label="Search plugins..." aria-describedby="button-addon2"></InputText>
-                        <button class="btn btn-outline-dark" type="submit" id="button-addon2">Search</button>
-                    </div>
-                </form>
-            </div>
+                    <button type="submit" class="search-button">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
         </div>
+
         @if (IsHomePage)
         {
-            <section class="py-1">
-                <div class="container px-5">
-                    <div class="row gx-5 align-items-center justify-content-center hero-content">
-                        <div class="col-lg-12 col-xl-12 col-xxl-12 text-center">
+            <section class="py-5">
+                <div class="container px-4 px-lg-5">
+                    <div class="row gx-5 align-items-center justify-content-center">
+                        <div class="col-lg-10 col-xl-9 col-xxl-8 text-center">
                             <div class="my-5">
-                                <h1 class="display-3 fw-bold mb-3">FlowSynx Plugin Registry</h1>
-                                <p class="lead fw-normal mb-4">
+                                <h1 class="display-3 fw-bold mb-4 text-white">
+                                    FlowSynx Plugin Registry
+                                </h1>
+                                <p class="lead text-white mb-5 fs-4">
                                     Extend your automation capabilities with a powerful ecosystem of plugins.
                                     Discover, share, and deploy components that accelerate your workflow.
                                 </p>
-                                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-                                    <a class="btn btn-dark btn-lg px-4 me-sm-3" href="/plugins">Explore Plugins</a>
-                                    <a class="btn btn-outline-dark btn-lg px-4" href="#about">Learn More</a>
+                                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                                    <a class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill shadow" href="/plugins">
+                                        <i class="bi bi-grid-3x3-gap me-2"></i>Explore Plugins
+                                    </a>
+                                    <a class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill" href="#features">
+                                        <i class="bi bi-info-circle me-2"></i>Learn More
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -89,31 +135,15 @@
     @Body
 </main>
 
-<footer class="bg-light py-4 mt-auto">
-    <div class="container px-5">
-        <div class="row align-items-center justify-content-between flex-column flex-sm-row">
-            <div class="col-auto">
-                <div class="small m-0">Copyright &copy; <a href="https://flowsynx.io" target="_blank">FlowSynx</a> 2025</div>
-            </div>
-            <div class="col-auto">
-                <ul class="list-inline small mb-0">
-                    <li class="list-inline-item"><a href="/downloads" class="text-decoration-none text-muted">Downloads</a></li>
-                    <li class="list-inline-item">•</li>
-                    <li class="list-inline-item"><a href="/policies/privacy" class="text-decoration-none text-muted">Privacy Policy</a></li>
-                    <li class="list-inline-item">•</li>
-                    <li class="list-inline-item"><a href="/policies/terms" class="text-decoration-none text-muted">Terms of Service</a></li>
-                    <li class="list-inline-item">•</li>
-                    <li class="list-inline-item"><a href="/policies/contact" class="text-decoration-none text-muted">Contact</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</footer>
+<Footer />
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+<div id="blazor-error-ui" data-nosnippet class="shadow-lg">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span>An unhandled error has occurred.</span>
+    </div>
+    <a href="." class="reload btn btn-sm btn-light ms-3">Reload</a>
+    <span class="dismiss">×</span>
 </div>
 
 @code {

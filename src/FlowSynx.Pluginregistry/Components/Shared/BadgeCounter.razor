@@ -1,0 +1,14 @@
+<span class="badge @BadgeClass fs-6 px-3 py-2">
+    <i class="bi @IconClass me-2"></i>@Text
+</span>
+
+@code {
+    [Parameter]
+    public string Text { get; set; } = string.Empty;
+
+    [Parameter]
+    public string BadgeClass { get; set; } = "bg-secondary-subtle text-secondary-emphasis";
+
+    [Parameter]
+    public string IconClass { get; set; } = "bi-plugin";
+}

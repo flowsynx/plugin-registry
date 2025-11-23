@@ -1,146 +1,56 @@
 ﻿@page "/profiles/{UserName}"
 
-@using System.Text.Json
-@using System.Security.Claims
-@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails
-@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
-@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile;
-@using FlowSynx.PluginRegistry.Application.Services
+@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile
+@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile
 @using FlowSynx.PluginRegistry.Application.Wrapper
-@using FlowSynx.Pluginregistry.Helpers
+@using FlowSynx.Pluginregistry.Components.Shared
 @using FlowSynx.Pluginregistry.Services
-@using FlowSynx.Pluginregistry.Components.Shared;
 @using Microsoft.AspNetCore.WebUtilities
-@using System.Net
+
+@implements IDisposable
 
 @inject NavigationManager Navigation
 @inject IStatsApiService Stats
-@inject IGravatar gravatar
 
-<PageTitle>Profile | @UserName</PageTitle>
+<PageTitle>Profile (@UserName) | FlowSynx Plugin Registry</PageTitle>
 
-<div class="container p-5">
-    <div class="row">
-        @if (plugins == null)
-        {
-            <div class="col-md-12 mx-auto">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <p>Loading ...</p>
-                    </div>
-                </div>
+<div class="container py-5">
+    @if (plugins == null)
+    {
+        <div class="col-12">
+            <LoadingSpinner Message="Loading profile..." />
+        </div>
+    }
+    else if (!plugins.Succeeded)
+    {
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <ErrorAlert Title="Error Loading Profile" 
+                           Message="@string.Join(Environment.NewLine, plugins.Messages)" />
             </div>
-        }
-        else if (!plugins.Succeeded)
-        {
-            <div class="col-md-12 mx-auto">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        @string.Join(Environment.NewLine, plugins.Messages)
-                    </div>
-                </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            <!-- Profile Sidebar -->
+            <div class="col-lg-3 order-lg-2">
+                <ProfileSidebar Email="@email" 
+                               UserName="@UserName" 
+                               TotalPlugins="@totalPlugins" 
+                               TotalDownloads="@totalPluginsDownloads" />
             </div>
-        }
-        else
-        {
-            <div class="row">
-                <div class="col-md-9 mx-auto">
-                    @if (plugins?.Data?.Count() == 0)
-                    {
-                        <div class="card p-5">
-                            <h4 class="text-muted">No plugins found</h4>
-                            <p class="text-secondary">No pluins found for <b>@UserName</b> profile.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        @foreach (var plugin in plugins?.Data!)
-                        {
-                            <div class="card hover-shadow-sm mb-2">
-                                <div class="card-body">
-                                    <h4 class="card-title">
-                                        <a href="/plugins/@plugin.Type/@plugin.Version">@plugin.Type</a>
-                                        @if (plugin.IsTrusted)
-                                        {
-                                            <i class="bi bi-patch-check-fill trusted-plugin-icon-small ms-2" title="Trusted Plugin"></i>
-                                        }
-                                    </h4>
-                                    @if (plugin.Owners.Any())
-                                    {
-                                        <div>
-                                            By:
-                                            @foreach (var owner in plugin.Owners)
-                                            {
-                                                <a class="me-2" href="/profiles/@owner">@owner</a>
-                                            }
-                                        </div>
-                                    }
-                                    <div>
-                                        Category:
-                                        @plugin.CategoryTitle
-                                    </div>
-                                    @{
-                                        @if (plugin.Tags.Any())
-                                        {
-                                            <div>
-                                                @foreach (var tag in plugin.Tags)
-                                                {
-                                                    <a href="/plugins?q=@WebUtility.UrlEncode($"tag:{tag}")">
-                                                        <span class="badge badge-hover border border-secondary text-secondary me-1">@tag</span>
-                                                    </a>
-                                                }
-                                            </div>
-                                        }
-                                    }
-                                    <div class="d-flex flex-column flex-md-row align-items-start text-start gap-0 mt-3">
-                                        <div class="me-3">
-                                            <i class="bi bi-download text-secondary"></i>
-                                            @plugin.TotalDownload.ToString("N0") total downloads
-                                        </div>
-                                        <div class="me-3">
-                                            <i class="bi bi-clock-history text-secondary"></i>
-                                            last updated: @TimeHelper.GetHumanReadableDate(plugin.LastUpdated)
-                                        </div>
-                                        <div class="me-3">
-                                            <i class="bi bi-tag text-secondary"></i>
-                                            Latest version: @plugin.Version
-                                        </div>
-                                    </div>
-                                    <p class="mt-3 card-text">@plugin.Description</p>
-                                </div>
-                            </div>
-                        }
 
-                        <Pagination CurrentPage="@currentPage" TotalPages="@totalPages" />
-                    }
-                </div>
-                <div class="col-md-3 mx-auto bg-light">
-                    <div class="card border-0 bg-light">
-                        <div class="card-body p-3">
-                            <div class="d-flex">
-                                <div>
-                                    <div class="h2 fw-bolder text-center">@UserName</div>
-                                    @if (!string.IsNullOrEmpty(@email)){
-                                        <div class="mb-3">
-                                            <img src="@gravatar.GetGravatarUrl(@email, 256);" width="256" height="256" class="rounded-circle" alt="@UserName">
-                                        </div>
-                                    }
-                                    <div class="mb-4">
-                                        <h2 class="fs-2">@totalPluins.ToString("N0")</h2>
-                                        <p class="fs-6 text-muted">Plugins</p>
-                                    </div>
-                                    <div class="mb-4">
-                                        <h2 class="fs-2">@totalPluinsDownloads.ToString("N0")</h2>
-                                        <p class="fs-6 text-muted">Total downloads of plugins</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Plugins List -->
+            <div class="col-lg-9 order-lg-1">
+                <ProfilePluginsList Plugins="@plugins"
+                                   UserName="@UserName"
+                                   TotalPlugins="@totalPlugins"
+                                   CurrentPage="@currentPage"
+                                   TotalPages="@totalPages" />
             </div>
-            }
-    </div>
+        </div>
+    }
 </div>
 
 @code {
@@ -157,11 +67,11 @@
         ? "" 
         : pluginStatistics.Data.Email;
 
-    private int totalPluins => (pluginStatistics == null || !pluginStatistics.Succeeded) 
+    private int totalPlugins => (pluginStatistics == null || !pluginStatistics.Succeeded) 
         ? 0 
         : pluginStatistics.Data.TotalCount;
 
-    private long totalPluinsDownloads => (pluginStatistics == null || !pluginStatistics.Succeeded) 
+    private long totalPluginsDownloads => (pluginStatistics == null || !pluginStatistics.Succeeded) 
         ? 0 
         : pluginStatistics.Data.TotalDownload;
 

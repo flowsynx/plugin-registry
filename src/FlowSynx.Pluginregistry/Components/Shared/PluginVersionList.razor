@@ -10,6 +10,152 @@
 
 @inject IStatsApiService Stats
 
+@if (_loading)
+{
+    <LoadingSpinner Message="Loading versions..." />
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger border-0 shadow-sm d-flex align-items-start" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-3" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+        </svg>
+        <div>
+            <h6 class="alert-heading mb-1">Error Loading Versions</h6>
+            <p class="mb-0 small">@_error</p>
+        </div>
+    </div>
+}
+else
+{
+    if (PluginVersions is null)
+    {
+        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-start" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-3" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+            </svg>
+            <div>
+                <h6 class="alert-heading mb-1">Error Loading Versions</h6>
+                <p class="mb-0 small">There was an error loading plugin versions!</p>
+            </div>
+        </div>
+    }
+    else if (!PluginVersions.Succeeded)
+    {
+        <div class="alert alert-danger border-0 shadow-sm d-flex align-items-start" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill flex-shrink-0 me-3" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+            </svg>
+            <div>
+                <h6 class="alert-heading mb-1">Error Loading Versions</h6>
+                <p class="mb-0 small">@string.Join(Environment.NewLine, PluginVersions.Messages)</p>
+            </div>
+        </div>
+    }
+    else if (!PluginVersions.Data.Any())
+    {
+        <div class="text-center py-5">
+            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-inbox text-muted mb-3 opacity-50" viewBox="0 0 16 16">
+                <path d="M4.98 4a.5.5 0 0 0-.39.188L1.54 8H6a.5.5 0 0 1 .5.5 1.5 1.5 0 1 0 3 0A.5.5 0 0 1 10 8h4.46l-3.05-3.812A.5.5 0 0 0 11.02 4zm9.954 5H10.45a2.5 2.5 0 0 1-4.9 0H1.066l.32 2.562a.5.5 0 0 0 .497.438h12.234a.5.5 0 0 0 .496-.438zM3.809 3.563A1.5 1.5 0 0 1 4.981 3h6.038a1.5 1.5 0 0 1 1.172.563l3.7 4.625a.5.5 0 0 1 .105.374l-.39 3.124A1.5 1.5 0 0 1 14.117 13H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .106-.374z"/>
+            </svg>
+            <p class="text-muted mb-0">No versions available</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="fw-semibold border-0 py-3">
+                            <i class="bi bi-tag me-2 text-primary"></i>Version
+                        </th>
+                        <th class="fw-semibold border-0 py-3 text-center">
+                            <i class="bi bi-star me-2 text-primary"></i>Latest
+                        </th>
+                        <th class="fw-semibold border-0 py-3">
+                            <i class="bi bi-download me-2 text-primary"></i>Downloads
+                        </th>
+                        <th class="fw-semibold border-0 py-3">
+                            <i class="bi bi-clock-history me-2 text-primary"></i>Last Updated
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var version in PluginVersions.Data)
+                    {
+                        <tr class="version-row">
+                            <td class="py-3">
+                                <a href="#" 
+                                   @onclick="() => NavigateToPluginDetails(version.Version)" 
+                                   @onclick:preventDefault
+                                   class="text-decoration-none fw-semibold version-link d-inline-flex align-items-center">
+                                    @version.Version
+                                </a>
+                            </td>
+                            <td class="text-center py-3">
+                                @if (version.IsLatest is true)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary-emphasis">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Latest
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td class="py-3">
+                                <span class="fw-semibold text-dark">@version.Downloads?.ToString("N0")</span>
+                                <small class="text-muted ms-1">downloads</small>
+                            </td>
+                            <td class="py-3">
+                                <span class="text-muted">@TimeHelper.GetOnlyDate(version.LastUpdated)</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-3 p-3 bg-light rounded-3">
+            <small class="text-muted d-flex align-items-center">
+                <i class="bi bi-info-circle me-2"></i>
+                <span>Showing <strong>@PluginVersions.Data.Count()</strong> version@(PluginVersions.Data.Count() != 1 ? "s" : "")</span>
+            </small>
+        </div>
+    }
+}
+
+<style>
+    .version-row {
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+
+    .version-row:hover {
+        background-color: rgba(var(--bs-primary-rgb), 0.05);
+        border-left-color: var(--bs-primary);
+    }
+
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 10;
+    }
+
+    .badge {
+        transition: all 0.2s ease;
+    }
+
+    .version-link:hover .badge {
+        background-color: var(--bs-primary) !important;
+        color: white !important;
+        border-color: var(--bs-primary) !important;
+    }
+</style>
+
 @code {
     [Parameter]
     public string PluginType { get; set; } = string.Empty;
@@ -22,6 +168,7 @@
     {
         try
         {
+            _loading = true;
             PluginVersions = await Stats.GetPluginVersions(PluginType);
         }
         catch (Exception ex)
@@ -38,68 +185,5 @@
     {
         var url = $"/plugins/{PluginType}/{version}";
         Navigation.NavigateTo(url, forceLoad: true);
-    }
-}
-
-@if (_loading)
-{
-    <p><em>Loading plugin version ...</em></p>
-}
-else if (!string.IsNullOrWhiteSpace(_error))
-{
-    <div class="text-danger">Error: @_error</div>
-}
-else
-{
-    if (PluginVersions is null)
-    {
-        _error = "There is error to loading plugins versions!";
-        <div class="text-danger">Error: @_error</div>
-    }
-    if (!PluginVersions.Succeeded)
-    {
-        _error = string.Join(Environment.NewLine, @PluginVersions.Messages);
-        <div class="text-danger">Error: @_error</div>
-    }
-    else 
-    {
-        <table class="table">
-            <thead class="table-light">
-                <tr>
-                    <th>Version</th>
-                    <th>Latest</th>
-                    <th>Downloads</th>
-                    <th>Last updated</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var version in PluginVersions.Data)
-                {
-                    <tr>
-                        <td>
-                            <a href="#" @onclick="() => NavigateToPluginDetails(version.Version)">
-                                @version.Version
-                            </a>
-                        </td>
-                        <td>
-                            @if (version.IsLatest is true)
-                            {
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                            }
-                            else
-                            {
-                                
-                            }
-                        </td>
-                        <td>
-                            @version.Downloads
-                        </td>
-                        <td>
-                            @TimeHelper.GetOnlyDate(@version.LastUpdated)
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     }
 }

@@ -1,0 +1,30 @@
+<div class="card border shadow-sm sticky-sidebar">
+    <div class="card-body p-4 text-center">
+        <ProfileAvatar Email="@Email" UserName="@UserName" Size="160" />
+        
+        <h2 class="h3 fw-bold mb-3">@UserName</h2>
+        
+        <ProfileStats TotalPlugins="@TotalPlugins" TotalDownloads="@TotalDownloads" />
+    </div>
+</div>
+
+<style>
+    .sticky-sidebar {
+        position: sticky;
+        top: 20px;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string? Email { get; set; }
+
+    [Parameter]
+    public string UserName { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TotalPlugins { get; set; }
+
+    [Parameter]
+    public long TotalDownloads { get; set; }
+}

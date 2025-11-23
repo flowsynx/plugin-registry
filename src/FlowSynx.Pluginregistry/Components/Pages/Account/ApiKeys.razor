@@ -1,14 +1,15 @@
 @page "/account/apikeys"
 @using FlowSynx.PluginRegistry.Application.Features.ApiKeys.Command.GenerateKey
+@using FlowSynx.Pluginregistry.Components.Shared
 @using FlowSynx.Pluginregistry.Models
 @using FlowSynx.Pluginregistry.Services
 @inject IApiKeyClientService ApiKeyService
 @inject IJSRuntime JSRuntime
 @attribute [Authorize]
 
-<PageTitle>API Keys - FlowSynx Plugin Registry</PageTitle>
+<PageTitle>API Keys | FlowSynx Plugin Registry</PageTitle>
 
-<div class="container p-5">
+<div class="container px-4 py-5">
     <div class="row mb-4">
         <div class="col-md-12">
             <h2>API Key Management</h2>
@@ -20,7 +21,7 @@
 
     <div class="row mb-4">
         <div class="col-md-12">
-            <div class="alert border">
+            <div class="alert border-primary bg-primary-subtle">
                 <strong><i class="bi bi-shield-check"></i> Security Best Practices:</strong>
                 <ul class="mb-0 mt-2">
                     <li>Store API keys securely in environment variables or secret managers</li>
@@ -34,7 +35,7 @@
 
     <div class="row mb-4">
         <div class="col-md-12">
-            <button class="btn btn-sm btn-primary" @onclick="ShowCreateDialog">
+            <button class="btn btn-primary" @onclick="ShowCreateDialog">
                 <i class="bi bi-plus-circle"></i> Create New API Key
             </button>
         </div>
@@ -43,11 +44,8 @@
     @if (_loading)
     {
         <div class="row">
-            <div class="col-md-12">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <span class="ms-2">Loading API keys...</span>
+            <div class="col-12">
+                <LoadingSpinner Message="Loading API keys..." />
             </div>
         </div>
     }
@@ -62,79 +60,114 @@
     else if (_apiKeys?.Any() == true)
     {
         <div class="table-responsive">
-            <table class="table table-sm table-hover table-border">
-                <thead>
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
                     <tr>
-                        <th>Name</th>
-                        <th>Status</th>
-                        <th>Permissions</th>
-                        <th>Created</th>
-                        <th>Expires</th>
-                        <th>Actions</th>
+                        <th class="border-0">Name</th>
+                        <th class="border-0">Status</th>
+                        <th class="border-0">Permissions</th>
+                        <th class="border-0">Created</th>
+                        <th class="border-0">Expires</th>
+                        <th class="border-0 text-end">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var key in _apiKeys)
                     {
-                        <tr>
+                        <tr class="border-bottom">
                             <td>
-                                <div>
-                                    <strong>@key.Name</strong>
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-primary-subtle px-3 py-2 me-3">
+                                        <i class="bi bi-key-fill"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">@key.Name</div>
+                                        <small class="text-muted">ID: @key.Id.ToString().Substring(0, 8)...</small>
+                                    </div>
                                 </div>
                             </td>
                             <td>
                                 @if (key.IsActive)
                                 {
-                                    <span class="badge bg-success">Active</span>
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                        <i class="bi bi-check-circle-fill me-1"></i>Active
+                                    </span>
                                 }
                                 else if (key.IsRevoked)
                                 {
-                                    <span class="badge bg-danger">Revoked</span>
+                                    <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle">
+                                        <i class="bi bi-x-circle-fill me-1"></i>Revoked
+                                    </span>
                                 }
                                 else if (key.IsExpired)
                                 {
-                                    <span class="badge bg-warning">Expired</span>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle">
+                                        <i class="bi bi-clock-fill me-1"></i>Expired
+                                    </span>
                                 }
                             </td>
                             <td>
-                                @if (key.CanPushNewPlugins)
-                                {
-                                    <span class="badge border border-secondary text-secondary me-1">New Plugins</span>
-                                }
-                                @if (key.CanPushPluginVersions)
-                                {
-                                    <span class="badge border border-secondary text-secondary me-1">Versions</span>
-                                }
-                                @if (key.AssignedPlugins.Any())
-                                {
-                                    <span class="badge bg-secondary">@key.AssignedPlugins.Count Plugin(s)</span>
-                                }
+                                <div class="d-flex flex-wrap gap-1">
+                                    @if (key.CanPushNewPlugins)
+                                    {
+                                        <span class="badge rounded-pill bg-info-subtle text-info border border-info-subtle">
+                                            <i class="bi bi-plus-circle me-1"></i>New Plugins
+                                        </span>
+                                    }
+                                    @if (key.CanPushPluginVersions)
+                                    {
+                                        <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle">
+                                            <i class="bi bi-arrow-up-circle me-1"></i>Versions
+                                        </span>
+                                    }
+                                    @if (key.AssignedPlugins.Any())
+                                    {
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle">
+                                            <i class="bi bi-collection me-1"></i>@key.AssignedPlugins.Count Plugin(s)
+                                        </span>
+                                    }
+                                </div>
                             </td>
-                            <td>@key.CreatedAt.ToString("yyyy-MM-dd")</td>
+                            <td>
+                                <div class="text-muted">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    @key.CreatedAt.ToString("MMM dd, yyyy")
+                                </div>
+                            </td>
                             <td>
                                 @if (key.ExpiresAt.HasValue)
                                 {
                                     var daysUntilExpiry = (key.ExpiresAt.Value - DateTime.UtcNow).Days;
-                                    <span class="@(daysUntilExpiry <= 7 ? "text-danger fw-bold" : "")">
-                                        @key.ExpiresAt.Value.ToString("yyyy-MM-dd")
+                                    <div class="@(daysUntilExpiry <= 7 ? "text-danger fw-semibold" : "text-muted")">
+                                        <i class="bi bi-hourglass-split me-1"></i>
+                                        @key.ExpiresAt.Value.ToString("MMM dd, yyyy")
                                         @if (daysUntilExpiry <= 7 && daysUntilExpiry > 0)
                                         {
-                                            <i class="bi bi-exclamation-triangle-fill text-warning ms-1" 
-                                                title="Expires in @daysUntilExpiry days"></i>
+                                            <div class="mt-1">
+                                                <span class="badge rounded-pill bg-warning-subtle text-warning border border-warning-subtle">
+                                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>@daysUntilExpiry days left
+                                                </span>
+                                            </div>
                                         }
-                                    </span>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <span class="text-muted">Never</span>
+                                    <div class="text-muted">
+                                        <i class="bi bi-infinity me-1"></i>Never
+                                    </div>
                                 }
                             </td>
-                            <td>
+                            <td class="text-end">
                                 @if (key.IsActive)
                                 {
-                                    <button class="btn btn-xs btn-danger" @onclick="() => ConfirmRevoke(key.Id)">
-                                        <i class="bi bi-trash"></i> Revoke
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill" @onclick="() => ConfirmRevoke(key.Id)">
+                                        <i class="bi bi-trash3"></i> Revoke
                                     </button>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No actions</span>
                                 }
                             </td>
                         </tr>

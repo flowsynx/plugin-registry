@@ -1,0 +1,51 @@
+@using FlowSynx.PluginRegistry.Application.Services
+
+@inject IGravatar gravatar
+
+@if (!string.IsNullOrEmpty(Email))
+{
+    <div class="mb-4">
+        <img src="@gravatar.GetGravatarUrl(Email, Size)" 
+             width="@Size" 
+             height="@Size" 
+             class="rounded-circle shadow-sm border border-3 border-light profile-avatar" 
+             alt="@UserName">
+    </div>
+}
+else
+{
+    <div class="mb-4">
+        <div class="profile-avatar-placeholder rounded-circle shadow-sm border border-3 border-light mx-auto" style="width: @(Size)px; height: @(Size)px;">
+            <i class="bi bi-person-circle text-muted" style="font-size: @(Size)px;"></i>
+        </div>
+    </div>
+}
+
+<style>
+    .profile-avatar {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .profile-avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.15) !important;
+    }
+
+    .profile-avatar-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string? Email { get; set; }
+
+    [Parameter]
+    public string UserName { get; set; } = string.Empty;
+
+    [Parameter]
+    public int Size { get; set; } = 160;
+}

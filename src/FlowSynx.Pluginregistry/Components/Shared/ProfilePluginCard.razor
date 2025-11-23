@@ -1,0 +1,60 @@
+@using System.Net
+@using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile
+@using FlowSynx.Pluginregistry.Helpers
+
+<div class="card border shadow-sm mb-3 plugin-card">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-auto d-none d-md-flex">
+                <div class="plugin-icon-wrapper">
+                    <img src="/api/plugins/@Plugin.Type/@Plugin.Version/icon" 
+                         class="plugin-icon rounded-3 shadow-sm" 
+                         alt="@Plugin.Type icon" />
+                </div>
+            </div>
+            <div class="col">
+                <div class="d-flex flex-column h-100">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <h5 class="mb-0">
+                            <a href="/plugins/@Plugin.Type/@Plugin.Version" class="text-decoration-none text-dark fw-bold plugin-title">
+                                @Plugin.Type
+                            </a>
+                            @if (Plugin.IsTrusted)
+                            {
+                                <span class="badge bg-primary-subtle text-primary-emphasis ms-2" title="Trusted Plugin">
+                                    <i class="bi bi-patch-check-fill me-1"></i>Trusted
+                                </span>
+                            }
+                        </h5>
+                    </div>
+
+                    <PluginMetadata Owners="@Plugin.Owners" Category="@Plugin.CategoryTitle" />
+
+                    <p class="plugin-description text-muted flex-grow-1">@Plugin.Description</p>
+
+                    @if (Plugin.Tags.Any())
+                    {
+                        <div class="mb-3 plugin-tags">
+                            @foreach (var tag in Plugin.Tags)
+                            {
+                                <a href="/plugins?q=@WebUtility.UrlEncode($"tag:{tag}")" class="plugin-tag">
+                                    <i class="bi bi-tag-fill"></i>
+                                    @tag
+                                </a>
+                            }
+                        </div>
+                    }
+
+                    <PluginStats TotalDownloads="@Plugin.TotalDownload" 
+                                LastUpdated="@Plugin.LastUpdated" 
+                                Version="@Plugin.Version" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public PluginsListByProfileResponse Plugin { get; set; } = default!;
+}

@@ -1,0 +1,31 @@
+<div class="plugin-meta">
+    @if (Owners.Any())
+    {
+        <div class="meta-item">
+            <i class="bi bi-person-circle"></i>
+            <span>
+                @foreach (var owner in Owners)
+                {
+                    <a href="/profiles/@owner">@owner</a>
+                    @if (owner != Owners.Last())
+                    {
+                        <span>, </span>
+                    }
+                }
+            </span>
+        </div>
+    }
+
+    <div class="meta-item">
+        <i class="bi bi-folder2-open"></i>
+        <span>@Category</span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<string> Owners { get; set; } = Enumerable.Empty<string>();
+
+    [Parameter]
+    public string Category { get; set; } = string.Empty;
+}
