@@ -23,7 +23,7 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
                .HasMaxLength(50)
                .IsRequired();
 
-        builder.Property(v => v.Manifest)
+        builder.Property(v => v.MetadataFile)
                .HasMaxLength(4096);
 
         builder.Property(t => t.PluginLocation)

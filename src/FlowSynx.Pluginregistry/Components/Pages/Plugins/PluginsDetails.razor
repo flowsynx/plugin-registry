@@ -8,6 +8,7 @@
 @using FlowSynx.Pluginregistry.Services
 @using FlowSynx.Pluginregistry.Components.Shared;
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.JSInterop
 
 @inject NavigationManager Navigation
 @inject IStatsApiService Stats
@@ -165,16 +166,48 @@
                     </div>
                 }
 
-                <!-- Installation Code -->
+                <!-- Installation Tabs with Active Tab Copy Button -->
                 <div class="card border shadow-sm mb-4">
                     <div class="card-body p-4">
+                        <!-- Header with inline Copy button -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0 fw-bold">
-                                <i class="bi bi-code-square me-2 text-primary"></i>Installation
+                                <i class="bi bi-code-square me-2 text-primary"></i>
+                                Installation
                             </h5>
-                            <CodeCopy CodeToCopy="@jsonCodeBlock" />
                         </div>
-                        <pre class="plugin-code-block p-3 rounded-3 mb-0"><code class="language-json">@jsonCodeBlock</code></pre>
+
+                        <!-- Tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link @(ActiveTab == "flowsynx-manager" ? "active" : "")"
+                                        @onclick='() => ActiveTab = "flowsynx-manager"'>
+                                    FlowSynx Manager
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link @(ActiveTab == "flowctl-cli" ? "active" : "")"
+                                        @onclick='() => ActiveTab = "flowctl-cli"'>
+                                    FlowCtl CLI
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content p-0 border border-top-0 rounded-bottom">
+                            @if (ActiveTab == "flowsynx-manager")
+                            {
+                                <div class="tab-pane fade show active">
+                                    <CodeBlock Code="@flowSynxCode" />
+                                </div>
+                            }
+                            else if (ActiveTab == "flowctl-cli")
+                            {
+                                <div class="tab-pane fade show active">
+                                    <CodeBlock Code="@flowctlCode" />
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
 
@@ -369,17 +402,16 @@
 </div>
 
 @code {
+    [Inject] private IJSRuntime JS { get; set; }
+
     [Parameter]
     public string Type { get; set; } = "";
 
     [Parameter]
     public string Version { get; set; } = "";
 
-    private string jsonCodeBlock => JsonSerializer.Serialize(new
-    {
-        Type,
-        Version
-    }, new JsonSerializerOptions { WriteIndented = true });
+    private string flowSynxCode => $"{Type}:{Version}";
+    private string flowctlCode => $"flowctl plugins install \"{Type}:{Version}\"";
 
     Result<PluginDetailsResponse>? plugin;
     private bool isOwner = false;
@@ -387,6 +419,8 @@
     private string? statusMessage;
     private bool statusSuccess = false;
     private string? currentUsername;
+
+    private string ActiveTab { get; set; } = "flowsynx-manager";
 
     protected override async Task OnInitializedAsync()
     {
@@ -405,6 +439,18 @@
                     o.Equals(currentUsername, StringComparison.OrdinalIgnoreCase));
             }
         }
+    }
+
+    private async Task CopyActiveTabCode()
+    {
+        string codeToCopy = ActiveTab switch
+        {
+            "flowsynx-manager" => flowSynxCode,
+            "flowctl-cli" => flowctlCode,
+            _ => ""
+        };
+
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", codeToCopy);
     }
 
     private async Task EnableVersion()

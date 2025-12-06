@@ -14,6 +14,8 @@ public class PluginDetailsResponse
     public string? CategoryTitle { get; set; }
     public required string MinimumFlowSynxVersion { get; set; }
     public string? TargetFlowSynxVersion { get; set; }
+    public object? Specifications { get; set; }
+    public object? Operations { get; set; }
     public DateTime LastUpdated { get; set; }
     public int TotalDownload { get; set; } = 0;
     public bool IsTrusted { get; set; } = false;

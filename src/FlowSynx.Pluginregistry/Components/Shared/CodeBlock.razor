@@ -1,0 +1,19 @@
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime JS
+
+<div class="position-relative">
+    <pre class="bg-light p-3 rounded mb-0 fw-bold"><code>@Code</code></pre>
+    <button class="btn btn-sm btn-outline-secondary border border-secondary-subtle position-absolute top-0 end-0 m-2"
+            @onclick="CopyCode">
+        <i class="bi bi-clipboard"></i>
+    </button>
+</div>
+
+@code {
+    [Parameter] public string Code { get; set; } = string.Empty;
+
+    private async Task CopyCode()
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", Code);
+    }
+}

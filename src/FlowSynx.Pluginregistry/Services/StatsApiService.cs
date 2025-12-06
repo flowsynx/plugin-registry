@@ -152,10 +152,10 @@ public class StatsApiService : IStatsApiService
 
             var destinationIconPath = await HandleAssetAsync(metadata.Icon, extractedPluginPath, destPath, false);
             var destinationReadMePath = await HandleAssetAsync(metadata.ReadMe, extractedPluginPath, destPath, false);
-            var destinationManifestPath = await HandleAssetAsync(Path.Combine(tempPath, "manifest.json"), extractedPluginPath, destPath, true);
+            var destinationMetadataPath = await HandleAssetAsync(Path.Combine(tempPath, "metadata.json"), extractedPluginPath, destPath, true);
 
             await SavePluginAsync(metadata, filePath, destPath, destinationIconPath, destinationReadMePath, 
-                                  destinationManifestPath, profileId, checksum, cancellationToken);
+                                  destinationMetadataPath, profileId, checksum, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -197,7 +197,7 @@ public class StatsApiService : IStatsApiService
         string destPath,
         string iconPath,
         string readMePath,
-        string manifestPath,
+        string metadataPath,
         Guid profileId,
         string checksum,
         CancellationToken cancellationToken)
@@ -216,12 +216,12 @@ public class StatsApiService : IStatsApiService
 
         if (isNewPlugin)
         {
-            await AddNewPluginAsync(metadata, iconPath, readMePath, manifestPath, savedPath, 
+            await AddNewPluginAsync(metadata, iconPath, readMePath, metadataPath, savedPath,
                 profileId, pluginCategoryEntity.Id, checksum, cancellationToken);
         }
         else
         {
-            await AddPluginVersionAsync(pluginEntity!, metadata, iconPath, readMePath, manifestPath,
+            await AddPluginVersionAsync(pluginEntity!, metadata, iconPath, readMePath, metadataPath,
                 savedPath, pluginCategoryEntity.Id, checksum, cancellationToken);
         }
     }
@@ -238,7 +238,7 @@ public class StatsApiService : IStatsApiService
         PluginMetadata metadata,
         string destinationIconPath,
         string destinationReadMePath,
-        string destinationManifestPath, 
+        string destinationMetadataPath, 
         string savedPath, 
         Guid profileId, 
         Guid pluginCategoryId, 
@@ -249,7 +249,7 @@ public class StatsApiService : IStatsApiService
         var versionId = Guid.NewGuid();
 
         var version = CreatePluginVersionEntity(versionId, pluginId, metadata, destinationIconPath,
-            destinationReadMePath, destinationManifestPath, savedPath, pluginCategoryId, checksum);
+            destinationReadMePath, destinationMetadataPath, savedPath, pluginCategoryId, checksum);
         var plugin = new PluginEntity
         {
             Id = pluginId,
@@ -278,7 +278,7 @@ public class StatsApiService : IStatsApiService
         PluginMetadata metadata,
         string destinationIconPath,
         string destinationReadMePath,
-        string destinationManifestPath,
+        string destinationMetadataPath,
         string savedPath,
         Guid pluginCategoryId,
         string checksum,
@@ -310,7 +310,7 @@ public class StatsApiService : IStatsApiService
         }
 
         var version = CreatePluginVersionEntity(Guid.NewGuid(), plugin.Id, metadata, destinationIconPath,
-            destinationReadMePath, destinationManifestPath, savedPath, pluginCategoryId, checksum);
+            destinationReadMePath, destinationMetadataPath, savedPath, pluginCategoryId, checksum);
 
         await _pluginVersionService.Add(version, cancellationToken);
 
@@ -321,7 +321,7 @@ public class StatsApiService : IStatsApiService
     }
 
     private PluginVersionEntity CreatePluginVersionEntity(Guid id, Guid pluginId, PluginMetadata metadata,
-        string destinationIconPath, string destinationReadMePath, string destinationManifestPath, 
+        string destinationIconPath, string destinationReadMePath, string destinationMetadataPath,
         string path, Guid pluginCategoryId, string checksum)
     {
         return new PluginVersionEntity
@@ -342,8 +342,10 @@ public class StatsApiService : IStatsApiService
             PluginCategoryId = pluginCategoryId,
             MinimumFlowSynxVersion = metadata.MinimumFlowSynxVersion,
             TargetFlowSynxVersion = metadata.TargetFlowSynxVersion,
+            Specifications = System.Text.Json.JsonSerializer.Serialize(metadata.Specifications),
+            Operations = System.Text.Json.JsonSerializer.Serialize(metadata.Operations),
             IsLatest = true,
-            Manifest = destinationManifestPath,
+            MetadataFile = destinationMetadataPath,
             Checksum = checksum,
             IsDeleted = false
         };

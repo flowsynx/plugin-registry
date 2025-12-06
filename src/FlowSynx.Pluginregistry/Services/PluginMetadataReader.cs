@@ -7,16 +7,16 @@ public class PluginMetadataReader : IPluginMetadataReader
 {
     public async Task<PluginMetadata> ReadAsync(string path)
     {
-        var manifestPath = Path.Combine(path, "manifest.json");
+        var metadataPath = Path.Combine(path, "metadata.json");
 
-        if (!File.Exists(manifestPath))
-            throw new FileNotFoundException("manifest.json not found.");
+        if (!File.Exists(metadataPath))
+            throw new FileNotFoundException("metadata.json not found.");
 
-        var content = await File.ReadAllTextAsync(manifestPath);
+        var content = await File.ReadAllTextAsync(metadataPath);
         var metadata = JsonSerializer.Deserialize<PluginMetadata>(content);
 
         if (metadata == null || string.IsNullOrWhiteSpace(metadata.Type) || string.IsNullOrWhiteSpace(metadata.Version))
-            throw new InvalidDataException("Invalid or incomplete manifest.json.");
+            throw new InvalidDataException("Invalid or incomplete metadata.json.");
 
         return metadata;
     }
