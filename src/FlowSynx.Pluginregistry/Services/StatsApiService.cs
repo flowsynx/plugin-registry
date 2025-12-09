@@ -342,8 +342,27 @@ public class StatsApiService : IStatsApiService
             PluginCategoryId = pluginCategoryId,
             MinimumFlowSynxVersion = metadata.MinimumFlowSynxVersion,
             TargetFlowSynxVersion = metadata.TargetFlowSynxVersion,
-            Specifications = System.Text.Json.JsonSerializer.Serialize(metadata.Specifications),
-            Operations = System.Text.Json.JsonSerializer.Serialize(metadata.Operations),
+            Specifications = metadata.Specifications.Select(x => new PluginSpecification
+            {
+                Name = x.Name,
+                Description = x.Description,
+                Type = x.Type,
+                DefaultValue = x.DefaultValue,
+                IsRequired = x.IsRequired
+            }).ToList(),
+            Operations = metadata.Operations.Select(x => new PluginOperation
+            {
+                Name = x.Name,
+                Description = x.Description,
+                Parameters = x.Parameters.Select(p => new PluginOperationParameter
+                {
+                    Name = p.Name,
+                    Description = p.Description,
+                    Type = p.Type,
+                    DefaultValue = p.DefaultValue,
+                    IsRequired = p.IsRequired
+                }).ToList()
+            }).ToList(),
             IsLatest = true,
             MetadataFile = destinationMetadataPath,
             Checksum = checksum,

@@ -20,8 +20,8 @@ public class PluginVersionEntity : AuditableEntity<Guid>, ISoftDeletable
     public required Guid PluginCategoryId { get; set; }
     public required string MinimumFlowSynxVersion { get; set; }
     public string? TargetFlowSynxVersion { get; set; }
-    public string? Specifications { get; set; }
-    public string? Operations { get; set; }
+    public List<PluginSpecification> Specifications { get; set; } = new List<PluginSpecification>();
+    public List<PluginOperation> Operations { get; set; } = new List<PluginOperation>();
     public bool? IsLatest { get; set; }
     public string? MetadataFile { get; set; }
     public string? Checksum { get; set; }

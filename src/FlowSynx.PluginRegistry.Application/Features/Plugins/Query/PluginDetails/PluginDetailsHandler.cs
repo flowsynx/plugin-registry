@@ -2,7 +2,6 @@
 using FlowSynx.PluginRegistry.Domain.Plugin;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 
@@ -54,8 +53,27 @@ internal class PluginDetailsHandler : IRequestHandler<PluginDetailsRequest, Resu
                                  .OrderByDescending(x=>x.LastModifiedOn)
                                  .ThenByDescending(x=>x.CreatedOn)
                                  .Select(x=>x.Version),
-                Specifications = JsonSerializer.Deserialize<object>(plugin.Specifications ?? ""),
-                Operations = JsonSerializer.Deserialize<object>(plugin.Operations ?? "")
+                Specifications = plugin.Specifications.Select(x => new PluginDetailsOSpecification
+                {
+                    Name = x.Name,
+                    Description = x.Description,
+                    Type = x.Type,
+                    DefaultValue = x.DefaultValue,
+                    IsRequired = x.IsRequired
+                }).ToList(),
+                Operations = plugin.Operations.Select(x => new PluginDetailsOperation
+                {
+                    Name = x.Name,
+                    Description = x.Description,
+                    Parameters = x.Parameters.Select(p => new PluginDetailsOperationParameter
+                    {
+                        Name = p.Name,
+                        Description = p.Description,
+                        Type = p.Type,
+                        DefaultValue = p.DefaultValue,
+                        IsRequired = p.IsRequired
+                    }).ToList()
+                }).ToList()
             };
 
             return await Result<PluginDetailsResponse>.SuccessAsync(response);

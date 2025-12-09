@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using FlowSynx.PluginRegistry.Domain.Plugin;
 using Microsoft.EntityFrameworkCore;
-using FlowSynx.PluginRegistry.Domain.Plugin;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FlowSynx.PluginRegistry.Infrastructure.Configurations;
 
@@ -57,6 +59,40 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
 
         builder.Property(t => t.TargetFlowSynxVersion)
                .HasMaxLength(50);
+
+        // JSON serialization for plugin specifications
+        var pluginSpecificationConverter = new ValueConverter<List<PluginSpecification>?, string>(
+            v => System.Text.Json.JsonSerializer.Serialize(v),
+            v => System.Text.Json.JsonSerializer.Deserialize<List<PluginSpecification>?>(v)
+        );
+
+        var pluginSpecificationComparer = new ValueComparer<List<PluginSpecification>>(
+            (c1, c2) => System.Text.Json.JsonSerializer.Serialize(c1) ==
+                        System.Text.Json.JsonSerializer.Serialize(c2),
+            c => System.Text.Json.JsonSerializer.Serialize(c).GetHashCode(),
+            c => System.Text.Json.JsonSerializer.Deserialize<List<PluginSpecification>>(System.Text.Json.JsonSerializer.Serialize(c))
+        );
+
+        builder.Property(e => e.Specifications)
+               .HasColumnType("jsonb")
+               .HasConversion(pluginSpecificationConverter, pluginSpecificationComparer);
+
+        // JSON serialization for plugin operations
+        var pluginOperationConverter = new ValueConverter<List<PluginOperation>?, string>(
+            v => System.Text.Json.JsonSerializer.Serialize(v),
+            v => System.Text.Json.JsonSerializer.Deserialize<List<PluginOperation>?>(v)
+        );
+
+        var pluginOperationComparer = new ValueComparer<List<PluginOperation>>(
+            (c1, c2) => System.Text.Json.JsonSerializer.Serialize(c1) ==
+                        System.Text.Json.JsonSerializer.Serialize(c2),
+            c => System.Text.Json.JsonSerializer.Serialize(c).GetHashCode(),
+            c => System.Text.Json.JsonSerializer.Deserialize<List<PluginOperation>>(System.Text.Json.JsonSerializer.Serialize(c))
+        );
+
+        builder.Property(e => e.Operations)
+               .HasColumnType("jsonb")
+               .HasConversion(pluginOperationConverter, pluginOperationComparer);
 
         builder.HasIndex(v => new { v.PluginId, v.Version })
                .IsUnique();
