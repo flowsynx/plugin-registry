@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
-using FlowSynx.PluginRegistry.Domain.Audit;
+﻿using FlowSynx.PluginRegistry.Domain.Audit;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Newtonsoft.Json;
 
 namespace FlowSynx.PluginRegistry.Infrastructure.Models.Audit;
 
@@ -30,10 +30,10 @@ public class AuditEntry
             Type = AuditType.ToString(),
             TableName = TableName,
             DateTime = DateTime.UtcNow,
-            PrimaryKey = JsonSerializer.Serialize(KeyValues),
-            OldValues = OldValues.Count == 0 ? null : JsonSerializer.Serialize(OldValues),
-            NewValues = NewValues.Count == 0 ? null : JsonSerializer.Serialize(NewValues),
-            AffectedColumns = ChangedColumns.Count == 0 ? null : JsonSerializer.Serialize(ChangedColumns)
+            PrimaryKey = JsonConvert.SerializeObject(KeyValues),
+            OldValues = OldValues.Count == 0 ? null : JsonConvert.SerializeObject(OldValues),
+            NewValues = NewValues.Count == 0 ? null : JsonConvert.SerializeObject(NewValues),
+            AffectedColumns = ChangedColumns.Count == 0 ? null : JsonConvert.SerializeObject(ChangedColumns)
         };
         return audit;
     }

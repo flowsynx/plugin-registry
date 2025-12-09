@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Newtonsoft.Json;
 
 namespace FlowSynx.PluginRegistry.Infrastructure.Configurations;
 
@@ -62,8 +63,8 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
 
         // JSON serialization for plugin specifications
         var pluginSpecificationConverter = new ValueConverter<List<PluginSpecification>?, string>(
-            v => System.Text.Json.JsonSerializer.Serialize(v),
-            v => System.Text.Json.JsonSerializer.Deserialize<List<PluginSpecification>?>(v)
+            v => JsonConvert.SerializeObject(v),
+            v => JsonConvert.DeserializeObject<List<PluginSpecification>?>(v)
         );
 
         builder.Property(e => e.Specifications)
@@ -72,8 +73,8 @@ public class PluginVersionEntityConfiguration : IEntityTypeConfiguration<PluginV
 
         // JSON serialization for plugin operations
         var pluginOperationConverter = new ValueConverter<List<PluginOperation>?, string>(
-            v => System.Text.Json.JsonSerializer.Serialize(v),
-            v => System.Text.Json.JsonSerializer.Deserialize<List<PluginOperation>?>(v)
+            v => JsonConvert.SerializeObject(v),
+            v => JsonConvert.DeserializeObject<List<PluginOperation>?>(v)
         );
 
         builder.Property(e => e.Operations)

@@ -1,4 +1,5 @@
 ﻿using FlowSynx.Pluginregistry.Models;
+using Newtonsoft.Json;
 using System.Text.Json;
 
 namespace FlowSynx.Pluginregistry.Services;
@@ -13,7 +14,7 @@ public class PluginMetadataReader : IPluginMetadataReader
             throw new FileNotFoundException("metadata.json not found.");
 
         var content = await File.ReadAllTextAsync(metadataPath);
-        var metadata = JsonSerializer.Deserialize<PluginMetadata>(content);
+        var metadata = JsonConvert.DeserializeObject<PluginMetadata>(content);
 
         if (metadata == null || string.IsNullOrWhiteSpace(metadata.Type) || string.IsNullOrWhiteSpace(metadata.Version))
             throw new InvalidDataException("Invalid or incomplete metadata.json.");
