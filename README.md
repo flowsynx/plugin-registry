@@ -27,7 +27,7 @@ Whether you are building custom extensions or integrating third-party solutions,
 ## Getting Started
 
 ### Prerequisites
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Git
 
 ### Installation
