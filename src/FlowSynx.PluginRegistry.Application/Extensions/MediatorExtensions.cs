@@ -4,6 +4,7 @@ using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginDetails;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginIcon;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginLocation;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginReadme;
+using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsFullDetailsList;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsList;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsListByProfile;
 using FlowSynx.PluginRegistry.Application.Features.Plugins.Query.PluginsStatisticsByProfile;
@@ -34,6 +35,16 @@ public static class MediatorExtensions
         }
 
         return mediator.Send(new PluginsListRequest { Query = queryValue, Tag = tagValue, Page = page }, cancellationToken);
+    }
+
+    public static Task<PaginatedResult<PluginsFullDetailsListResponse>> PluginsFullDetailsList(
+        this IMediator mediator, int? page, int? pageSize, CancellationToken cancellationToken)
+    {
+        return mediator.Send(new PluginsFullDetailsListRequest 
+        { 
+            Page = page, 
+            PageSize = pageSize 
+        }, cancellationToken);
     }
 
     public static Task<Result<PluginDetailsResponse>> PluginDetails(

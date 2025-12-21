@@ -19,6 +19,9 @@ public class Plugins : EndpointGroupBase
         group.MapGet("", PluginsListAsync)
             .WithName("PluginsList");
 
+        group.MapGet("/full", PluginsFullDetailsListAsync)
+            .WithName("PluginsFullDetailsList");
+
         group.MapGet("/{type}/{version}", GetPluginWithTypeAsync)
             .WithName("GetPluginWithType");
 
@@ -50,6 +53,16 @@ public class Plugins : EndpointGroupBase
         CancellationToken cancellationToken)
     {
         var result = await mediator.PluginsList(q, page, cancellationToken);
+        return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
+    }
+
+    public async Task<IResult> PluginsFullDetailsListAsync(
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromServices] IMediator mediator, 
+        CancellationToken cancellationToken)
+    {
+        var result = await mediator.PluginsFullDetailsList(page, pageSize, cancellationToken);
         return result.Succeeded ? Results.Ok(result) : Results.NotFound(result);
     }
 

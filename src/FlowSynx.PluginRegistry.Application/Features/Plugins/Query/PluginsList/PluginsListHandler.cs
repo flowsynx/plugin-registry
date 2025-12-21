@@ -42,27 +42,6 @@ internal class PluginsListHandler : IRequestHandler<PluginsListRequest, Paginate
                 CategoryTitle = p.LatestVersion.PluginCategory.Title,
                 LastUpdated = p.LastModifiedOn ?? p.CreatedOn,
                 Tags = p.LatestVersion!.PluginVersionTags.Select(x => x.Tag!.Name),
-                Specifications = p.LatestVersion!.Specifications.Select(x => new PluginsListSpecification
-                {
-                    Name = x.Name,
-                    Description = x.Description,
-                    Type = x.Type,
-                    DefaultValue = x.DefaultValue,
-                    IsRequired = x.IsRequired
-                }).ToList(),
-                Operations = p.LatestVersion!.Operations.Select(x => new PluginsListOperation
-                {
-                    Name = x.Name,
-                    Description = x.Description,
-                    Parameters = x.Parameters.Select(p => new PluginsListOperationParameter
-                    {
-                        Name = p.Name,
-                        Description = p.Description,
-                        Type = p.Type,
-                        DefaultValue = p.DefaultValue,
-                        IsRequired = p.IsRequired
-                    }).ToList()
-                }).ToList(),
                 TotalDownload = p.Versions.Sum(x=>x.Statistics.Count),
                 IsTrusted = p.IsTrusted
             }).ToList();
