@@ -1,5 +1,5 @@
 # Base image for runtime
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 
 # UID/GID passed during build (can also default to 1001)
 ARG APP_UID=1001
